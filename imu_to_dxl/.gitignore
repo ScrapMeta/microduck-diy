@@ -1,0 +1,7 @@
+firmware/build/
+*.o
+*.elf
+*.bin
+*.map
+*.exe
+.DS_Store

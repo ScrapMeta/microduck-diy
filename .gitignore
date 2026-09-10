@@ -3,3 +3,25 @@ Thumbs.db
 *.zip
 __pycache__/
 .venv/
+
+# Wiki large binaries (keep markdown; download zips locally as needed)
+wiki/raw/assets/microduck-releases/*.zip
+wiki/raw/assets/press-kit/
+
+# Firmware build
+imu_to_dxl/firmware/build/
+
+# EDA local backups / exports
+imu_to_dxl/hardware/*_backup/
+imu_to_dxl/hardware/*.epro2
+
+# Large local print profile (keep other cad/*.3mf)
+cad/microduck_rl_assembly_a2l.3mf
+
+# Image build artifacts (legacy path + temp archive)
+image/**/output/
+image/**/*.img
+image/**/*.img.xz
+../temp/diy-image-seed/**/output/
+../temp/diy-image-seed/**/*.img
+../temp/diy-image-seed/**/*.img.xz

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360" width="520" height="360" role="img" aria-label="imu_to_dxl PCB placement reference">
+  <defs>
+    <style>
+      .title { font: 700 14px 'Segoe UI', sans-serif; fill: #1a2332; }
+      .sub { font: 11px 'Segoe UI', sans-serif; fill: #5a6578; }
+      .lbl { font: 600 10px 'Segoe UI', sans-serif; fill: #1a2332; }
+      .tiny { font: 9px 'Segoe UI', sans-serif; fill: #5a6578; }
+      .note { font: 10px 'Segoe UI', sans-serif; fill: #3d4a5c; }
+      .board { fill: #e8f0e4; stroke: #2f5d3a; stroke-width: 2; }
+      .conn { fill: #d4e4f7; stroke: #2a5a8a; stroke-width: 1.5; }
+      .imu { fill: #e8f4ff; stroke: #1e5a8a; stroke-width: 1.5; }
+      .mcu { fill: #fff6e0; stroke: #8a5a10; stroke-width: 1.5; }
+      .ldo { fill: #f0e8ff; stroke: #5a3a8a; stroke-width: 1.2; }
+      .buf { fill: #ffe8e8; stroke: #8a3030; stroke-width: 1.2; }
+      .pass { fill: #f0f0f0; stroke: #666; stroke-width: 1; }
+      .dnp { fill: #fafafa; stroke: #999; stroke-width: 1; stroke-dasharray: 3 2; }
+      .zone { fill: none; stroke: #94a3b8; stroke-width: 1; stroke-dasharray: 5 4; }
+      .arrow { fill: none; stroke: #64748b; stroke-width: 1.2; marker-end: url(#ah); }
+    </style>
+    <marker id="ah" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="520" height="360" fill="#f7f8fa"/>
+  <text class="title" x="16" y="24">imu_to_dxl PCB placement (top view, REFERENCE)</text>
+  <text class="sub" x="16" y="42">Board outline ~22 x 16 mm (placeholder) · SPI shortest · DXL entry on left</text>
+  <rect class="board" x="40" y="60" width="400" height="250" rx="4"/>
+  <text class="tiny" x="48" y="76">TOP · component side</text>
+  <text class="tiny" x="320" y="76">~22 mm</text>
+  <text class="tiny" x="48" y="300" transform="rotate(-90 48 300)">~16 mm</text>
+  <rect class="zone" x="52" y="88" width="100" height="200" rx="2"/>
+  <text class="tiny" x="58" y="102">Power / Bus</text>
+  <rect class="zone" x="168" y="88" width="175" height="200" rx="2"/>
+  <text class="tiny" x="174" y="102">MCU + IMU</text>
+  <rect class="zone" x="358" y="88" width="70" height="200" rx="2"/>
+  <text class="tiny" x="364" y="102">Debug</text>
+  <rect class="conn" x="28" y="150" width="36" height="70" rx="2"/>
+  <text class="lbl" x="33" y="175">J1</text>
+  <text class="tiny" x="31" y="188">PH-3</text>
+  <text class="tiny" x="31" y="200">GND</text>
+  <text class="tiny" x="31" y="210">VBATT</text>
+  <text class="tiny" x="31" y="220">DATA</text>
+  <rect class="pass" x="72" y="168" width="28" height="16" rx="2"/>
+  <text class="lbl" x="76" y="180">D1</text>
+  <text class="tiny" x="74" y="192">TVS</text>
+  <rect class="ldo" x="72" y="210" width="44" height="28" rx="2"/>
+  <text class="lbl" x="78" y="227">U3</text>
+  <text class="tiny" x="74" y="248">LDO 3V3</text>
+  <rect class="pass" x="120" y="208" width="18" height="12" rx="1"/>
+  <text class="tiny" x="121" y="217">C4</text>
+  <rect class="pass" x="120" y="226" width="22" height="14" rx="1"/>
+  <text class="tiny" x="121" y="236">C5</text>
+  <text class="tiny" x="118" y="252">VBATT</text>
+  <rect class="pass" x="120" y="188" width="18" height="12" rx="1"/>
+  <text class="tiny" x="121" y="197">C2</text>
+  <rect class="buf" x="110" y="118" width="40" height="32" rx="2"/>
+  <text class="lbl" x="118" y="136">U6</text>
+  <text class="tiny" x="114" y="158">1G125</text>
+  <rect class="mcu" x="180" y="150" width="72" height="90" rx="3"/>
+  <text class="lbl" x="192" y="190">U2</text>
+  <text class="tiny" x="188" y="204">STM32G031</text>
+  <text class="tiny" x="188" y="216">TSSOP-20</text>
+  <rect class="pass" x="180" y="128" width="18" height="12" rx="1"/>
+  <text class="tiny" x="181" y="137">C3</text>
+  <rect class="pass" x="204" y="128" width="18" height="12" rx="1"/>
+  <text class="tiny" x="205" y="137">R1</text>
+  <text class="tiny" x="200" y="120">NRST</text>
+  <rect class="dnp" x="180" y="250" width="48" height="24" rx="2"/>
+  <text class="lbl" x="188" y="265">Y1</text>
+  <text class="tiny" x="186" y="276">DNP 32k</text>
+  <rect class="dnp" x="232" y="250" width="14" height="10" rx="1"/>
+  <text class="tiny" x="233" y="258">C7</text>
+  <rect class="dnp" x="232" y="264" width="14" height="10" rx="1"/>
+  <text class="tiny" x="233" y="272">C8</text>
+  <rect class="imu" x="270" y="165" width="55" height="55" rx="3"/>
+  <text class="lbl" x="280" y="190">U1</text>
+  <text class="tiny" x="276" y="204">LSM6DSV</text>
+  <text class="tiny" x="278" y="216">SPI short</text>
+  <rect class="pass" x="290" y="148" width="18" height="12" rx="1"/>
+  <text class="tiny" x="291" y="157">C1</text>
+  <path class="arrow" d="M252 195 L268 195"/>
+  <text class="tiny" x="248" y="188">SPI</text>
+  <path class="arrow" d="M64 185 L108 140"/>
+  <text class="tiny" x="70" y="140">DATA</text>
+  <rect class="conn" x="372" y="150" width="44" height="70" rx="2"/>
+  <text class="lbl" x="382" y="175">J2</text>
+  <text class="tiny" x="376" y="188">SWD</text>
+  <text class="tiny" x="376" y="200">3V3</text>
+  <text class="tiny" x="376" y="210">DIO</text>
+  <text class="tiny" x="376" y="220">CLK</text>
+  <text class="tiny" x="376" y="230">GND</text>
+  <text class="note" x="40" y="330">J1 cable out · U1 next to U2 (SPI short) · D1/U6 by DATA · Y1/C7/C8 DNP · solid GND plane</text>
+  <text class="sub" x="40" y="348">NOT OFFICIAL · wiki: imu-to-dxl-ref-pcb-layout</text>
+</svg>
