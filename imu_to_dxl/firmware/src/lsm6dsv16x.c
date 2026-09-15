@@ -36,14 +36,21 @@ static int32_t rd(md_lsm6_t *d, uint8_t reg, uint8_t *v, uint16_t n)
     return d->read(d->user, reg, v, n);
 }
 
-static void emb_enter(md_lsm6_t *d)
+static int32_t emb_enter(md_lsm6_t *d)
 {
-    wr(d, REG_FUNC_CFG_ACCESS, FUNC_CFG_ACCESS_EN);
+    return wr(d, REG_FUNC_CFG_ACCESS, FUNC_CFG_ACCESS_EN);
 }
 
-static void emb_exit(md_lsm6_t *d)
+static int32_t emb_exit(md_lsm6_t *d)
 {
-    wr(d, REG_FUNC_CFG_ACCESS, 0x00u);
+    return wr(d, REG_FUNC_CFG_ACCESS, 0x00u);
+}
+
+static bool wr_verify(md_lsm6_t *d, uint8_t reg, uint8_t value, uint8_t mask)
+{
+    uint8_t actual = 0;
+    return wr(d, reg, value) == 0 && rd(d, reg, &actual, 1) == 0 &&
+           (actual & mask) == (value & mask);
 }
 
 bool md_lsm6_init(md_lsm6_t *dev)
@@ -78,12 +85,16 @@ bool md_lsm6_init(md_lsm6_t *dev)
     wr(dev, REG_FIFO_CTRL3, 0x00u);
     wr(dev, REG_FIFO_CTRL4, 0x06u); /* continuous */
 
-    emb_enter(dev);
-    wr(dev, EMB_FUNC_EN_A, 0x02u);      /* SFLP_GAME_EN */
-    wr(dev, EMB_FUNC_FIFO_EN_A, 0x01u); /* game rotation → FIFO */
-    wr(dev, SFLP_ODR, 0x03u);           /* ~60 Hz class */
-    wr(dev, EMB_FUNC_INIT_A, 0x08u);    /* SFLP_GAME_INIT */
-    emb_exit(dev);
+    if (emb_enter(dev) != 0 ||
+        !wr_verify(dev, EMB_FUNC_EN_A, 0x02u, 0x02u) ||
+        !wr_verify(dev, EMB_FUNC_FIFO_EN_A, 0x02u, 0x02u) ||
+        !wr_verify(dev, SFLP_ODR, (uint8_t)(0x02u << 3), 0x38u) ||
+        !wr_verify(dev, EMB_FUNC_INIT_A, 0x02u, 0x02u) ||
+        emb_exit(dev) != 0) {
+        (void)emb_exit(dev);
+        dev->last.status = 0x05u; /* present, SFLP configuration failed */
+        return false;
+    }
 
     return true;
 }
@@ -129,7 +140,7 @@ bool md_lsm6_poll(md_lsm6_t *dev)
         if (rd(dev, REG_FIFO_DATA_OUT_TAG, slot, 7) != 0) {
             break;
         }
-        tag_lo = (uint8_t)(slot[0] & 0x1Fu);
+        tag_lo = (uint8_t)((slot[0] >> 3) & 0x1Fu);
         if (tag_lo == TAG_SFLP_GAME) {
             dev->last.quat_half[0] = (uint16_t)(slot[1] | ((uint16_t)slot[2] << 8));
             dev->last.quat_half[1] = (uint16_t)(slot[3] | ((uint16_t)slot[4] << 8));

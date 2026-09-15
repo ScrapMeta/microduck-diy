@@ -18,7 +18,7 @@ typedef struct {
     md_dxl_set_tx_fn set_tx;
     md_dxl_write_bytes_fn write_bytes;
     /* RX parser */
-    uint8_t rx[64];
+    uint8_t rx[128];
     uint16_t rx_len;
     uint8_t state;
     uint16_t expect_len;

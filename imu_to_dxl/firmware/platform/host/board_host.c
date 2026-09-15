@@ -8,12 +8,16 @@ static unsigned g_rx_r, g_rx_w;
 static uint8_t g_last_tx[128];
 static size_t g_last_tx_len;
 static uint32_t g_ms;
+static bool g_drive_bus;
+static unsigned g_tx_transitions;
 
 void board_init(void)
 {
     g_rx_r = g_rx_w = 0;
     g_last_tx_len = 0;
     g_ms = 0;
+    g_drive_bus = false;
+    g_tx_transitions = 0;
 }
 
 void board_delay_ms(uint32_t ms)
@@ -28,7 +32,8 @@ uint32_t board_millis(void)
 
 void board_dxl_set_tx(bool drive_bus)
 {
-    (void)drive_bus;
+    g_drive_bus = drive_bus;
+    g_tx_transitions++;
 }
 
 void board_dxl_write(const uint8_t *data, size_t len)
@@ -67,6 +72,17 @@ size_t host_dxl_last_tx(uint8_t *out, size_t max)
 void host_dxl_clear_tx(void)
 {
     g_last_tx_len = 0;
+    g_tx_transitions = 0;
+}
+
+bool host_dxl_is_driving(void)
+{
+    return g_drive_bus;
+}
+
+unsigned host_dxl_tx_transitions(void)
+{
+    return g_tx_transitions;
 }
 
 /* Fake IMU SPI: WHO_AM_I + zeros */

@@ -54,6 +54,8 @@ Default_Handler:
 
   .weak SysTick_Handler
   .thumb_set SysTick_Handler, Default_Handler
+  .weak USART2_IRQHandler
+  .thumb_set USART2_IRQHandler, Default_Handler
 
   .section .isr_vector,"a",%progbits
   .type g_pfnVectors, %object
@@ -74,5 +76,9 @@ g_pfnVectors:
   .word 0
   .word Default_Handler /* PendSV */
   .word SysTick_Handler
-  /* IRQs truncated — enough for bring-up without peripheral IRQs */
+  /* External IRQ0..27, then USART2/LPUART2 at IRQ28 (RM0444). */
+  .rept 28
+  .word Default_Handler
+  .endr
+  .word USART2_IRQHandler
   .size g_pfnVectors, .-g_pfnVectors

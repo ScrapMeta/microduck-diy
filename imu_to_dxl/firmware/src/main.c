@@ -24,7 +24,10 @@ int main(void)
     g_imu.write = board_imu_spi_write;
     g_imu.read = board_imu_spi_read;
     g_imu.delay_ms = board_delay_ms;
-    (void)md_lsm6_init(&g_imu);
+    if (!md_lsm6_init(&g_imu)) {
+        /* Keep DXL alive and expose probe/config failure at diagnostics @136. */
+        md_control_table_update_imu(&g_table, &g_imu.last);
+    }
 
     uint32_t last_sample = 0;
     for (;;) {

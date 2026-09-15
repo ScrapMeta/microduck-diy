@@ -14,6 +14,7 @@ HOST_SRCS = \
 	src/imu_pack.c \
 	src/control_table.c \
 	src/dxl_slave.c \
+	src/lsm6dsv16x.c \
 	platform/host/board_host.c \
 	tests/test_host.c
 
