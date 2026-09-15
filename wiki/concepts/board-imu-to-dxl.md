@@ -1,7 +1,7 @@
 ---
 title: 机身 IMU 测试板（1 号大板 · 2 号小板）
 created: 2026-09-05
-updated: 2026-09-09
+updated: 2026-09-15
 type: concept
 tags: [board, imu, diy]
 sources:
@@ -16,6 +16,7 @@ related:
   - imu-to-dxl-ref-pcb-layout
   - imu-to-dxl-ref-schematic
   - imu-to-dxl-ref-bom
+  - imu-to-dxl-firmware-build
   - imu-to-dxl-lcsc-order-2026-09-09
   - imu-to-dxl-lcsc-order-2026-09-05
   - board-hat
@@ -27,7 +28,9 @@ related:
 
 > **REFERENCE — NOT OFFICIAL。** DIY 两块测试版；**当前优先 1 号大板 · 原理图/PCB `imu-to-dxl v0.3`**（小板暂缓）。  
 > 总线契约：DXL ID **200** · addr **124** · PHY **1G125**（仓：`imu_to_dxl/`）。  
-> **BOM：** [[imu-to-dxl-ref-bom]]。接线：[[board-interconnect]]。
+> **BOM：** [[imu-to-dxl-ref-bom]]。接线：[[board-interconnect]]。  
+> **固件编译（给 agent）：** [[imu-to-dxl-firmware-build]]。  
+> **固件状态（2026-09-15）：** commit `a49a628` · Issue [#10](https://github.com/ScrapMeta/microduck-diy/issues/10) · U2D2 COM7 单挂 ID200：Ping/Read 1000 + SyncRead 10 min 通过 · `ready-for-pm`。
 
 ## 0. 两板对照（定稿）
 

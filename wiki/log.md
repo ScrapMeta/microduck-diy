@@ -3,6 +3,90 @@
 > Chronological record of all wiki actions. Append-only.  
 > Format: `## [YYYY-MM-DD] action | subject`
 
+## [2026-09-15] bench | #10 imu-to-dxl 固件 U2D2 验收
+- Commit `a49a628` · Issue [#10](https://github.com/ScrapMeta/microduck-diy/issues/10) · label `ready-for-pm`（待 pm 关单）
+- U2D2 COM7：Ping/Read(124,12) 各 1000 · GroupSyncRead ~50 Hz × 10 min（30000 ok · 0 timeout/ShortRead）· @136=`0x03`
+- Wiki：[[imu-to-dxl-firmware-build]] §7 · [[board-imu-to-dxl]] · [[diy-milestones]] · [[index]]
+- #7 零回包由 #10 覆盖；#8 replica 对照仍 open
+
+## [2026-09-15] issue | #9 机身供电经 DXL 回灌 HAT 评估
+- [#9](https://github.com/ScrapMeta/microduck-diy/issues/9) **open**：机身取电→约 6 V（是否稳压）→ DXL 3P 给 HAT；对照现行「电池先进 HAT」
+- assignee：hardware 主评 · pm 收口；不阻塞 #4/#7/#8 通信排障
+
+## [2026-09-15] issue | #8 replica0908 焊接 + U2D2 对照
+- [#8](https://github.com/ScrapMeta/microduck-diy/issues/8) **open**：焊 replica0908，同 U2D2 看是否与 #7 同为零回包
+- 装机仍不采用 45×22；PHY 2G241 ≠ v0.3 1G125
+- Open 现行：#4 · #7 · #8
+
+## [2026-09-15] issue | #6 部分关 · #7 零回包排查
+- [#6](https://github.com/ScrapMeta/microduck-diy/issues/6) **closed**：GPIOA IOPORT 已修并烧录；U2D2 仍不通不计入本单
+- [#7](https://github.com/ScrapMeta/microduck-diy/issues/7) **open**：imu-to-dxl v0.3 U2D2 zero-reply · Milestone v0.1 · sw/hw/bench
+- Open 现行：#4 HAT TTL · #7 IMU U2D2
+
+## [2026-09-14] create | imu_to_dxl 固件编译手册
+- Concept: [[imu-to-dxl-firmware-build]] — WSL 工具链 · `make host-test` / `make g031` · 产物路径 · 可选 OpenOCD
+- Updated: [[board-imu-to-dxl]] · [[firmware-flash-matrix]] · [[index]]
+
+## [2026-09-14] close | Issue #3 HAT 配料焊接
+- GitHub: https://github.com/ScrapMeta/microduck-diy/issues/3 · **closed**（completed）
+- 用户确认：焊接/基本上电冒烟通过；TTL 舵机不通改由 #4
+- Wiki：[[hat-solder-kit]] · [[diy-milestones]]
+
+## [2026-09-14] note | 亚博 IMX219 加测通过
+- 同 P1 通路：Model `0x0219` · Lot `0x522070` · Chip `0x02b7` · 样张 `tmp/cam-yahboom.jpg`
+- Wiki：[[zero3w-bench-plan]] · [[imx219-camera]]；#5 已 closed，不另开单
+
+## [2026-09-14] close | Issue #5 Zero 3W P1 相机台架
+- GitHub: https://github.com/ScrapMeta/microduck-diy/issues/5 · **closed**（completed）
+- 证据：I2C `0x10` · Model ID `0x0219` · NV12→本机 JPEG（`tmp/cam-remote2.jpg`）；AE/AWB 留给软件
+- Wiki：[[zero3w-bench-plan]] P1 勾选
+
+## [2026-09-14] create | Issue #5 Zero 3W P1 相机台架
+- GitHub: https://github.com/ScrapMeta/microduck-diy/issues/5 · Milestone `v0.1` · IMX219 CSI 抓帧
+- Wiki：[[zero3w-bench-plan]] 状态指向 #5
+
+## [2026-09-14] close | Issue #2 Zero 3W P0 系统台架
+- GitHub: https://github.com/ScrapMeta/microduck-diy/issues/2 · **closed**（completed）
+- 镜像：`microduck-zero3-20260829-seed.img.xz` · Armbian Imager；SSH/`free`/重启已验收
+- Wiki：[[zero3w-bench-plan]] P0 勾选
+
+## [2026-09-15] observe | XL330 母线电压：7.2 V 持续闪灯 / 6.5 V 正常
+- 写入 [[body-imu-hat-dxl-power-eval]] · [[dynamixel-xl330]]：DIY 建议 **6.0–6.5 V** 粗线进 HAT；NP-F 直供需机身 buck
+
+## [2026-09-15] decide | #9 机身 DXL 回灌 HAT 不采用
+- Concept: [[body-imu-hat-dxl-power-eval]] — 可行但载流/穿堂风险高；**装机不采用**；6 V 台架可用粗线进 `+BATT`
+- [[board-interconnect]] / [[index]] 指针；Issue [#9](https://github.com/ScrapMeta/microduck-diy/issues/9)
+
+## [2026-09-14] create | Issue #4 HAT TTL 舵机 bring-up
+- GitHub: https://github.com/ScrapMeta/microduck-diy/issues/4 · Milestone `v0.1` · blocked 至设备到位
+- Wiki：[[hat-dxl-bus-debug]] · [[diy-milestones]]
+
+## [2026-09-14] create | HAT TTL 舵机测不通排查
+- Concept: [[hat-dxl-bus-debug]] — U2D2 对照 · 7.4 V/1 A · getty/console · 双通道 DATA+DIR
+- Linked: [[hat-solder-kit]] §4.8 · [[index]]
+
+## [2026-09-14] update | HAT 不用 485 的焊接清单
+- [[hat-solder-kit]] §6.4：可省 U8 / J3 / J11 / R40；**R29、C15 必留**（RO 上拉 + 3V3 去耦）
+- [[board-hat]] §5 指向该节
+
+## [2026-09-13] update | HAT 正面贴完分步测试
+- [[hat-solder-kit]] §4：目视 → 短路 → 只 HAT 5V → 叠 Zero → i2c 0x18 → 喇叭/麦 → DXL 单舵机
+
+## [2026-09-12] update | HAT 双面焊：二次受热与风枪温度
+- [[hat-solder-kit]] §3.3：底面可能脱落；正面用低温锡；风枪 SnBi 约 260–300 °C
+
+## [2026-09-12] update | HAT 底面改加热焊台一次回流
+- [[hat-solder-kit]] §3.2：bottom 锡膏 + 加热焊台整面回流；J4 仍后焊；top 夹具风枪
+
+## [2026-09-12] update | HAT 焊接工艺（底烙铁 / 顶风枪）
+- [[hat-solder-kit]] §3：按 POS 标注 top/bottom；**J4 在 bottom**；难 IC 多在底面
+- 工艺：底面阻容烙铁 + IC 风枪 → **暂缓 J4** → 夹具风枪顶面 → 最后 J4
+
+## [2026-09-12] create | HAT 焊接配料
+- Concept: [[hat-solder-kit]] — 开焊闸门 · DNP · 四波次配料 · 上电前检查
+- Updated: [[index]] · [[diy-milestones]] · [[diy-bom]] · [[elec-hat-lcsc-order-2026-09-05]]
+- Note: wiki 仍无 HAT 空板打板订单记录；开焊前先确认 PCB01186-C1 在手
+
 ## [2026-08-30] create | Wiki initialized
 - Domain: Microduck 产品 / 硬件 / 舵机 / BAM / 本地工作区
 - Structure: SCHEMA.md, index.md, log.md, raw/, entities/, concepts/, comparisons/, queries/, _meta/
@@ -409,4 +493,59 @@
 - Rewrote [[microduck-diy]] · [[diy-milestones]] · [[local-workspace-layout]]
 - Trimmed archive/replica/day* noise from index, SCHEMA, diy-bom, board-imu-to-dxl, imu-to-dxl-v2, print-bom-rl
 - Social: 精钢葫芦娃 / 人工具身智能
+
+
+## [2026-09-10] ingest | XL330-CN 国产启动套件台架
+- Raw: `xl330-cn-starter-kit-notes-2026-09-10.md`
+- Concept: [[xl330-cn-bench-kit]] — U2D2+PHB+电源 + XL330-M288-T-CN；网盘驱动/SDK；B站教程
+- Next: user follows tutorials, fills bench checklist
+- Updated: [[dynamixel-xl330]] · [[diy-milestones]] · [[index]]
+
+
+## [2026-09-10] update | XL330-CN 台架通过
+- [[xl330-cn-bench-kit]]: **pass**; details TBD (user will supplement)
+- Updated: [[diy-milestones]] · [[dynamixel-xl330]] · [[index]]
+
+
+## [2026-09-10] plan | Zero 3W 主控台架（2G+SD）
+- Concept: [[zero3w-bench-plan]] — P0 系统 → P1 IMX219 → P2 接口；HAT/robotd 后置
+- Handset: 2G RAM + microSD (vs Press Kit 1G/eMMC)
+- Updated: [[diy-milestones]] · [[radxa-zero-3w]] · [[index]]
+
+
+## [2026-09-10] clarify | P0 镜像重打 vs Etcher
+- [[system-flash-armbian]]: microduck 更新 → provision, not reflash Armbian; prefer Armbian Imager; Etcher discouraged
+- [[zero3w-bench-plan]] P0 linked
+
+
+## [2026-09-10] move | seed image → microduck-diy/image
+- From `temp/diy-image-seed/` → `microduck-diy/image/`
+- Existing: `out/microduck-zero3-20260829-seed.img.xz` (~411 MB); gitignored
+- Updated: diy README, [[system-flash-armbian]], [[radxa-zero-3w]], [[zero3w-bench-plan]]
+
+## [2026-09-11] ingest | 飞书 BAM 辨识（祖传 id）
+- Raw: `raw/articles/feishu-bam-identification-zuchuanid-2026-09-08.md`
+- Concept: [[bam-identification-bench]] — 台架 BOM/注意；XL330 默认可跳过自辨识
+- Updated: [[better-actuator-models-bam]] · [[index]] · [[_meta/raw-inventory]]
+- Gap: Feishu §5.2 empty; §2–4 image formulas; PDFs not downloaded
+
+## [2026-09-11] governance | v0.6 Issue 主过程面
+- Doc: `docs/agent-governance.md` — 废止 handoff 主工单；Issue=`task`/`chore`；handoff=跨域附件
+- Updated: handoffs/_TEMPLATE · pm/hw/sw/train/structure rules · SCHEMA · [[local-workspace-layout]] · [[index]]
+
+## [2026-09-11] issue | 台架任务入库 Milestone v0.1
+- [#1](https://github.com/ScrapMeta/microduck-diy/issues/1) XL330-CN bench — **closed** (passed)
+- [#2](https://github.com/ScrapMeta/microduck-diy/issues/2) Zero 3W P0 system — **open**
+- Labels: task/chore/hw/sw/pm/bench/ready-for-pm/wiki
+- Updated: [[diy-milestones]] · [[xl330-cn-bench-kit]] · [[zero3w-bench-plan]]
+
+## [2026-09-11] note | 轴承盘切片 XY Hole Compensation
+- [[print-bom-rl]] / [[seeed-bearings]]：轴承盘打印 **XY Hole Compensation = 0.05 mm**，保证轴承可套入舵盘
+
+## [2026-09-11] ingest | NP-F550 电池+双充淘宝单
+- Source: `Downloads/订单数据 (2).xlsx` → `assets/procurement/taobao-np-f550-order-2026-09-11.xlsx`
+- Raw: `raw/articles/taobao-np-f550-order-2026-09-11.md`
+- 订单 `3316416782030002460` · 沣标 F550 2200mAh×2 + 标准双充 · ¥90 · 已付款
+- 组装计划：拆一充电器充电头 → 装到 `power_support` 作取电触点
+- Updated: [[np-f550-battery]] · [[taobao-diy-procurement-2026-09]] · [[diy-bom]]
 
