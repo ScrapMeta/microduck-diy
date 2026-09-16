@@ -1,7 +1,7 @@
 ---
 title: imu_to_dxl 参考原理图
 created: 2026-09-01
-updated: 2026-09-09
+updated: 2026-09-16
 type: concept
 tags: [imu, board, jlceda]
 confidence: high
@@ -19,6 +19,13 @@ related:
 > **REFERENCE — NOT OFFICIAL**  
 > **现行：`imu-to-dxl v0.3`（2026-09-09）。** ID **200** · addr **124** · LSM6 + SFLP · PHY **1G125**。  
 > **硬件文档真源（仓内）：** `imu_to_dxl/docs/hardware.md` · 工程 `imu_to_dxl/hardware/imu_to_dxl_ref_2026-08-30_18-59-47.eprj2`  
+
+> **注意：`.eprj2` 会被 EDA 工具自动改写。**
+> 该文件是 EasyEDA Pro 的 SQLite 工程库；**每次打开/保存都会自增 `project_structures.ticket`**
+> （实例：`28120 → 28166`，234 行全部 +46），而 `structure`（设计正文）、
+> `project_uuid`、`branch_uuid` **逐字节不变**。
+> 因此 git 显示「已修改」**通常不是设计改动**——不要据此提交 4 MB 的二进制。
+> 判别方法：`ticket` 变了但 `structure` 一致 → 撤销（`git checkout --`）；设计确有改动再提交。
 
 ## v0.3 审图结论
 

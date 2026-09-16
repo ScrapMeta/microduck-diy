@@ -594,6 +594,13 @@
 - 残留未提交：`cad/microduck_rl_assembly_a1mini.3mf` · `imu_to_dxl_ref_*.eprj2`（非 wiki 范围）
 - 教训：职能 agent 回写 wiki 后须**当轮 push**，否则「真源」只在本机生效
 
+## [2026-09-16] triage | 两处挂起二进制改动定案
+- `imu_to_dxl_ref_*.eprj2`：**撤销**——SQLite 工程库，仅 `project_structures.ticket` 自增（28120→28166，234 行全 +46），`structure` 设计正文与 `project_uuid`/`branch_uuid` **逐字节一致**；纯 EDA 改写噪声，非设计改动
+- 判别方法记入 [[imu-to-dxl-ref-schematic]]（避免下次再查一遍）
+- `cad/microduck_rl_assembly_a1mini.3mf`：**真实改动**并提交——对象 138→153（+15）、零件 490→505、新增 `DC15_A01_IDLE_CAP_DUMMY` 等、plate 仍 11；`Metadata/` 新增 plate_2/4 配置
+- 工具：`sqlite3` 逐表哈希 + zip 条目对比（本轮把 4 MB 二进制差异定位到单表单列）
+
+
 ## [2026-09-16] governance | v0.9 去冗余 · 去歧义 · 清理考古
 - Doc: `docs/agent-governance.md` **261→~180 行** · 入口 `AGENTS.md` **43→32 行** · 通用模板 G2→**G3（快照制）**
 - **减法**：删 §4.5 合并裁决 / §10 废止迁移 / §11 修订（考古当规范）· 「不用 handoff」25 处 → 1 处 · 布局树 4 副本 → 1（归本 wiki）· 各 rule 只留本职能特有条款（218→**179 行**）
