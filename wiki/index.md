@@ -33,8 +33,9 @@
 - [[microduck-diy]] · [[diy-milestones]] · [[diy-bom]]
 - [[zero3w-bench-plan]] — **现行：主控台架规划（2G · SD）**
 - [[xl330-cn-bench-kit]] — 舵机台架（✅ 通过；资料后补）
-- [[local-workspace-layout]]
-- [Agent 治理 v0.8](../../docs/agent-governance.md)（基础工程 + llm-wiki · 只常驻 pm · 无 handoff）· 入口 [`AGENTS.md`](../../AGENTS.md)
+- [[local-workspace-layout]] — **布局真源**
+- [[ros2-migration-plan]] — ROS2 并行移植规格（software 范畴）
+- [Agent 治理 v0.9](../../docs/agent-governance.md)（基础工程 + llm-wiki · 只常驻 pm · 无 handoff）· 入口 [`AGENTS.md`](../../AGENTS.md)
 
 ### 主线执行器 / 采购
 

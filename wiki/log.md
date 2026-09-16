@@ -594,3 +594,12 @@
 - 残留未提交：`cad/microduck_rl_assembly_a1mini.3mf` · `imu_to_dxl_ref_*.eprj2`（非 wiki 范围）
 - 教训：职能 agent 回写 wiki 后须**当轮 push**，否则「真源」只在本机生效
 
+## [2026-09-16] governance | v0.9 去冗余 · 去歧义 · 清理考古
+- Doc: `docs/agent-governance.md` **261→~180 行** · 入口 `AGENTS.md` **43→32 行** · 通用模板 G2→**G3（快照制）**
+- **减法**：删 §4.5 合并裁决 / §10 废止迁移 / §11 修订（考古当规范）· 「不用 handoff」25 处 → 1 处 · 布局树 4 副本 → 1（归本 wiki）· 各 rule 只留本职能特有条款（218→**179 行**）
+- **补闭环**：wiki 回写**须当轮 push**（A1）· `ready-for-pm` 定为标签且关单时移除（A2）· 标签词表登记（A3）· `assignee-agent:` 入 task 约定（A4）· 同一职能同刻只跑一个会话（A6）· `image/`+`scripts/` 归 software（A7）· 豁免须书面写进 Issue（A9）
+- **ros2**：`microduck-ros2-agent.mdc` → **`microduck-ros2.mdc`**，降为 software **附件**（非职能）；技术路线移入 [[ros2-migration-plan]]
+- **handoffs/**：9 文件 → 1（去向索引）；`_TEMPLATE.md` 删除
+- 工作区 `README.md` 重写为目录导航，布局真源指向本 wiki
+- Updated: [[SCHEMA]] · [[index]] · [[local-workspace-layout]] · [[diy-milestones]] · [[ros2-migration-plan]] · [[aifange-microduck-build-tutorial]]
+

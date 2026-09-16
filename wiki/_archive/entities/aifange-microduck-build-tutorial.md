@@ -1,15 +1,12 @@
 ---
 title: AI-FanGe Microduck-build-tutorial
 created: 2026-09-09
-updated: 2026-09-15
+updated: 2026-09-16
 type: entity
 tags: [external, diy, reference, mechanical]
 sources:
   - https://github.com/AI-FanGe/Microduck-build-tutorial
-  - handoffs/2026-09-09-pm-to-pm-aifange-microduck.md
-  - handoffs/2026-09-09-pm-to-software-aifange-sw-eval.md
-  - handoffs/2026-09-09-pm-to-hardware-aifange-hw-eval.md
-  - handoffs/2026-09-09-pm-to-structure-aifange-mech-eval.md
+  - handoffs/README.md（原 2026-09-09 pm→pm/sw/hw/structure 评估工单已清理）
 confidence: high
 related:
   - microduck-diy
@@ -45,7 +42,7 @@ MarcDcls/microduck（microban 系）的中文教程封装：Pi Zero 2 W + OpenRB
 | 旁路借鉴：装机文档结构、EH 线束工艺、手柄/镜像/过流**思路**（自写） | 主线 BOM 写入 OpenRB / Pi Zero / BNO 替代 200 / ID 1–14 / 其整套结构件 |
 | 通用件：XL330、EH 3P 等按官方/diy 清单 | 为「兼容该仓」改 imu-to-dxl v0.3 或 diy cad 定稿 |
 
-历史评估链（**handoff 已废止**，仅考古）：工作区根 `handoffs/2026-09-09-pm-to-*-aifange-*.md`。
+历史评估链（**handoff 已废止**，2026-09-16 正文已清理）：去向索引见 [handoffs/README.md](../../../handoffs/README.md)。
 
 ## 上游增量（`9a11a40` → `4967821`）
 
