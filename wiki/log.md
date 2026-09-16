@@ -600,6 +600,13 @@
 - `cad/microduck_rl_assembly_a1mini.3mf`：**真实改动**并提交——对象 138→153（+15）、零件 490→505、新增 `DC15_A01_IDLE_CAP_DUMMY` 等、plate 仍 11；`Metadata/` 新增 plate_2/4 配置
 - 工具：`sqlite3` 逐表哈希 + zip 条目对比（本轮把 4 MB 二进制差异定位到单表单列）
 
+## [2026-09-16] governance | v0.11 二进制改动判读 · 版本号去重
+- 新增 **§11.1 二进制改动判读**：先看 `git diff --stat` 文件大小 → **变了就直接提交**；大小没变才花几秒定性（zip 条目数 / SQLite 修订计数器）；深挖成本高于收益就先撤销
+- 记入已知噪声源：`.eprj2` 打开即自增 `ticket`（`structure` 不变）→ 勿提交
+- **版本号去重**：治理版本只保留在细则首行与 log；根 `AGENTS.md` / `README` / pm rule / SCHEMA / index / diy-milestones / 通用模板 一律改为只引用路径
+- 起因：一次小改动需同步 7 处版本号，属 v0.9 已批评的「多副本漂移」
+- §12 改名「版本与修订」，明示**本文件是唯一版本源**
+
 
 ## [2026-09-16] governance | v0.9 去冗余 · 去歧义 · 清理考古
 - Doc: `docs/agent-governance.md` **261→~180 行** · 入口 `AGENTS.md` **43→32 行** · 通用模板 G2→**G3（快照制）**

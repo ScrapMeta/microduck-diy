@@ -35,7 +35,7 @@
 - [[xl330-cn-bench-kit]] — 舵机台架（✅ 通过；资料后补）
 - [[local-workspace-layout]] — **布局真源**
 - [[ros2-migration-plan]] — ROS2 并行移植规格（software 范畴）
-- [Agent 治理 v0.10](../governance/agent-governance.md)（基础工程 + llm-wiki · 只常驻 pm · 交付物归自有仓）· 根 `AGENTS.md` 为转发存根
+- [Agent 治理](../governance/agent-governance.md)（基础工程 + llm-wiki · 只常驻 pm · 交付物归自有仓）· 根 `AGENTS.md` 为转发存根
 
 ### 主线执行器 / 采购
 
