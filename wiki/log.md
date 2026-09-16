@@ -603,3 +603,13 @@
 - 工作区 `README.md` 重写为目录导航，布局真源指向本 wiki
 - Updated: [[SCHEMA]] · [[index]] · [[local-workspace-layout]] · [[diy-milestones]] · [[ros2-migration-plan]] · [[aifange-microduck-build-tutorial]]
 
+## [2026-09-16] governance | v0.10 治理入仓 · 多仓结构 · 交付物归属
+- **结构裁决**：工作区根为**纯目录**（非仓、不承担 PM）——14 个仓中 13 个 origin 属他人；参考克隆重仓不钉版本
+- **治理入仓**：`docs/` + 根 `AGENTS.md` → **`governance/`**（新增 §10 工作区形态 · §11 交付物归属）；工作区根 `AGENTS.md` 改**转发存根**
+- **否决子模块**：上游无 push 权限 → 改了提交不出去；判据=活跃开发用兄弟仓 / 只读参考用独立克隆
+- **新增** `governance/upstreams.lock` + `refresh-upstreams.ps1`：替代子模块钉上游版本（remote/HEAD/Dirty/Behind）
+- **清理**：`elec_RPI_Robot_HAT`（gerber/.history/4png/kicad_pro 迁移噪声）与 `microduck-replica`（`.eprj2`/backup）回上游原状；gerber 非唯一副本，官方 `production/PCB01186-C1_*_PCB.zip` 在手
+- **建仓**：`microduck_ros2/` 首次入库（78 文件 · `8f0618d`）· colcon build/install/log 排除 · `*.sh` 强制 LF
+- 通用模板 G3→**G4**：bootstrap 改为治理入仓 + 转发存根
+- Updated: [[SCHEMA]] · [[index]] · [[local-workspace-layout]] · [[diy-milestones]]
+

@@ -1,0 +1,28 @@
+# Upstream version lock (upstreams.lock)
+
+> Generated: 2026-09-16 14:02 by `refresh-upstreams.ps1` - do not hand-edit.
+> Replaces git submodules for pinning upstream versions (governance 10.3).
+> A non-zero `Dirty` on a `readonly` row is a violation: upstream clones must stay clean (governance 11).
+
+| Dir | Kind | Remote | Branch | HEAD | Dirty | Behind | Ahead |
+|-----|------|--------|--------|------|-------|--------|-------|
+| `elec_RPI_Robot_HAT/` | readonly | https://github.com/pollen-robotics/elec_RPI_Robot_HAT.git | main | `23eab11` | 0 | 1 | 0 |
+| `microduck/` | readonly | https://github.com/pollen-robotics/microduck.git | main | `6507d2e` | 0 | 0 | 0 |
+| `microduck_app/` | readonly | https://github.com/apirrone/microduck_app.git | main | `bca6359` | 1 | 0 | 0 |
+| `microduck_kinematics_rs/` | readonly | https://github.com/apirrone/microduck_kinematics_rs.git | main | `26481ff` | 0 | 0 | 0 |
+| `microduck_maploc_rs/` | readonly | https://github.com/apirrone/microduck_maploc_rs.git | main | `c44fd8c` | 0 | 0 | 0 |
+| `microduck_pet_detect/` | readonly | https://github.com/apirrone/microduck_pet_detect.git | main | `beae454` | 0 | 0 | 0 |
+| `microduck_rl/` | readonly | https://github.com/pollen-robotics/microduck_rl.git | develop | `53b8971` | 0 | 0 | 0 |
+| `microduck_sounds/` | readonly | https://github.com/apirrone/microduck_sounds.git | main | `1a17358` | 0 | 0 | 0 |
+| `Microduck-build-tutorial/` | readonly | https://github.com/AI-FanGe/Microduck-build-tutorial.git | main | `4967821` | 0 | 0 | 0 |
+| `microduck-diy/` | owned | https://github.com/ScrapMeta/microduck-diy.git | main | `b7e2a3c` | 8 | 0 | 0 |
+| `microduck-replica/` | readonly | https://github.com/fanhao375/microduck-replica.git | master | `f533679` | 0 | 0 | 0 |
+| `microduck-simulator/` | readonly | https://huggingface.co/spaces/pollen-robotics/microduck-simulator | main | `023172c` | 0 | 0 | 0 |
+| `OpenMicroDuck/` | readonly | https://github.com/JoyandAI/OpenMicroDuck.git | main | `3992277` | 0 | 0 | 0 |
+| `OpenRB-150/` | readonly | https://github.com/ROBOTIS-GIT/OpenRB-150.git | master | `3e2b07e` | 0 | 0 | 0 |
+
+## Checks
+
+- Owned dirs must have a .git and a remote; if missing, create the repo first.
+- Every readonly row must show Dirty = 0. If not, clean it or export the work into an owned repo.
+- Non-zero Behind means the reference clone lags upstream; decide whether to update.

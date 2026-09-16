@@ -24,7 +24,7 @@ related:
 
 # DIY 里程碑
 
-[[microduck-diy]] 的项目阶段用语义化版本号（`v0.x`）标记。过程面：GitHub Issue（治理 [v0.9](../../../docs/agent-governance.md)）。
+[[microduck-diy]] 的项目阶段用语义化版本号（`v0.x`）标记。过程面：GitHub Issue（治理 [v0.10](../../governance/agent-governance.md)）。
 
 ## 项目目标
 
