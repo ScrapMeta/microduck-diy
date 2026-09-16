@@ -24,7 +24,8 @@ related:
 # HAT TTL 舵机测不通排查
 
 > 针对：**U2D2 台架曾通过**，叠 [[elec-rpi-robot-hat]] + Zero 后扫不到 / timeout。  
-> Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)（v0.1 · 等台架设备）。  
+> Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)（**closed 2026-09-16**）——原症状不成立：HAT TTL 本来就通，
+> 真因是**测试前提错**（该舵机仍出厂 ID 1 @ 57 600）+ **脚本 CRC 作用域 bug**。剩余项见 [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)。  
 > 工装：**双通道示波器** + **30 V / 10 A 可调电源**（电流可限）。  
 > 焊接/485：[[hat-solder-kit]]。接线：[[board-interconnect]]。
 

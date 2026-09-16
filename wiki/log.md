@@ -662,6 +662,15 @@
 - 改口落盘：Issue 正文（Constraints/Acceptance/新增 This round）· [[hat-dxl-bus-debug]] §0/§2/§7 · [[bench-power-supply]]（原「7.4–8.4 V」）· [[hat-solder-kit]] §4.0/§4.3（7.4 V 限定为裸 HAT）· [[bam-identification-bench]]
 - 待 hardware：M3 补 #1 基线（ID/波特率/固件）· M4 出厂默认 57 600 回退写进流程 · M5 版本化扫/Ping 脚本 · M6 用官方 `report()` 作一致性基线
 
+## [2026-09-16] pm | #4 关单 · 原症状被推翻
+- [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) **closed**（[验收关单](https://github.com/ScrapMeta/microduck-diy/issues/4#issuecomment-5695555482)）；剩余拆到 [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)
+- **原症状「主控↔HAT DATA 未打通」不成立**：HAT TTL 本来就通（`/dev/ttyS2` 只读扫描得 ID 1 / model 1200，CRC 通过）
+- 真因是**两条方法错误**：①**前提错**——该舵机从未写到 1 Mbps，一直是**出厂 ID 1 @ 57 600**，按原流程只测 1 Mbps 必得**假零回包**；②**脚本 CRC 作用域错**（须覆盖 4 字节 header），且 `self-test` 假舵机**照抄同一错误** → **自检全绿却掩住故障**
+- **更正 pm 上一条裁决**：`shutdown=52` **不是锁存**过压——手册 `Shutdown(63)` bit0 = Input Voltage Error，**出厂 53 含 bit0**，而 `robotd` 写的 **52 正好清掉**它；过压只清 `Torque Enable`、**舵机仍应答 Ping/Read**。故「错电压造出零回包」**不成立**，照旧说法会把零回包误归因到电压、漏掉 getty/波特率/物理层。母线 **6.0–6.5 V 结论不变**。教训：pm 当时拿上游**散文**当规格
+- 治理：新增 **§3 原则 8「校验要能证伪」**——自检/回环只证两端自洽、不证合规；协议/对外契约/寄存器布局须用**公开向量或独立实现**做锚
+- 遗留承重项（→ #11）：**`0x55` 帧异常**——本套件状态帧多一固定字节且 `LEN=len(DATA)+4`，该字节**被舵机自身 CRC 覆盖**（14/14 帧一致）→ 出自固件；须 **U2D2 + Wizard 交叉验证**。另：示波器波形 · 写 ID/波特率到总线值后 1 Mbps 复验 · 限流分段实测
+- 交付：`21e2bb8`+`7dad6d5` · [[dxl-bench-method]]（新建）· [[hat-dxl-bus-debug]] · [[bench-power-supply]] · [[dynamixel-xl330]] · [[xl330-cn-bench-kit]] · `scripts/dxl_ping.py`
+
 ## [2026-09-16] audit | #4 M1–M6 逐条裁决 · 落 `scripts/dxl_ping.py`
 - hardware 方法审计（不接线上电）；手册真源 [XL330-M288 eManual](https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/)（当日取）
   - **M1 确认**（母线 6.0–6.5 V）**但机制订正**：手册 `Shutdown(63)` **bit0 = Input Voltage Error**；**出厂默认 53 含 bit0**，官方 `robotd` 写 **52 恰好清掉 bit0** → 旧说法「52 锁存过压」方向是**反的**。且过压只清 `Torque Enable`、红灯持续闪，**舵机仍应答 Ping/Read** → 是「不动」而非「零回包」；旧表述会误导下一任 agent 漏掉真因

@@ -115,7 +115,9 @@ python3 scripts/dxl_ping.py probe --port COM7 --expect <ID列表>
    脚本用「PING 回 3 字节 / READ 回请求长度」自动判别两种帧；`self-test` 用实测帧回放回归。
    **该字节来源未定论**，需 U2D2 + Wizard 交叉验证。
 
-## 6. 验收清单（Issue #4）
+## 6. 验收清单（Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) → 续 [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)）
+
+> **#4 已于 2026-09-16 关单**（原症状「未打通」不成立，HAT TTL 本来就通）。下列未勾项**全部移入 [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)**。
 
 **2026-09-16 复测（见 [[hat-dxl-bus-debug]] §8）——已勾**
 

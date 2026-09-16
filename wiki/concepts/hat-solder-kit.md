@@ -312,7 +312,7 @@ arecord -d 3 -f cd /tmp/mic-test.wav && aplay /tmp/mic-test.wav
 - [ ] i2c 见 `0x18`（明细后补）  
 - [ ] J1 喇叭出声  
 - [ ] MK1 可录音（若本轮要音频）  
-- [ ] J13/J14 单舵机通信 OK → **改由** [[hat-dxl-bus-debug]] / Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)  
+- [ ] J13/J14 单舵机通信 OK → **改由** [[hat-dxl-bus-debug]] / Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)（closed）→ 续 [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)  
 
 ToF（J5–J8）、头 IMU（U11）不在本轮。
 

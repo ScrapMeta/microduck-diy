@@ -48,7 +48,7 @@ v0.1 阶段验收口径（可联调）：主控 + 舵机总线 + 机身 IMU + �
 - [ ] 机械：结构可干装配（打印 / 紧固件 / 轴承 / XL330）
 - [x] **HAT 配料焊接：** [[hat-solder-kit]] · Issue [#3](https://github.com/ScrapMeta/microduck-diy/issues/3)（**closed** · 2026-09-14；TTL 联调见 #4）
 - [ ] **供电拓扑评估：** Issue [#9](https://github.com/ScrapMeta/microduck-diy/issues/9)（机身≈6 V 经 DXL 3P 供 HAT · 是否稳压）
-- [ ] **HAT TTL 舵机：** [[hat-dxl-bus-debug]] · Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)（**blocked** · 等示波器 + 30V10A · 2026-09-15）
+- [ ] **HAT TTL 舵机：** [[hat-dxl-bus-debug]] · [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)（**closed 2026-09-16** · 原症状不成立，HAT TTL 已通）· 续 [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)（`0x55` 帧异常定论 · 波形 · 上总线值 · 限流实测）
 - [x] **机身 IMU 固件+U2D2：** Issue [#10](https://github.com/ScrapMeta/microduck-diy/issues/10)（`a49a628` · Ping/Read 1000 + SyncRead 10 min 通过 · **ready-for-pm**）· 零回包 [#7](https://github.com/ScrapMeta/microduck-diy/issues/7) 由 #10 覆盖待 pm 关 · 对照 [#8](https://github.com/ScrapMeta/microduck-diy/issues/8)（replica0908）仍 open · 手册 [[imu-to-dxl-firmware-build]]
 - [ ] 电控联调：Zero + HAT + 机身 IMU（[[board-imu-to-dxl]] / [[imu-to-dxl-v2]]）可实施
 - [ ] 契约：DXL / IMU / 策略接口与官方生态一致（见 [[opensource-coverage]]）
