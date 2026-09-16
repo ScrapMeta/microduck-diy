@@ -640,3 +640,11 @@
 - 治理改口：§5 software 领地去掉不存在的 `microduck-diy/scripts/`，改为「台架/上机脚本落此、按需新建」
 - Open 现行：#4 HAT TTL（先审计方法）· #8 replica0908 · #9 机身取电评估
 
+## [2026-09-16] pm | #4 母线电压定案 6.0–6.5 V
+- Human 授权 pm 直接裁决并改口（[ruling](https://github.com/ScrapMeta/microduck-diy/issues/4#issuecomment-5693346059)）；本轮**只做方法审计、不接线上电**
+- **母线电压 7.4 V → 6.0–6.5 V**。三条依据：手册 3.7–6.0 V（Max Voltage Limit≈7.0 V）· 实测 7.2 V 即过压红灯闪 · 官方 `shutdown=52` **锁存 input-voltage fault 保持 torque off**（→ 错电压能自己造出「零回包」）
+- **限流分段**：纯 HAT **1 A** · 叠 Zero **2–3 A**（Zero 启动峰值超 1 A，触限塌陷会假象成不启动）
+- **Key wiring fact**：J13/J14 针2 **就是 `+BATT`**、舵机**不经 buck** → 台供电压 = 舵机电压，无缓冲
+- 改口落盘：Issue 正文（Constraints/Acceptance/新增 This round）· [[hat-dxl-bus-debug]] §0/§2/§7 · [[bench-power-supply]]（原「7.4–8.4 V」）· [[hat-solder-kit]] §4.0/§4.3（7.4 V 限定为裸 HAT）· [[bam-identification-bench]]
+- 待 hardware：M3 补 #1 基线（ID/波特率/固件）· M4 出厂默认 57 600 回退写进流程 · M5 版本化扫/Ping 脚本 · M6 用官方 `report()` 作一致性基线
+
