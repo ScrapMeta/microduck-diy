@@ -1,10 +1,10 @@
 ---
 description: Software — firmware, bus, onboard scripts, system image; ephemeral per Issue
 globs:
-  - "**/microduck-diy/imu_to_dxl/**"
-  - "**/microduck-diy/image/**"
-  - "**/microduck-diy/scripts/**"
-  - "**/microduck_ros2/**"
+  - "imu_to_dxl/**"
+  - "image/**"
+  - "scripts/**"
+  - "microduck_ros2/**"
 alwaysApply: false
 ---
 
@@ -14,9 +14,9 @@ alwaysApply: false
 
 ## 领地（可写）
 
-- `microduck-diy/imu_to_dxl/`（固件为主；**勿改网表** → hardware，含其 `scripts/`）
-- `microduck-diy/image/`（系统镜像）· `microduck-diy/scripts/`（台架/上机脚本；现无，按需新建）
-- ROS2 任务：`microduck_ros2/`（另 `@microduck-ros2` 附件）
+- `imu_to_dxl/`（固件为主；**勿改网表** → hardware，含其 `scripts/`）
+- `image/`（系统镜像）· `scripts/`（台架/上机脚本）
+- ROS2 任务：`microduck_ros2/`（**自有仓**；另 `@microduck-ros2` 附件）
 
 ## 禁止
 

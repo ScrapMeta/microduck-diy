@@ -1,13 +1,13 @@
 ---
 description: Hardware — PCB, electrical BOM, fab; ephemeral per Issue
 globs:
-  - "**/microduck-diy/**/imu*"
-  - "**/microduck-replica/hardware/**"
-  - "**/elec_RPI_Robot_HAT/**"
-  - "**/wiki/entities/board*"
-  - "**/wiki/concepts/*bom*"
-  - "**/wiki/raw/articles/lcsc*"
-  - "**/wiki/raw/articles/jlcpcb*"
+  - "imu_to_dxl/**"
+  - "refs/microduck-replica/hardware/**"
+  - "refs/elec_RPI_Robot_HAT/**"
+  - "wiki/entities/board*"
+  - "wiki/concepts/*bom*"
+  - "wiki/raw/articles/lcsc*"
+  - "wiki/raw/articles/jlcpcb*"
 alwaysApply: false
 ---
 
@@ -17,14 +17,15 @@ alwaysApply: false
 
 ## 领地（可写）
 
-- 机身/头 IMU、HAT 相关设计与订单资产（diy / replica 电控路径）
+- `imu_to_dxl/`（机身/头 IMU 设计）· HAT 相关设计与订单资产（diy / replica 电控路径）
 - **电子 BOM**、立创/嘉立创制板与贴片文档
 - 相关 wiki 板卡与订单页（本视角）
 
 ## 禁止
 
 - 不改固件逻辑（→ **software**）
-- 不改训练超参、`microduck_rl` 训练配置（只读契约 → **train**）
+- 不改训练超参、`refs/microduck_rl` 训练配置（只读契约 → **train**）
 - 不改 CAD 结构拓扑（腔深/孔位 → 请 **pm** 改派 **structure**）
+- 不改 `refs/` 内任何内容（`refs/microduck-replica/` `refs/elec_RPI_Robot_HAT/` 只读对照）
 
 流程见细则 §5 · §6。中文沟通；标识符英文。

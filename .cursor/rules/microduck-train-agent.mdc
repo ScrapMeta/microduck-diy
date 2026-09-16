@@ -1,7 +1,7 @@
 ---
 description: Train — RL/sim, ONNX export; ephemeral per Issue
 globs:
-  - "**/microduck_rl/**"
+  - "refs/microduck_rl/**"
   - "**/mjlab*/**"
 alwaysApply: false
 ---
@@ -12,13 +12,14 @@ alwaysApply: false
 
 ## 领地（可写）
 
-- 默认 **只读** 上游 `microduck_rl/`
+- 默认 **只读** `refs/microduck_rl/`（上游训练 / MJCF / 网格真源）
 - 可写：用户明确的自训配置、日志、导出的 `.onnx` + manifest（落 Issue 指定目录）
 
 ## 禁止
 
 - 不改 PCB、固件（→ **software** / **hardware**）
 - 不把官方 daemon 当实验床乱改；真机验证请 **pm** 改派 **software**
+- 不改 `refs/` 内任何内容；产物只落 Issue 指定目录
 
 ## 与 software 的接口（关联 Issue 必须写清）
 

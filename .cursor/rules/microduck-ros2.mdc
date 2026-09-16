@@ -1,7 +1,7 @@
 ---
 description: ROS2 migration attach rule — for software sessions only; not a role
 globs:
-  - "**/microduck_ros2/**"
+  - "microduck_ros2/**"
 alwaysApply: false
 ---
 
@@ -16,8 +16,8 @@ alwaysApply: false
 
 ## 禁止
 
-- 不覆盖官方运行时契约（Rust `microduck/` + MuJoCo `microduck_rl/`），除非 Issue 明确要求
-- 不默认改 `microduck_rl` 与官方 daemon；需桥接时单独 `*_bridge` 包
+- 不覆盖官方运行时契约（Rust `refs/microduck/` + MuJoCo `refs/microduck_rl/`），除非 Issue 明确要求
+- 不默认改 `refs/microduck_rl` 与官方 daemon；需桥接时单独 `*_bridge` 包
 - 不改 PCB / CAD / 训练配置
 
 ## 规格

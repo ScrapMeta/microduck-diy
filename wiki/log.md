@@ -682,3 +682,16 @@
 - Updated: [[hat-dxl-bus-debug]] · [[dxl-bench-method]]（**新建**）· [[bench-power-supply]] · [[dynamixel-xl330]] · [[xl330-cn-bench-kit]] · [[index]] · `.gitattributes`（`*.py` LF）
 - **拆页**：[[hat-dxl-bus-debug]] 原 191 行 + 本轮 +79 → 超 SCHEMA 200 行上限；方法/参数/探测顺序/`report()` 基线/验收清单拆至 [[dxl-bench-method]]（199 + 125 行），步骤页只留「照做」的值与指向
 
+## [2026-09-16] governance | v0.12 根即交付仓 · refs/ 收拢参考克隆
+- **结构裁决**：工作区根 `D:\projects\microduck` **就是**基础工程工作树（`ScrapMeta/microduck-diy`）——取代 v0.10 的「根为纯目录」
+- **理由订正**：v0.10 的「13/14 origin 属他人」回答的是「**能不能提交**它们」，不是「自有仓该放哪」；代价是间接层（转发存根 `AGENTS.md`、治理下沉一级、rule glob 只能写 `**/microduck-diy/**`），且**已实际造成过**「领地写成不存在的路径」这类错误
+- **关键动因**：`.cursor/rules/` 那份治理**一直不在版本控制内**——根不是仓就没有历史/备份/review；而复制一份进 `governance/` 会重现 v0.11 刚废掉的「多副本漂移」→ **根即仓是唯一不漂移的解法**
+- **迁移手法**：`microduck-diy/` 内容 **+ `.git` 整体上移** → 仓内相对路径不变 → **历史与 wiki 链接自动保留**（迁移后 `git status -uno` 零增删改，`git log` 连续）
+- **目录**：13 个他人克隆 → `refs/`（ignore）· `microduck_ros2/` 留根（ignore，但**自有仓、非只读**）· `handoffs/` 移出树 · repo 内 `tmp/` 并入 `temp/`
+- **首次入库**：`.cursor/rules/` 6 个 rule（批 1 `618b3f2`）
+- 治理改口：§1.1 · §1.3 · §5 领地表 · §8 · §9.1 · §9.3 · **§10 整节重写** · §11 · §12；通用模板 G4→**G5**；`refresh-upstreams.ps1` 扫描目标改 `refs/`
+- **新增硬约束 §10.4**：`git clean -x` **会删除被 ignore 的目录** → 一次误操作抹掉 `refs/` 全部克隆 + `temp/`。本仓**只用 `git clean -fd`**；此条**无技术兜底**，靠纪律
+- `upstreams.lock` 重生成（15 仓；`(this repo)` 单列）
+- 路径口径统一为**从根写**：`governance/…` · `wiki/…` · `refs/<clone>/…`
+- **运行发现（待办）**：`refs/microduck_app` **Dirty=1** —— 只读克隆内留有未提交改动，违反 §11；`refs/elec_RPI_Robot_HAT` Behind=1（落后上游 1 提交）
+

@@ -9,11 +9,11 @@ alwaysApply: false
 
 ## 领地
 
-- 治理真源：`microduck-diy/governance/agent-governance.md`（**唯一版本源**）· 工作区根 `AGENTS.md` 为转发存根
-- **可写**：`microduck-diy/governance/`（细则与模板）；`wiki/` 总述·index·log 收口
+- 治理真源：`governance/agent-governance.md`（**唯一版本源**）· `AGENTS.md` 为治理入口（仓内文件）
+- **可写**：`governance/`（细则与模板）· `AGENTS.md` · `.cursor/rules/`；`wiki/` 总述·index·log 收口
   （各职能写本视角页）；该仓 GitHub Issue / Milestone / PR / release（用户要求时）
 - **不写**：PCB/Gerber · 固件 · 训练超参 · CAD 实现（除非用户明确代劳）
-- **不写**：上游克隆目录（`microduck/` `microduck_rl/` `elec_RPI_Robot_HAT/` `microduck-replica/` 等）
+- **不写**：`refs/` 内任何内容（只读参考）· `microduck_ros2/` 归 **software**
 
 ## 职责
 

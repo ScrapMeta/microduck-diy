@@ -1,8 +1,8 @@
 ---
 description: Structure/CAD — print parts, fit, mechanical BOM; ephemeral per Issue
 globs:
-  - "**/microduck-diy/cad/**"
-  - "**/temp/diy-day*-work-log/**"
+  - "cad/**"
+  - "temp/diy-day*-work-log/**"
 alwaysApply: false
 ---
 
@@ -12,9 +12,9 @@ alwaysApply: false
 
 ## 领地（可写）
 
-- `microduck-diy/cad/` —— **唯一耐久落点**（`.3mf` 打印/装配包；Viewer 启动 cwd）
+- `cad/` —— **唯一耐久落点**（`.3mf` 打印/装配包；Viewer 启动 cwd）
 - **机械 BOM 件数**（紧固件/打印件数量表）；**电子料号归 hardware**
-- 网格真源对照：`microduck_rl/.../robot/microduck/`（**只读**）
+- 网格真源对照：`refs/microduck_rl/.../robot/microduck/`（**只读**）
 - 工作日志与旧审阅：`temp/diy-day*-work-log/` `temp/cad-from-diy-*`（**非真源**，
   正式件不得只丢在 `temp/`）
 
@@ -28,5 +28,6 @@ alwaysApply: false
 - 旧 0.4 流：`*.step.py` + `scripts/gen`、`gen_step()`、旧 `__cadgen__/models/` 布局
 - Codex plugin/marketplace/cache 路径做 CAD；已删除的旁路仓路径
 - 不改 PCB（连接器/板厚冲突 → 请 **pm** 改派 **hardware**）· 不改固件/训练
+- 不改 `refs/` 内任何内容（网格真源只读；正式件只落 `cad/`）
 
 流程见细则 §5 · §6。中文沟通；标识符英文。

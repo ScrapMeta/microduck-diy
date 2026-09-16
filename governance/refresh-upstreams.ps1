@@ -1,11 +1,15 @@
 # refresh-upstreams.ps1 - regenerate governance/upstreams.lock
 #
-# Purpose: record each clone in the workspace (dir / remote / branch / HEAD /
-#          dirty count / behind-ahead) so "which upstream version are we on"
-#          stays reviewable without git submodules (governance section 10.3).
+# Purpose: record every reference clone (dir / remote / branch / HEAD / dirty count /
+#          behind-ahead) so "which upstream version are we on" stays reviewable
+#          without git submodules (governance section 10.3).
 #
 # Usage (from anywhere):
-#   powershell -ExecutionPolicy Bypass -File microduck-diy\governance\refresh-upstreams.ps1
+#   powershell -ExecutionPolicy Bypass -File governance\refresh-upstreams.ps1
+#
+# Layout it assumes (governance section 10): the workspace root IS this repository's
+# worktree, so read-only clones live under refs/ and are .gitignored. Owned sibling
+# repos sit at the root and are .gitignored too, but are NOT read-only.
 #
 # Read-only: never modifies any repository.
 # ASCII-only on purpose: Windows PowerShell 5.1 reads BOM-less .ps1 as ANSI,
@@ -14,12 +18,12 @@
 $ErrorActionPreference = 'Stop'
 
 $governanceDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path $MyInvocation.MyCommand.Path -Parent }
-$baseRepoDir   = Split-Path $governanceDir -Parent          # microduck-diy/
-$workspaceRoot = Split-Path $baseRepoDir -Parent            # workspace root
+$repoRoot      = Split-Path $governanceDir -Parent          # workspace root = this repo's worktree
+$refsDir       = Join-Path $repoRoot 'refs'
 
-# Repos owned by this project (writable). Everything else is read-only upstream.
-$owned = @('microduck-diy', 'microduck_ros2')
-$out   = Join-Path $governanceDir 'upstreams.lock'
+# Owned sibling repos: writable, pushed separately, ignored like the clones.
+$ownedSiblings = @('microduck_ros2')
+$out = Join-Path $governanceDir 'upstreams.lock'
 
 function Get-GitValue {
     param([string]$Dir, [string[]]$GitArgs)
@@ -31,27 +35,45 @@ function Get-GitValue {
     finally { Pop-Location; $ErrorActionPreference = $prev }
 }
 
-$rows = @()
-foreach ($d in Get-ChildItem $workspaceRoot -Directory | Sort-Object Name) {
-    if (-not (Test-Path (Join-Path $d.FullName '.git'))) { continue }
+# This repo first, then owned siblings, then every clone under refs/.
+$targets = @([PSCustomObject]@{ Label = '(this repo)'; Dir = $repoRoot; Kind = 'owned' })
+foreach ($n in $ownedSiblings) {
+    $p = Join-Path $repoRoot $n
+    if (Test-Path (Join-Path $p '.git')) {
+        $targets += [PSCustomObject]@{ Label = $n; Dir = $p; Kind = 'owned' }
+    } else {
+        Write-Warning ("owned sibling '{0}' has no .git; create the repo first" -f $n)
+    }
+}
+if (Test-Path $refsDir) {
+    foreach ($d in Get-ChildItem $refsDir -Directory | Sort-Object Name) {
+        if (-not (Test-Path (Join-Path $d.FullName '.git'))) { continue }
+        $targets += [PSCustomObject]@{ Label = 'refs/' + $d.Name; Dir = $d.FullName; Kind = 'readonly' }
+    }
+} else {
+    Write-Warning ("no {0} directory; no reference clones recorded" -f $refsDir)
+}
 
-    $remote = Get-GitValue $d.FullName @('remote', 'get-url', 'origin')
+$rows = @()
+foreach ($t in $targets) {
+    $remote = Get-GitValue $t.Dir @('remote', 'get-url', 'origin')
     if ([string]::IsNullOrWhiteSpace($remote)) { $remote = '(none)' }
-    $branch = Get-GitValue $d.FullName @('rev-parse', '--abbrev-ref', 'HEAD')
+    $branch = Get-GitValue $t.Dir @('rev-parse', '--abbrev-ref', 'HEAD')
     if ([string]::IsNullOrWhiteSpace($branch)) { $branch = '(none)' }
-    $head   = Get-GitValue $d.FullName @('rev-parse', '--short', 'HEAD')
+    $head   = Get-GitValue $t.Dir @('rev-parse', '--short', 'HEAD')
     if ([string]::IsNullOrWhiteSpace($head)) { $head = '(none)' }
-    $dirty  = @(Get-GitValue $d.FullName @('status', '--porcelain')).Count
+    $dirty  = @(Get-GitValue $t.Dir @('status', '--porcelain')).Count
 
     # Behind / ahead of upstream. Left count = commits in origin not in HEAD (behind);
     # right count = commits in HEAD not in origin (ahead). Blank when unmatchable.
-    $lr = Get-GitValue $d.FullName @('rev-list', '--left-right', '--count', "origin/$branch...HEAD")
     $behind = ''; $ahead = ''
-    if ($lr -match '^(\d+)\s+(\d+)$') { $behind = $Matches[1]; $ahead = $Matches[2] }
+    if ($branch -ne '(none)') {
+        $lr = Get-GitValue $t.Dir @('rev-list', '--left-right', '--count', "origin/$branch...HEAD")
+        if ($lr -match '^(\d+)\s+(\d+)$') { $behind = $Matches[1]; $ahead = $Matches[2] }
+    }
 
-    $kind = if ($owned -contains $d.Name) { 'owned' } else { 'readonly' }
     $rows += [PSCustomObject]@{
-        Dir = $d.Name; Kind = $kind; Remote = $remote; Branch = $branch
+        Dir = $t.Label; Kind = $t.Kind; Remote = $remote; Branch = $branch
         Head = $head; Dirty = $dirty; Behind = $behind; Ahead = $ahead
     }
 }
@@ -63,23 +85,25 @@ $md = New-Object System.Collections.Generic.List[string]
 $md.Add('# Upstream version lock (upstreams.lock)')
 $md.Add('')
 $md.Add('> Generated: ' + $stamp + ' by ' + $bt + 'refresh-upstreams.ps1' + $bt + ' - do not hand-edit.')
-$md.Add('> Replaces git submodules for pinning upstream versions (governance 10.3).')
-$md.Add('> A non-zero ' + $bt + 'Dirty' + $bt + ' on a ' + $bt + 'readonly' + $bt + ' row is a violation: upstream clones must stay clean (governance 11).')
+$md.Add('> Replaces git submodules for pinning reference-clone versions (governance 10.3).')
+$md.Add('> ' + $bt + '(this repo)' + $bt + ' is the base repository: the workspace root IS its worktree (governance 10).')
+$md.Add('> A non-zero ' + $bt + 'Dirty' + $bt + ' on a ' + $bt + 'readonly' + $bt + ' row is a violation: reference clones must stay clean (governance 11).')
 $md.Add('')
 $md.Add('| Dir | Kind | Remote | Branch | HEAD | Dirty | Behind | Ahead |')
 $md.Add('|-----|------|--------|--------|------|-------|--------|-------|')
 foreach ($r in $rows) {
-    $line = '| ' + $bt + $r.Dir + '/' + $bt + ' | ' + $r.Kind + ' | ' + $r.Remote + ' | ' + $r.Branch +
+    $line = '| ' + $bt + $r.Dir + $bt + ' | ' + $r.Kind + ' | ' + $r.Remote + ' | ' + $r.Branch +
             ' | ' + $bt + $r.Head + $bt + ' | ' + $r.Dirty + ' | ' + $r.Behind + ' | ' + $r.Ahead + ' |'
     $md.Add($line)
 }
 $md.Add('')
 $md.Add('## Checks')
 $md.Add('')
-$md.Add('- Owned dirs must have a .git and a remote; if missing, create the repo first.')
+$md.Add('- Owned rows must have a remote; if one is missing, create the GitHub repo first.')
 $md.Add('- Every readonly row must show Dirty = 0. If not, clean it or export the work into an owned repo.')
-$md.Add('- Non-zero Behind means the reference clone lags upstream; decide whether to update.')
+$md.Add('- Non-zero Behind means a reference clone lags upstream; decide whether to update.')
+$md.Add('- New clones belong in ' + $bt + 'refs/' + $bt + ', which is .gitignored. Never run ' + $bt + 'git clean -x' + $bt + ' (governance 10.4).')
 $md.Add('')
 
 [System.IO.File]::WriteAllText($out, ($md -join "`n"), (New-Object System.Text.UTF8Encoding $false))
-Write-Host ("Wrote {0} ({1} clones)" -f $out, $rows.Count)
+Write-Host ("Wrote {0} ({1} repos)" -f $out, $rows.Count)

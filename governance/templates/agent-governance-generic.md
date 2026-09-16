@@ -1,6 +1,6 @@
 # 研发型项目 · Agent 治理通用模板
 
-> 版本：**G4** · 快照于 Microduck 治理细则（2026-09-16）  
+> 版本：**G5** · 快照于 Microduck 治理细则（2026-09-16）  
 > 用法：提供 §3 信息表 → 按 §4 清单落地。
 >
 > **快照制：** 本模板是某一时刻的副本，**不要求**与各项目细则逐条同步。
@@ -51,8 +51,8 @@ pm 开 Issue（类型 + 职能标签 + 验收清单）
 |------|--------|
 | `PROJECT_NAME` | |
 | `PROJECT_SLUG` | 目录 / rule 前缀（小写连字符） |
-| `WORKSPACE_ROOT` | |
-| `BASE_REPO_DIR` | |
+| `WORKSPACE_ROOT` | 本地工作区根（**即基础工程工作树**） |
+| `REF_DIR` | 只读参考克隆目录（如 `refs/`，写进 `.gitignore`） |
 | `GITHUB_REPO` | `owner/name` |
 | `WIKI_DOMAIN` | 一句话领域 |
 | `WIKI_PRIORITY` | 现行优先级 1… |
@@ -68,15 +68,18 @@ pm 开 Issue（类型 + 职能标签 + 验收清单）
 
 ## 4. Bootstrap 清单
 
-- [ ] 建 `{{BASE_REPO_DIR}}`：`git init` / clone + 设 remote `{{GITHUB_REPO}}`
+- [ ] 在 `{{WORKSPACE_ROOT}}` 建仓：`git init` / clone + 设 remote `{{GITHUB_REPO}}`
+      —— **工作区根即该仓工作树**，不另建子目录
 - [ ] 建 `wiki/`：SCHEMA（写入 DOMAIN / PRIORITY / 约定）· index · log · raw/ · Layer-2
 - [ ] GitHub labels（**按 §2 词表**）；可选首个 Milestone
-- [ ] 建 `{{BASE_REPO_DIR}}/governance/`：细则 + 本模板（**入仓**）
-- [ ] 写工作区根 `AGENTS.md`：**仅转发存根**（不变量 + 指向 `governance/`）
-- [ ] 写 `.cursor/rules/{{PROJECT_SLUG}}-{pm,software,hardware,structure,train}-agent.mdc`
-- [ ] 写 `{{BASE_REPO_DIR}}/governance/upstreams.lock`（工作区含只读克隆时）
+- [ ] 建 `governance/`：细则 + 本模板（**入仓**）
+- [ ] 写 `AGENTS.md`：治理入口（不变量 + 指向 `governance/`）—— **入仓**
+- [ ] 写 `.cursor/rules/{{PROJECT_SLUG}}-*.mdc` 并 **`git add` 入仓**
+      （根即仓，rules 受版本控制；**勿**另存一份进 `governance/` —— 那是多副本漂移）
+- [ ] 建 `{{REF_DIR}}` 并把只读克隆放进去；在 `.gitignore` 写 `{{REF_DIR}}/`
+- [ ] `.gitignore` 警告行：**禁用 `git clean -x`**（会删除被 ignore 的参考克隆）
+- [ ] 写 `governance/upstreams.lock`（扫描 `{{REF_DIR}}`；用 refresh 脚本重生成）
 - [ ] wiki `log` 首条：治理启用
-- [ ] （若有旧 handoffs 目录）清空为去向索引，禁止新建 handoff
 
 **rule 写法：** 只写本职能**特有条款**（领地 / 禁止 / 边界）；
 公共流程由细则承载，**不在各 rule 里重复**（避免多副本漂移）。
@@ -85,18 +88,25 @@ pm 开 Issue（类型 + 职能标签 + 验收清单）
 
 ---
 
-## 5. 工作区形态（多仓）
+## 5. 工作区形态（根即交付仓）
 
-工作区根是**纯目录**，不是仓、不承担项目管理——因为典型工作区里绝大多数目录是**别人的仓**。
+**工作区根就是基础工程的工作树**；其余目录分两类：只读参考克隆收进 `{{REF_DIR}}`（ignore），
+自有兄弟仓留在根（ignore，但**不是只读**）。
 
-| 类型 | 做法 |
-|------|------|
-| 自有仓（基础工程 + 自有兄弟仓） | 独立 Git 仓 + 自有远端；职能可写可推 |
-| 上游只读克隆 | 独立克隆，**不进任何仓**、不钉版本；禁止留未提交改动 |
-| 本地临时 | 无版本控制，非真源 |
+| 类型 | 位置 | 版本控制 |
+|------|------|----------|
+| 基础工程（本仓） | 根 | **本仓工作树** |
+| 自有兄弟仓 | 根 | 独立仓 + 自有远端；ignore |
+| 只读参考克隆 | `{{REF_DIR}}` | 独立克隆；ignore；禁止留未提交改动 |
+| 本地临时 | `temp/` 等 | 无；ignore；非真源 |
+
+**为什么根可以同时是仓和容器**：把别人的仓放进 `{{REF_DIR}}` 并 ignore，等于用 `.gitignore`
+表达「这些不是交付物」；根作为仓并不要求把参考代码也纳入版本控制。
 
 **不用子模块**（上游无 push 权限 → detached HEAD，改了提交不出去）。
-上游版本用 `governance/upstreams.lock` 记录 remote / 分支 / HEAD / 脏状态。
+参考克隆版本用 `governance/upstreams.lock` 记录 remote / 分支 / HEAD / 脏状态。
+
+**`git clean -x` 是禁手**：它会删除被 ignore 的目录 —— 一次误操作即抹掉全部参考克隆。只用 `clean -fd`。
 
 **硬约束：交付物必须落在自有 push 权限的仓里。**
 
@@ -107,12 +117,12 @@ pm 开 Issue（类型 + 职能标签 + 验收清单）
 ```markdown
 # {{PROJECT_NAME}} 工作区 · Agents
 
-> **治理全文**：`{{BASE_REPO_DIR}}/governance/agent-governance.md`
-> 本文件是**转发存根**（工作区根不是仓）；细则与模板都在基础工程内。
+> **治理全文**：`governance/agent-governance.md`（仓内，受版本控制）
+> 本文件是**治理入口**：只列不变量；细则与模板在 `governance/`。
 
 ## 两项启动前提
-1. **GitHub 基础工程**：`{{BASE_REPO_DIR}}/` → `{{GITHUB_REPO}}`
-2. **llm-wiki**：`{{BASE_REPO_DIR}}/wiki/`（先读 SCHEMA → index → log）
+1. **GitHub 基础工程**：工作区根 → `{{GITHUB_REPO}}`（工作区根即该仓工作树）
+2. **llm-wiki**：`wiki/`（先读 SCHEMA → index → log）
 
 ## 不变量
 - **真源**：规格认 wiki · 过程认 Issue · 聊天不算。
@@ -120,7 +130,8 @@ pm 开 Issue（类型 + 职能标签 + 验收清单）
 - **主循环**：pm 开 Issue（类型 + 职能标签 + 验收清单）→ 新建职能会话（@ rule + Issue URL）
   → 只改本领地 → 回写 Issue → 动规格更 wiki **并 push** → ready-for-pm → pm 关单 → 删会话。
 - **同刻一个会话**：同一职能同时只跑一个 · 越界请 pm 改派。
-- **交付物归自有仓**：上游克隆只读，产出必须落到自有 push 权限的仓。
+- **交付物归自有仓**：`{{REF_DIR}}` 内只读；产出必须落到自有 push 权限的仓。
+- **本仓禁用 `git clean -x`**：会删除被 ignore 的参考克隆。
 ```
 
 ---
