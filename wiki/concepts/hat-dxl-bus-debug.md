@@ -38,10 +38,8 @@ related:
 |----|------|
 | 电压 | **6.0 V 优先**；**6.0–6.5 V** 为实测可用带（手册上限 6.0 V）；**勿** 7.4 V 直供舵机 |
 | 电流限 | **纯 HAT 阶段 1 A**；**叠 Zero 后 2–3 A**；**按当前构型在上电前设好** |
-| 进电 | J13 或 J14：**针1=GND · 针2=+BATT**；针3 先空 |
+| 进电 | J13 或 J14：**针1=GND · 针2=+BATT**（针脚 **1=GND · 2=VBATT · 3=DATA**；与部分飞特线序相反）；针3 先空 |
 | 禁止 | >6.5 V 直供舵机、30 V、Type-C 与 `+BATT` 同时灌、一次挂多只 |
-
-针脚：**1=GND · 2=VBATT · 3=DATA**（与部分飞特线序相反）。
 
 ---
 
@@ -57,16 +55,14 @@ related:
 记下：**ID、波特率、固件、当时电压**，后面 HAT 必须用同一套。用脚本采原始输出（勿手抄）：
 
 ```bash
-python scripts/dxl_ping.py info --port COM7 --id <当前ID>     # 基线：ID/波特率/固件/电压
+python3 scripts/dxl_ping.py info --port COM7 --id <当前ID>   # 基线：ID/波特率/固件/电压
 ```
 
 ### 1.1 出厂默认回退（1 Mbps 扫不到 ≠ 硬件坏）· 订正 M4
 
 新 XL330 **出厂 = ID 1 @ 57 600 baud**——两者**本总线都不用**。**只按 1 Mbps 测会得到假「零回包」**：
 先按 1 Mbps ping 预期 ID；若恰一个缺失 → 探 ID 1（先 1 Mbps、再**重开 57 600**）→ 写 ID/波特率 → 回 1 Mbps →
-查寄存器 → **重启舵机**（重启才清烧写留下的锁存 hardware-error）。
-
-顺序、寄存器与脚本用法见 **[[dxl-bench-method]] §2**。
+查寄存器 → **重启舵机**（重启才清烧写留下的锁存 hardware-error）。顺序与寄存器 → **[[dxl-bench-method]] §2**。
 
 ---
 
@@ -107,9 +103,9 @@ grep -E '^(console=|overlays=|overlay_prefix=)' /boot/armbianEnv.txt
 扫总线用可版本化脚本（勿再靠「板上已装工具」）：
 
 ```bash
-python scripts/dxl_ping.py scan  --port /dev/ttyS2 --baud 1000000,57600   # 先 1 Mbps，再 57 600 回退
-python scripts/dxl_ping.py info  --port /dev/ttyS2 --id <ID>              # 基线：ID/波特率/固件/电压
-python scripts/dxl_ping.py probe --port /dev/ttyS2 --expect <ID列表>      # 复刻官方探测顺序
+python3 scripts/dxl_ping.py scan  --port /dev/ttyS2 --baud 1000000,57600   # 先 1 Mbps，再 57 600 回退
+python3 scripts/dxl_ping.py info  --port /dev/ttyS2 --id <ID>              # 基线：ID/波特率/固件/电压
+python3 scripts/dxl_ping.py probe --port /dev/ttyS2 --expect <ID列表>      # 复刻官方探测顺序
 ```
 
 - 官方栈：`robotd` / 仓库自带 ping
@@ -171,29 +167,33 @@ CH2 在发包期间应变成 **发送态**，包结束后应回到 **接收态**
 
 按 [[hat-solder-kit]] §6.4 核对：
 
-- **必有：** U5、U6、U7、**R29**、C15、R31/R32、J13/J14  
-- 不用 485：**U8 / J3 / J11 可空**；不要误以为没 U8 就不能 TTL  
-- J4 40-pin 接触、UART2 对应脚无桥锡  
+- **必有：** U5、U6、U7、**R29**、C15、R31/R32、J13/J14
+- 不用 485：**U8 / J3 / J11 可空**；不要误以为没 U8 就不能 TTL
+- J4 40-pin 接触、UART2 对应脚无桥锡
 
 ---
 
 ## 6. 决策树（短）
 
-```
-U2D2 扫得到这只舵机？
-  否 → 修舵机/线/Wizard
-  是 → /dev/ttyS2 在？getty masked？console=display？
-         否 → 跑 setup-board / 手改 armbianEnv 后重启
-         是 → 示波器 DATA 有主机包？
-                否 → UART/J4/overlay
-                是 → 有回包？
-                       否 → 针序/DIR/U6 一直驱动/电压
-                       是 → U7/RX 或仍有进程占 ttyS2
-```
+1. **U2D2 扫得到这只舵机？** 否 → 修舵机/线/Wizard。
+2. `/dev/ttyS2` 在？getty masked？`console=display`？否 → 跑 `setup-board` / 改 `armbianEnv.txt` 后**重启**。
+3. 示波器 DATA **有主机包？** 否 → UART / J4 / overlay。
+4. **有回包？** 否 → 针序 / DIR / U6 一直驱动 / 电压。
+5. 有回包但软件仍失败 → U7（RX）/ 仍有进程占 `ttyS2`。
 
-## 7. 本轮验收
+## 7. 2026-09-16 复测结果（HAT TTL 已打通）
 
-验收清单（含主控↔HAT 补充项：**DXL 口是否真上电** · **单变量原则** · **分支定位** · **证据随单**）
-→ **[[dxl-bench-method]] §6**。M1–M6 裁决 → **§4**（M3 基线**证据不足**，[[xl330-cn-bench-kit]] 已据实标记）。
+**结论：通了。** 6.0 V 台供 · getty masked · `fuser` 干净 · `console=display`（本次已生效）·
+**1 Mbps 全静默 → 57 600 上 ID 1 应答**（model 1200）。舵机仍是**出厂状态**（[[xl330-cn-bench-kit]] 基线表）——
+§1.1 的出厂回退是**本次唯一命中路径**，**只按 1 Mbps 测会得到错误的「零回包」结论**。
+
+> **本轮先拿到过一次假阴性**：脚本 CRC 漏了 4 字节 header，`self-test` 的假舵机照抄同一错误 → 自检全绿、台架两档全静默。
+> **教训：loopback 自检只证明自洽，不证明合规**。另：本套件回包多一固定字节 `0x55`。
+> 两坑与逐项实测 → [[dxl-bench-method]] §7 · `scripts/README.md`。
+
+## 8. 验收与裁决
+
+验收清单（含主控↔HAT 补充项：**DXL 口是否真上电** · **单变量原则** · **分支定位** · **证据随单**）与 M1–M6 裁决
+→ **[[dxl-bench-method]] §6 · §4**。
 
 相关：[[hat-solder-kit]] · [[xl330-cn-bench-kit]] · [[board-interconnect]] · [[zero3w-bench-plan]] · [[dxl-bench-method]]

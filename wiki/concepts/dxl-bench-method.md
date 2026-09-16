@@ -87,34 +87,48 @@ related:
 |----|------|------|
 | **M1** 母线 6.0–6.5 V | **确认**（机制订正见 §1.1） | [[hat-dxl-bus-debug]] §0 |
 | **M2** 限流分段 | **确认** + 补「上电前按构型设定」 | §1 |
-| **M3** #1 基线（ID/波特率/固件/电压） | **证据不足** —— 从未落真源，拒绝臆造 | [[xl330-cn-bench-kit]] §测试结论 |
-| **M4** 出厂 57 600 回退 | **确认** | §2 |
+| **M3** #1 基线（ID/波特率/固件/电压） | 初判**证据不足**（#1 从未落真源）→ **复测已现场采集**，缺口关闭 | [[xl330-cn-bench-kit]] §测试结论 |
+| **M4** 出厂 57 600 回退 | **确认** —— 且复测中它是**唯一**命中路径 | §2 |
 | **M5** 版本化扫 / Ping 脚本 | **确认** → `microduck-diy/scripts/dxl_ping.py` | `scripts/README.md` |
 | **M6** 官方 `report()` 作一致性基线 | **确认** | §3 |
 
 ## 5. 脚本
 
-`microduck-diy/scripts/dxl_ping.py` —— **只读** Protocol 2.0 扫 / Ping / 基线读取；仅依赖 `pyserial`（协议自实现，无 SDK 版本漂移）；带无硬件 `self-test`。
+`microduck-diy/scripts/dxl_ping.py` —— **只读** Protocol 2.0 扫 / Ping / 基线读取；协议自实现，
+**Linux 上零依赖**（有 `pyserial` 用之，无则退 stdlib `termios`——板子常无 `pip`）；带无硬件 `self-test`。
 
 ```bash
-python scripts/dxl_ping.py self-test
-python scripts/dxl_ping.py scan  --port COM7 --baud 1000000,57600
-python scripts/dxl_ping.py info  --port COM7 --id <ID>
-python scripts/dxl_ping.py probe --port COM7 --expect <ID列表>
+python3 scripts/dxl_ping.py self-test
+python3 scripts/dxl_ping.py scan  --port COM7 --baud 1000000,57600
+python3 scripts/dxl_ping.py info  --port COM7 --id <ID>
+python3 scripts/dxl_ping.py probe --port COM7 --expect <ID列表>
 ```
 
 **写 ID / 写波特率 / 寄存器修正不在脚本内**——归 `robotd` / Wizard。
 
+### 5.1 两个已验证的坑（2026-09-16 台架）
+
+1. **CRC 必须覆盖 4 字节 header**（`FF FF FD 00` 起）。漏掉 → 报文被舵机丢弃 → **两档波特率全「无回包」**，
+   而 `self-test` 因为假舵机照抄同一错误会**全绿**。现由公开向量 `ff ff fd 00 01 03 00 01 19 4e` 钉死。
+2. **本套件回包多一个固定字节 `0x55`**（`LEN = DATA + 4`，规格 `+3`），且在线上、被舵机 CRC 覆盖。
+   按规格解析 → `error=0x55` 且**所有寄存器整体错位一字节**（`model=45056`、`1792.0 V` 这类「合理但错误」的值）。
+   脚本用「PING 回 3 字节 / READ 回请求长度」自动判别两种帧；`self-test` 用实测帧回放回归。
+   **该字节来源未定论**，需 U2D2 + Wizard 交叉验证。
+
 ## 6. 验收清单（Issue #4）
 
-**本轮（方法审计）**
+**2026-09-16 复测（见 [[hat-dxl-bus-debug]] §8）——已勾**
 
-- [ ] **基线已记录**：该舵机当前 ID / 波特率 / 固件 / 当时电压（`dxl_ping.py info` 原始输出随单）
-- [ ] U2D2 仍能扫到该舵机（含 **57 600 回退**已试，见 §2）
-- [ ] HAT 针2 = 台供（**6.0–6.5 V**，6.0 V 优先）；限流**上电前**按构型设好（纯 HAT 1 A；叠 Zero 2–3 A）
-- [ ] getty masked · `console=display`（**重启后**生效）· `fuser` 干净 · `report()` 无 CONFLICT
-- [ ] 空闲 DATA≈3.3 V；Ping 有主机包
-- [ ] 接舵机后有回包，软件能读 ID
+- [x] 基线已记录：`dxl_ping.py info` 原始输出 → [[xl330-cn-bench-kit]]
+- [x] **57 600 回退已试**，且是唯一命中（1 Mbps 全静默）
+- [x] `/dev/ttyS2` 在 · getty masked · `fuser` 干净 · `console=display` 本次已生效
+- [x] 软件 Ping/读寄存器成功（HAT 路径）
+
+**仍未做**
+
+- [ ] 示波器：空闲 DATA ≈3.3 V；Ping 主机包 + 回包波形
+- [ ] 回包多出的固定字节 `0x55` 来源定论（U2D2 + Wizard 交叉验证）
+- [ ] 按构型**实测**台供限流值（纯 HAT 1 A / 叠 Zero 2–3 A 仍为定案值，未实测复核）
 
 **复查补充（主控↔HAT DATA 未打通）**
 
@@ -122,5 +136,22 @@ python scripts/dxl_ping.py probe --port COM7 --expect <ID列表>
 - [ ] **单变量原则** —— 换线/换舵机/换供电策略一次只动一个，评论里写明本次变量
 - [ ] **分支定位（必须给结论）** —— ①供电未使能 ②串口被占用 ③物理层/方向脚 ④收发器或焊点 ⑤软件配置；证据不足也要写明
 - [ ] **证据随单** —— pin2 电压 · pin3 空闲电平 · ping 主机包与回包波形 · 软件 ping/read ID 输出
+
+## 7. 复测结果与要点（2026-09-16 · 已验证）
+
+**HAT TTL 已打通。** `/dev/ttyS2` 在 · `hdy` 在 `dialout` 组 · getty **masked**/inactive ·
+`fuser` rc=1（无占用）· `armbianEnv.txt` `console=display` 且 `/proc/cmdline` = `console=tty1`（**本次已生效**）·
+`overlays=uart2-m0` + `overlay_prefix=rk3568`。
+**1 Mbps 全静默 → 57 600 上 ID 1 应答**（model 1200）。舵机仍出厂状态 → [[xl330-cn-bench-kit]]。
+
+复测要点：
+
+1. **先确认波特率**：出厂舵机只答 **57 600**；1 Mbps 静默是**预期**，不是坏。
+2. **先跑 `self-test`**：它现在用公开向量钉死 CRC 作用域。自检绿 ≠ 协议合规——要看到 `ff ff fd 00 01 03 00 01 19 4e`。
+3. **读值要过常识**：`max_voltage_limit` 应 ≈70（7.0 V）、`present_input_voltage` 应 ≈ 台供电压。
+   若出现 `1792.0 V` 这类值，是**帧错位**（本套件多一固定字节 `0x55`），不是舵机坏了。
+4. **没装 `pyserial` 也能跑**：脚本在 Linux 上退回 stdlib `termios`。
+
+**仍未做**：示波器波形 · 写 ID/波特率（归 `robotd`/Wizard）· `0x55` 来源定论（U2D2 + Wizard 交叉验证）。
 
 相关：[[hat-dxl-bus-debug]] · [[xl330-cn-bench-kit]] · [[dynamixel-xl330]] · [[bench-power-supply]] · [[body-imu-hat-dxl-power-eval]]

@@ -3,7 +3,7 @@
 > **Agent 先读：** [[SCHEMA]] · 本文件 · [[log]]  
 > 本 wiki：`microduck-diy/wiki/` · 更新：2026-09-16  
 > **目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展  
-> **现行焦点：** 机身 IMU 固件 [#10](https://github.com/ScrapMeta/microduck-diy/issues/10)（U2D2 台架通过 · ready-for-pm）· HAT TTL [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)
+> **现行焦点：** HAT TTL [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)——**2026-09-16 台架已打通**（57 600 / ID 1 出厂舵机 · 基线已采集）· 机身 IMU 固件 [#10](https://github.com/ScrapMeta/microduck-diy/issues/10)
 
 ## 现行定稿（优先）
 
@@ -23,8 +23,8 @@
 - [[elec-three-boards]] — HAT · 机身 IMU · 头（HAT BMI088）
 - [[board-hat]] · [[elec-rpi-robot-hat]] — 官方 HAT
 - [[hat-solder-kit]] — **HAT 焊接配料 / 波次 / DNP**
-- [[hat-dxl-bus-debug]] — HAT TTL 舵机测不通（示波器 + 台供）
-- [[dxl-bench-method]] — **台架方法真源**（参数 · 57 600 回退 · `report()` 基线 · M1–M6）
+- [[hat-dxl-bus-debug]] — HAT TTL 舵机测不通（**2026-09-16 已打通** · 示波器 + 台供）
+- [[dxl-bench-method]] — **台架方法真源**（参数 · 57 600 回退 · `report()` 基线 · M1–M6 · 复测结果）
 - [[dual-imu-board-selection]] — 双 IMU 选型结论
 - [[elec-three-board-bom]] — 电子 BOM 合并
 - [[elec-hat-lcsc-order-2026-09-05]] — HAT 立创订单
@@ -33,8 +33,8 @@
 
 - [[microduck-diy]] · [[diy-milestones]] · [[diy-bom]]
 - [[zero3w-bench-plan]] — **现行：主控台架规划（2G · SD）**
-- [[xl330-cn-bench-kit]] — 舵机台架（✅ 通过；**基线明细证据不足**，待 `scripts/dxl_ping.py` 采集）
-- `scripts/dxl_ping.py` — **台架 DXL 只读扫/Ping/基线脚本**（Protocol 2.0 · 自带 `self-test`）
+- [[xl330-cn-bench-kit]] — 舵机台架（✅ 通过；**基线已采集**：出厂 ID 1 / 57 600 / shutdown 53）
+- `scripts/dxl_ping.py` — **台架 DXL 只读扫/Ping/基线脚本**（Protocol 2.0 · 零依赖 · 自带 `self-test`）
 - [[local-workspace-layout]] — **布局真源**
 - [[ros2-migration-plan]] — ROS2 并行移植规格（software 范畴）
 - [Agent 治理](../governance/agent-governance.md)（基础工程 + llm-wiki · 只常驻 pm · 交付物归自有仓）· 根 `AGENTS.md` 为转发存根

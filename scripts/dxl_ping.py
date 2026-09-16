@@ -11,15 +11,17 @@ minimal, versioned replacement. It is *read-only* on purpose - it never writes I
 baud rate or any EEPROM register, because `robotd` (and the Wizard) own those and
 Issue #4 is a method audit that must not reconfigure the servo under test.
 
-Dependency: `pyserial` only. Protocol 2.0 (packets + CRC-16) is implemented in this
-file, so there is no SDK version to drift. Run `self-test` to prove the codec without
-any hardware attached.
+Dependency: none on Linux. Protocol 2.0 (packets + CRC-16) is implemented in this
+file, so there is no SDK version to drift. The serial handle prefers `pyserial` when
+it is importable and otherwise falls back to a stdlib `termios` backend - a freshly
+flashed Zero 3W has neither `pyserial` nor `python3 -m pip`, so requiring the package
+would make the bench procedure unrunnable there. Run `self-test` to prove the codec
+with no hardware and no dependencies at all.
 
-    pip install pyserial
-    python dxl_ping.py self-test
-    python dxl_ping.py scan  --port COM7
-    python dxl_ping.py info  --port COM7 --id 1
-    python dxl_ping.py probe --port COM7
+    python3 dxl_ping.py self-test
+    python3 dxl_ping.py scan  --port COM7
+    python3 dxl_ping.py info  --port COM7 --id 1
+    python3 dxl_ping.py probe --port COM7
 
 The official probe order (mirrors `duck-control/src/bus.rs` `adopt`, `robotd-design`
 sec 2.1)
@@ -65,6 +67,7 @@ Register addresses are from the ROBOTIS XL330-M288 eManual control table.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import time
 
@@ -84,6 +87,10 @@ INST_PING = 0x01
 INST_READ = 0x02
 
 MODEL_NUMBER_XL330 = 1200
+
+# Some DXL-2.0-compatible servos insert a constant byte between LEN and ERROR.
+# Observed value on the XL330-CN bench kit (Issue #4, 2026-09-16).
+STATUS_PREFIX_BYTE = 0x55
 
 # Instruction(8) -> bps. The servo stores the index; 1 is the factory default.
 BAUD_TABLE = {
@@ -176,17 +183,21 @@ def build_packet(dxl_id: int, instruction: int, params: bytes = b"") -> bytes:
     # LEN counts Instruction + Parameter + CRC, so it is len(params) + 3, not len(params).
     length = len(params) + 3
     body = bytes([dxl_id]) + length.to_bytes(2, "little") + bytes([instruction]) + params
-    return HEADER + body + update_crc(0, body).to_bytes(2, "little")
+    frame = HEADER + body
+    # CRC-16/IBM covers the whole packet from the header through the last parameter.
+    return frame + update_crc(0, frame).to_bytes(2, "little")
 
 
 class Status:
-    __slots__ = ("dxl_id", "error", "params", "raw")
+    __slots__ = ("dxl_id", "error", "params", "raw", "prefix")
 
     def __init__(self, dxl_id: int, error: int, params: bytes, raw: bytes):
         self.dxl_id = dxl_id
         self.error = error
         self.params = params
         self.raw = raw
+        # Set when a non-standard status prefix byte was present (see Bus._read_status).
+        self.prefix = None
 
     @property
     def alert(self) -> bool:
@@ -197,6 +208,112 @@ class Status:
 
 
 # --------------------------------------------------------------------------- serial
+
+
+class TermiosSerial:
+    """Minimal pyserial-compatible handle built on termios (Linux, stdlib only).
+
+    `pip` is not always present on a freshly flashed board - on the Zero 3W there is
+    no `pyserial` *and* `python3 -m pip` is missing, while `apt install python3-serial`
+    needs root. Termios is in the stdlib, so the bench script still runs on the target
+    without installing anything.
+    """
+
+    _BAUD_ATTR = {
+        9600: "B9600",
+        57600: "B57600",
+        115200: "B115200",
+        1000000: "B1000000",
+        2000000: "B2000000",
+        3000000: "B3000000",
+        4000000: "B4000000",
+    }
+
+    def __init__(self, port: str, baud: int, timeout: float = 0.05):
+        import select
+        import termios
+
+        self._os = os
+        self._select = select
+        self._termios = termios
+        self.timeout = timeout
+
+        attr = self._BAUD_ATTR.get(baud)
+        if attr is None or not hasattr(termios, attr):
+            raise RuntimeError(f"termios backend cannot set {baud} bps on this system")
+
+        self.fd = os.open(port, os.O_RDWR | os.O_NOCTTY)
+        try:
+            iflag, oflag, cflag, lflag, _ispeed, _ospeed, cc = termios.tcgetattr(self.fd)
+
+            iflag = 0  # raw: no IXON/IXOFF/IXANY, no CR/LF translation
+            oflag = 0
+            lflag = 0
+
+            # 8N1, ignore modem control lines (the bus is half-duplex TTL).
+            cflag = termios.CS8 | termios.CREAD | termios.CLOCAL
+            if hasattr(termios, "CRTSCTS"):
+                cflag &= ~termios.CRTSCTS
+
+            speed = getattr(termios, attr)
+            cc = list(cc)
+            cc[termios.VMIN] = 0  # pure timed reads, like pyserial
+            cc[termios.VTIME] = 0
+            termios.tcsetattr(
+                self.fd,
+                termios.TCSANOW,
+                [iflag, oflag, cflag, lflag, speed, speed, cc],
+            )
+            termios.tcflush(self.fd, termios.TCIFLUSH)
+        except Exception:
+            os.close(self.fd)
+            self.fd = -1
+            raise
+
+    def read(self, size: int = 1) -> bytes:
+        """Pyserial semantics: up to `size` bytes, give up once `timeout` expires."""
+        data = bytearray()
+        deadline = time.monotonic() + self.timeout
+        while len(data) < size:
+            remain = deadline - time.monotonic()
+            if remain <= 0:
+                break
+            try:
+                ready, _, _ = self._select.select([self.fd], [], [], remain)
+            except (OSError, ValueError):
+                break
+            if not ready:
+                break
+            try:
+                chunk = self._os.read(self.fd, size - len(data))
+            except OSError:
+                break
+            if not chunk:
+                break
+            data += chunk
+        return bytes(data)
+
+    def write(self, data: bytes) -> int:
+        written = 0
+        while written < len(data):
+            try:
+                written += self._os.write(self.fd, data[written:])
+            except OSError:
+                break
+        return written
+
+    def reset_input_buffer(self) -> None:
+        try:
+            self._termios.tcflush(self.fd, self._termios.TCIFLUSH)
+        except Exception:
+            pass
+
+    def close(self) -> None:
+        if self.fd >= 0:
+            try:
+                self._os.close(self.fd)
+            finally:
+                self.fd = -1
 
 
 class Bus:
@@ -211,9 +328,14 @@ class Bus:
         self.timeout = timeout
         self.verbose = verbose
         if isinstance(port, str):
-            if serial is None:
-                raise RuntimeError("pyserial is required: pip install pyserial")
-            self.ser = serial.Serial(port, baud, timeout=timeout, write_timeout=timeout)
+            if serial is not None:
+                self.ser = serial.Serial(port, baud, timeout=timeout, write_timeout=timeout)
+            elif os.name == "posix":
+                self.ser = TermiosSerial(port, baud, timeout=timeout)
+            else:
+                raise RuntimeError(
+                    "pyserial is required on this platform (pip install pyserial)"
+                )
         else:  # already an open, duck-typed serial handle (used by self-test)
             self.ser = port
 
@@ -229,8 +351,24 @@ class Bus:
     def __exit__(self, *exc):
         self.close()
 
-    def _read_status(self) -> Status | None:
-        """Read one status packet, tolerating garbage before the header."""
+    def _read_status(self, expect_len: int | None = None) -> Status | None:
+        """Read one status packet, tolerating garbage before the header.
+
+        `expect_len` is the DATA length the spec says this instruction returns
+        (PING -> 3 = model(2) + firmware(1); READ -> the requested byte count). It
+        is what lets us tell the two candidate framings apart, because both are
+        numerically consistent with LEN on their own:
+
+          standard : LEN = 1(ERROR) + DATA + 2(CRC)
+          prefixed : LEN = 1(prefix) + 1(ERROR) + DATA + 2(CRC)
+
+        Bench finding (Issue #4, 2026-09-16, /dev/ttyS2 @ 57 600): the servo shipped
+        with the XL330-CN kit replies in the *prefixed* form, with a constant 0x55
+        byte between LEN and ERROR. The servo's own LEN and CRC both cover that byte,
+        so it is genuinely on the wire - it is not something this parser invents.
+        Before this was understood every reply looked like `error=0x55` with every
+        register shifted one byte, which reads as plausible-but-wrong data.
+        """
         deadline = time.monotonic() + max(self.timeout, 0.02)
         buf = bytearray()
         while time.monotonic() < deadline:
@@ -254,21 +392,49 @@ class Bus:
             return None
 
         frame = rest + payload
-        want = update_crc(0, frame[:-2])
+        # CRC-16/IBM covers the header too: HEADER + ID + LEN + ERR + PARAM.
+        want = update_crc(0, HEADER + frame[:-2])
         got = frame[-2] | (frame[-1] << 8)
         if want != got:
             if self.verbose:
                 sys.stderr.write(f"  ! CRC mismatch: want {want:04X}, got {got:04X}\n")
             return None
 
-        error = frame[3]
-        params = frame[4:-2]
+        body = frame[3:-2]  # everything LEN counts, minus the 2 CRC bytes
+
+        # standard body = ERROR + DATA          -> len == expect_len + 1
+        # prefixed body = PREFIX + ERROR + DATA -> len == expect_len + 2
+        # On error the servo may return no DATA at all, which makes the two lengths
+        # collide; fall back to the prefix value in that case.
+        prefixed = False
+        if expect_len is not None and len(body) == expect_len + 2:
+            prefixed = True
+        elif expect_len is not None and len(body) == expect_len + 1:
+            prefixed = bool(body) and body[0] == STATUS_PREFIX_BYTE
+        else:
+            prefixed = bool(body) and body[0] == STATUS_PREFIX_BYTE
+
+        if prefixed:
+            prefix = body[0] if body else None
+            error = body[1] if len(body) > 1 else 0
+            params = body[2:]
+            if self.verbose:
+                sys.stderr.write(
+                    f"  ! non-standard status framing: prefix 0x{prefix:02X}, "
+                    f"LEN = DATA + 4 (spec says + 3)\n"
+                )
+        else:
+            prefix, error, params = None, (body[0] if body else 0), body[1:]
+
         raw = HEADER + frame
         if self.verbose:
             sys.stderr.write(f"  < {raw.hex(' ')}\n")
-        return Status(dxl_id, error, params, raw)
+        status = Status(dxl_id, error, params, raw)
+        status.prefix = prefix
+        return status
 
-    def _transact(self, dxl_id: int, instruction: int, params: bytes = b"") -> Status | None:
+    def _transact(self, dxl_id: int, instruction: int, params: bytes = b"",
+                  expect_len: int | None = None) -> Status | None:
         packet = build_packet(dxl_id, instruction, params)
         if self.verbose:
             sys.stderr.write(f"  > {packet.hex(' ')}\n")
@@ -277,14 +443,15 @@ class Bus:
         except Exception:
             pass
         self.ser.write(packet)
-        return self._read_status()
+        return self._read_status(expect_len=expect_len)
 
     def ping(self, dxl_id: int) -> Status | None:
-        return self._transact(dxl_id, INST_PING)
+        # A PING status returns ERROR + model number(2) + firmware version(1).
+        return self._transact(dxl_id, INST_PING, expect_len=3)
 
     def read(self, dxl_id: int, address: int, length: int) -> Status | None:
         params = address.to_bytes(2, "little") + length.to_bytes(2, "little")
-        return self._transact(dxl_id, INST_READ, params)
+        return self._transact(dxl_id, INST_READ, params, expect_len=length)
 
 
 def scan(bus: Bus, id_min: int, id_max: int) -> list:
@@ -446,7 +613,15 @@ def cmd_self_test(args) -> int:
     if a != known:
         failures.append(f"CRC of {vector!r} = {a:04X}, expected {known:04X}")
 
-    # 2) packet round-trip through a fake serial port
+    # 2) packet round-trip, anchored to a published vector.
+    # The canonical DXL Protocol 2.0 PING of ID 1 is the byte string below; the CRC
+    # must cover the 4-byte header too. Computing it over the body only yields
+    # `... 01 3a 6c`, a packet a real servo ignores - which is exactly the kind of
+    # silent failure that shows up at the bench as "no reply from the hardware".
+    ping1 = build_packet(1, INST_PING)
+    if ping1 != bytes.fromhex("fffffd000103000119 4e".replace(" ", "")):
+        failures.append(f"PING id1 = {ping1.hex(' ')}, expected ff ff fd 00 01 03 00 01 19 4e")
+
     class Loopback:
         """Answers a PING as an XL330 would: id 1, no error, model 1200."""
 
@@ -458,12 +633,15 @@ def cmd_self_test(args) -> int:
         def write(self, data):
             for dxl_id, instruction, params in parse_packet(data):
                 if instruction == INST_PING:
-                    # Status LEN = ERROR(1) + model(2) + CRC(2) = 5.
-                    body = bytes([dxl_id, 0x05, 0x00, self.error]) + self.model.to_bytes(2, "little")
-                    self.buf += HEADER + body + update_crc(0, body).to_bytes(2, "little")
+                    # Status LEN = ERROR(1) + model(2) + firmware(1) + CRC(2) = 6.
+                    body = bytes([dxl_id, 0x06, 0x00, self.error]) \
+                        + self.model.to_bytes(2, "little") + bytes([0x35])
+                    frame = HEADER + body
+                    self.buf += frame + update_crc(0, frame).to_bytes(2, "little")
                 elif instruction == INST_READ:
                     body = bytes([dxl_id, 0x05, 0x00, self.error]) + (0x2C).to_bytes(2, "little")
-                    self.buf += HEADER + body + update_crc(0, body).to_bytes(2, "little")
+                    frame = HEADER + body
+                    self.buf += frame + update_crc(0, frame).to_bytes(2, "little")
             return len(data)
 
         def read(self, n=1):
@@ -496,7 +674,69 @@ def cmd_self_test(args) -> int:
     if Bus(Corrupt(), BUS_BAUD).ping(1) is not None:
         failures.append("a packet with a bad CRC was accepted")
 
-    # 4) shutdown decode
+    # 4) the framing this bench kit actually replies with (Issue #4, 2026-09-16).
+    # These are verbatim captures from /dev/ttyS2 @ 57 600; the extra 0x55 byte
+    # after LEN is on the wire and covered by the servo's own CRC.
+    class Replay:
+        def __init__(self, frames):
+            self.frames = [bytes.fromhex(f) for f in frames]
+            self.buf = bytearray()
+
+        def write(self, data):
+            self.buf += self.frames.pop(0) if self.frames else b""
+            return len(data)
+
+        def read(self, n=1):
+            out = bytes(self.buf[:n])
+            del self.buf[:n]
+            return out
+
+        def reset_input_buffer(self):
+            pass
+
+        def close(self):
+            pass
+
+    replay = Replay([
+        # PING id 1
+        "fffffd000107005500b00435b754",
+        # READ(addr=0, len=2) -> model number
+        "fffffd000106005500b004d47b",
+        # READ(addr=7, len=1) -> id
+        "fffffd0001050055000156a1",
+        # READ(addr=0xFFFF, len=1) -> error reply, no DATA
+        "fffffd000104005507b08c",
+    ])
+    bus = Bus(replay, BUS_BAUD)
+    st = bus.ping(1)
+    if st is None:
+        failures.append("prefixed PING did not parse")
+    else:
+        if st.error != 0x00:
+            failures.append(f"prefixed PING error = 0x{st.error:02X}, expected 0x00")
+        if model_of(st) != MODEL_NUMBER_XL330:
+            failures.append(f"prefixed PING model = {model_of(st)}, expected {MODEL_NUMBER_XL330}")
+        if st.params[2] != 0x35:
+            failures.append(f"prefixed PING firmware = {st.params[2]}, expected 0x35")
+
+    st = bus.read(1, 0, 2)
+    if st is None or st.params != bytes([0xB0, 0x04]):
+        failures.append(f"prefixed READ(model,2) = {st.params.hex() if st else None}, expected b004")
+
+    # a 1-byte register still yields exactly one byte of DATA
+    st = bus.read(1, 7, 1)
+    if st is None or st.params != bytes([0x01]):
+        failures.append(f"prefixed READ(id,1) = {st.params.hex() if st else None}, expected 01")
+
+    # an error reply carries no DATA, so only the prefix distinguishes the framing
+    st = bus.read(1, 0xFFFF, 1)
+    if st is None:
+        failures.append("prefixed error reply did not parse")
+    elif st.error != 0x07 or st.params != b"":
+        failures.append(f"error reply = error 0x{st.error:02X} params {st.params.hex()}, "
+                        f"expected 0x07 and empty")
+
+    # 5) shutdown decode
     if decode_shutdown(53) != "InputVoltage|Overheating|ElectricalShock|Overload":
         failures.append(f"shutdown 53 decoded as {decode_shutdown(53)!r}")
     if "InputVoltage" in decode_shutdown(52):
@@ -507,7 +747,8 @@ def cmd_self_test(args) -> int:
         for f in failures:
             print(f"  - {f}")
         return 1
-    print("self-test OK: CRC (bitwise == table), packet round-trip, CRC rejection, shutdown bits")
+    print("self-test OK: CRC (bitwise == table), packet round-trip, CRC rejection, "
+          "prefixed framing replay, shutdown bits")
     return 0
 
 

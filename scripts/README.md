@@ -12,21 +12,20 @@
 ## `dxl_ping.py` — XL330 只读扫 / Ping / 基线读取
 
 Dynamixel **Protocol 2.0** 只读探针（PING / READ），**不写任何寄存器**（ID / 波特率写入仍归
-`robotd` / Wizard）。协议与 CRC 在文件内实现，只依赖 `pyserial`，故没有 SDK 版本漂移。
+`robotd` / Wizard）。协议与 CRC 在文件内实现；**在 Linux 上零依赖**（有 `pyserial` 就用，没有就退回
+stdlib `termios` —— 板子 `python3` 常既无 `pyserial` 也无 `pip`，要求装包会让流程在目标机上跑不起来）。
 
 ```bash
-pip install pyserial
-
-python scripts/dxl_ping.py self-test                       # 无硬件，自检 codec
-python scripts/dxl_ping.py scan  --port COM7               # 1 Mbps 全 ID 扫描（U2D2）
-python scripts/dxl_ping.py scan  --port /dev/ttyS2 --baud 1000000,57600
-python scripts/dxl_ping.py info  --port COM7 --id 1        # 读基线（ID/波特率/固件/电压/…）
-python scripts/dxl_ping.py probe --port COM7 --expect 10,11,12
+python3 scripts/dxl_ping.py self-test                      # 无硬件，自检 codec
+python3 scripts/dxl_ping.py scan  --port COM7               # 1 Mbps 全 ID 扫描（U2D2）
+python3 scripts/dxl_ping.py scan  --port /dev/ttyS2 --baud 1000000,57600
+python3 scripts/dxl_ping.py info  --port COM7 --id 1        # 读基线（ID/波特率/固件/电压/…）
+python3 scripts/dxl_ping.py probe --port COM7 --expect 10,11,12
 ```
 
 | 子命令 | 作用 |
 |--------|------|
-| `self-test` | CRC（按位实现 vs 查表实现）、报文往返、坏 CRC 拒收、`shutdown` 位解码 |
+| `self-test` | CRC（按位实现 vs 查表实现）、**公开报文向量**、报文往返、坏 CRC 拒收、非标准帧回放、`shutdown` 位解码 |
 | `scan` | 在给定波特率（可逗号串列）逐 ID Ping |
 | `info` | 读一个 ID 的基线寄存器，并对照 `robotd` 的期望值 |
 | `probe` | 复刻官方探测顺序：预期 ID @ **1 Mbps** → 若恰一个缺失，探出厂舵机 **ID 1**（先 1 Mbps，再 **57 600**）|
@@ -42,6 +41,29 @@ robotd 的适配路径（本脚本只打印、不执行）：
   (return_delay_time=0 · baud_rate=3 · pwm_slope=255 · shutdown=52) → 重启舵机
 ```
 重启用于**清除烧写留下的锁存 hardware-error**，否则 torque 保持关闭。
+
+## 两个已踩过的坑（2026-09-16 台架实测 · Issue #4）
+
+### 1. CRC 必须覆盖 4 字节 header
+
+CRC-16/IBM 的作用域是「从 `FF FF FD 00` 起到最后一个参数」，**不是**从 ID 起。
+早期版本漏了 header，`self-test` 的假舵机**照抄了同一个错误**，所以自检**全绿**、
+第一次台架扫描却**两档波特率全「无回包」** —— 报文根本没被舵机接受。
+现在 `self-test` 用公开向量 `ff ff fd 00 01 03 00 01 19 4e`（ID 1 的 PING）钉死作用域。
+**教训**：loopback 自检只能证明收发两端一致，不能证明符合规格；必须拿公开向量做锚。
+
+### 2. 本套件的舵机回包多一个固定字节
+
+台架这台（XL330-CN 套件）的状态帧是 `HEADER · ID · LEN · 0x55 · ERROR · DATA · CRC`，
+`LEN = len(DATA) + 4`（规格是 `+ 3`）。**0x55 在线上、且被舵机自己的 CRC 覆盖**，
+不是本脚本读错：若它只是本地串口噪声，`want` 与 `got` 就不会 14/14 全等。
+按规格解析会得到 `error=0x55` 且**每个寄存器整体错位一字节** —— 值看着都像对的，
+其实全是「合理但错误」的数（`model=45056`、`max_voltage_limit=1792.0 V`）。
+脚本按**「PING 应回 3 字节 / READ 应回请求长度」**这两个已知长度自动判别两种帧，
+并在 `-v` 下打印提示；`self-test` 用实测原始帧做回放回归。
+
+> 该字节的**来源未定论**（单位固件怪癖 vs 其它）。交叉验证办法：同一只舵机接 **U2D2 +
+> Dynamixel Wizard** 看是否同样存在 —— Wizard 是独立实现，能一锤定音。
 
 ## 约定
 

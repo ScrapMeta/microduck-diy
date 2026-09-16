@@ -3,6 +3,20 @@
 > Chronological record of all wiki actions. Append-only.  
 > Format: `## [YYYY-MM-DD] action | subject`
 
+## [2026-09-16] bench | #4 远程复测 · HAT TTL 打通 · 修脚本 CRC 作用域
+- 远程 SSH 进 Zero（`192.168.71.101`，只读检查 + 只读扫总线），HAT **已打通**
+  - 软件面全过：`/dev/ttyS2` 在 · `hdy` 在 `dialout` · `serial-getty@ttyS2` **masked**/inactive · `fuser` rc=1 · `overlays=uart2-m0` + `overlay_prefix=rk3568` · `armbianEnv.txt` `console=display` 且 `/proc/cmdline`=`console=tty1`（**本次运行已生效**）
+  - **1 Mbps 全静默 → 57 600 上 ID 1 应答**（model 1200）→ §1.1 出厂回退是**唯一命中路径**
+  - **发现脚本两个真 bug（已修）**：
+    1. **CRC 漏 4 字节 header**（`FF FF FD 00` 起才对）→ 报文被舵机**全部丢弃**；`self-test` 的假舵机**照抄同一错误**故自检全绿 → 第一次台架扫描**两档全「无回包」**，是**假阴性**。现由公开向量 `ff ff fd 00 01 03 00 01 19 4e` 钉死作用域
+    2. 本套件回包**多一固定字节 `0x55`**（`LEN = DATA + 4`，规格 +3），**在线上且被舵机 CRC 覆盖**（14/14 帧 `want==got`）；按规格解析得 `error=0x55` 且**所有寄存器整体错位一字节**（`model=45056`、`1792.0 V` 这类「合理但错误」值）。脚本按已知回包长度自动判别两种帧 + 实测帧回放回归
+  - `pyserial`/`pip` 在板子上**都没有** → 脚本加 **stdlib `termios` 后端**（Linux 零依赖）；用 PTY 对做 TX+RX 端到端验证
+  - 修前/修后台架对照：`error=0x55`+错位值 → `model 1200`/`fw 53`/`shutdown 53`/`5.8 V`/`26 °C`（**与手册出厂默认逐项吻合**）
+- **M3 缺口关闭**：基线**已采集**（出厂 ID 1 · 57 600 · fw 53 · `shutdown 53` · 5.8 V）→ 同时**证伪 #1 的「1 Mbps + 同一颗」前提**（该舵机**从未被写过**）
+- 实测 `shutdown=53` 直接坐实 [[dynamixel-xl330]] 的订正：出厂 53 **含** InputVoltage 位，`robotd` 的 52 才**清掉**它
+- Updated: [[hat-dxl-bus-debug]] §7 · [[dxl-bench-method]] §5.1 §6 §7 · [[xl330-cn-bench-kit]] · [[index]] · `scripts/README.md` · `scripts/dxl_ping.py`
+- **未定论**：`0x55` 字节来源（需 U2D2 + Wizard 交叉验证）· 示波器波形 · 写 ID/波特率（归 `robotd`/Wizard）
+
 ## [2026-09-15] bench | #10 imu-to-dxl 固件 U2D2 验收
 - Commit `a49a628` · Issue [#10](https://github.com/ScrapMeta/microduck-diy/issues/10) · label `ready-for-pm`（待 pm 关单）
 - U2D2 COM7：Ping/Read(124,12) 各 1000 · GroupSyncRead ~50 Hz × 10 min（30000 ok · 0 timeout/ShortRead）· @136=`0x03`

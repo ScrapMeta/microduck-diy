@@ -56,40 +56,57 @@ related:
 | 范围 | 国产启动套件路径：驱动识别 · 扫舵机 · 冒烟运动 |
 | 明细 | **未记录**（见下） |
 
-### 基线参数（M3 · 2026-09-16 复核：**证据不足**）
+### 基线参数（M3）· 2026-09-16 复测**已采集**
 
-Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) 的前提是「**同一颗** U2D2 已验证的舵机」，
-但 #1 的基线**从未落到任何真源**：wiki / `raw/` / 本机 `temp`·`res` / agent 会话里都**查不到**实测的
-**ID / 波特率 / 固件 / 当时电压**。按治理「**聊天不算**」，此处**不臆造**，据实标为**证据不足**。
+`#1` 的基线**从未落到任何真源**（wiki / `raw/` / `temp`·`res` / 会话都查不到）→ 本轮不再等 #1，
+改为**直接在 HAT 总线上采集**（`/dev/ttyS2 @ 57 600`，`scripts/dxl_ping.py info`，2026-09-16）：
 
-| 字段 | 值 | 来源 |
-|------|-----|------|
-| 端口 | 未记录 | — |
-| ID | 未记录（出厂默认 = **1**，未回读） | — |
-| 波特率 | 未记录（出厂默认 = **1 → 57 600**，未回读） | — |
-| 固件版本 | 未记录 | — |
-| 当时电压 | 未记录 | — |
-| 已知（构造性） | XL330-M288-**T-CN** · 国产 U2D2 + PHB · 台架自供电源 · **单只** | raw |
+| 字段 | 实测值 | 与手册出厂默认 |
+|------|--------|----------------|
+| Model Number | **1200** | ✅ XL330-M288 |
+| Firmware Version | **53** | — |
+| ID | **1** | ✅ 出厂 1 |
+| Baud Rate(8) | **1 → 57 600** | ✅ 出厂 1 |
+| Return Delay Time(9) | **250** | ✅ 出厂 250 |
+| Max Voltage Limit(32) | **70 → 7.0 V** | ✅ 出厂 70 |
+| Min Voltage Limit(34) | **35 → 3.5 V** | ✅ 出厂 35 |
+| PWM Limit(36) | **885** | ✅ 100% |
+| Current Limit(38) | **1750 → 1.75 A** | — |
+| PWM Slope(62) | **140** | ✅ 出厂 140 |
+| Shutdown(63) | **53** | ✅ 出厂 53（**含** InputVoltage 位） |
+| Torque Enable(64) | **0** | 台架正常（未使能） |
+| Status Return Level(68) | **2** | ✅ |
+| Hardware Error Status(70) | **0** | ✅ 无故障 |
+| Present Input Voltage(144) | **58 → 5.8 V** | 台供 6.0 V 下 |
+| Present Temperature(146) | **26 °C** | — |
 
-> **缺口不可忽略**：#4 的「同一颗舵机 + 1 Mbps」**没有可核对的基线**，
-> 且**只按 1 Mbps 测会漏掉出厂 57 600**（[[hat-dxl-bus-debug]] §1.1）。
-> 复测前**先采集**下列基线，原始命令与输出贴回 Issue，再写回本页。
+**结论性事实：**
 
-### 采集方法（复测时执行）
+1. 这台舵机**仍是出厂状态**（ID 1 + 57 600 + 全部默认值未被写过）→ **#1 的「1 Mbps + 同一颗」前提不成立**：
+   它从未被 `robotd`/Wizard 写过 ID 或波特率。以前能"通过"，只可能是 Wizard 自动扫到了 57 600。
+2. **只有 57 600 有回包**；**1 Mbps 全程静默** → 与 `[[dxl-bench-method]]` §2 的出厂回退一致，
+   也再次证明**只按 1 Mbps 测必得假「零回包」**。
+3. `Shutdown = 53` 实测到手，**直接证实** [[dynamixel-xl330]] 的订正：出厂 53 **含** Input Voltage 位，
+   `robotd` 写的 52 才是**清掉**它。`Hardware Error Status = 0` + 5.8 V 说明本机没过压、通信正常。
+4. `Current Limit = 1750 (1.75 A)` 实测值可作 [[dxl-bench-method]] 台供限流的参照。
+
+> ⚠ 回包帧**多一个固定字节 `0x55`**（`LEN = DATA + 4`），按规格解析会把每个寄存器整体错位一字节。
+> 见 `scripts/README.md` §「两个已踩过的坑」· [[dxl-bench-method]] §5。
+
+### 复采命令
 
 ```bash
-pip install pyserial
-python microduck-diy/scripts/dxl_ping.py info --port COM7 --id <当前ID>   # 读基线
-python microduck-diy/scripts/dxl_ping.py scan --port COM7 --baud 1000000,57600
+python3 microduck-diy/scripts/dxl_ping.py info --port /dev/ttyS2 --baud 57600 --id 1
+python3 microduck-diy/scripts/dxl_ping.py scan --port /dev/ttyS2 --baud 1000000,57600
 ```
 
-`info` 一次给全：ID / 波特率 / 固件版本 / Max·Min Voltage Limit / Return Delay Time / PWM Slope / Shutdown / 当时输入电压 / 温度。
-脚本**只读、不写**，自带无硬件 `self-test`。落点：[[hat-dxl-bus-debug]] §1 · `scripts/README.md`。
+`info` 一次给全上表；脚本**只读、不写**，在 Linux 上零依赖（无 `pyserial` 时走 stdlib `termios`）。
+落点：[[hat-dxl-bus-debug]] §1 · [[dxl-bench-method]] · `scripts/README.md`。
 
 ### 勾选（汇总）
 
 - [x] 驱动与 U2D2 识别、扫到舵机、台架冒烟（用户确认通过）
-- [ ] **基线采集**：端口名、波特率、ID、电压、固件版本（用上述脚本；#4 复测前完成）
+- [x] **基线采集**：见上表（2026-09-16，HAT 总线采集；ID/波特率/固件/电压齐全）
 
 ### 实验笔记
 
@@ -97,6 +114,12 @@ python microduck-diy/scripts/dxl_ping.py scan --port COM7 --baud 1000000,57600
 
 - **结果：** 测试通过（用户口述）。  
 - **资料：** 未留存；2026-09-16 复核确认**无法从聊天/仓库重建**。
+
+#### 2026-09-16（复测 · HAT 总线）
+
+- **基线已采集**（见上表）：该舵机**仍出厂状态**（ID 1 / 57 600 / 默认寄存器），**从未被写过 ID 或波特率**。
+- 复测同时暴露**脚本 CRC 作用域 bug**（漏掉 4 字节 header）与**回包多一固定字节**两个坑，
+  详见 `scripts/README.md` §「两个已踩过的坑」；已修 + 已加回归。
 
 ## 与官方生态的关系
 
