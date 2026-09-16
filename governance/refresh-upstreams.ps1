@@ -23,8 +23,12 @@ $out   = Join-Path $governanceDir 'upstreams.lock'
 
 function Get-GitValue {
     param([string]$Dir, [string[]]$GitArgs)
+    # Local error preference so a missing remote / unborn HEAD cannot abort the run.
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
     Push-Location $Dir
-    try { return (& git @GitArgs 2>$null) } finally { Pop-Location }
+    try { return (& git @GitArgs 2>$null) } catch { return $null }
+    finally { Pop-Location; $ErrorActionPreference = $prev }
 }
 
 $rows = @()
@@ -32,8 +36,11 @@ foreach ($d in Get-ChildItem $workspaceRoot -Directory | Sort-Object Name) {
     if (-not (Test-Path (Join-Path $d.FullName '.git'))) { continue }
 
     $remote = Get-GitValue $d.FullName @('remote', 'get-url', 'origin')
+    if ([string]::IsNullOrWhiteSpace($remote)) { $remote = '(none)' }
     $branch = Get-GitValue $d.FullName @('rev-parse', '--abbrev-ref', 'HEAD')
+    if ([string]::IsNullOrWhiteSpace($branch)) { $branch = '(none)' }
     $head   = Get-GitValue $d.FullName @('rev-parse', '--short', 'HEAD')
+    if ([string]::IsNullOrWhiteSpace($head)) { $head = '(none)' }
     $dirty  = @(Get-GitValue $d.FullName @('status', '--porcelain')).Count
 
     # Behind / ahead of upstream. Left count = commits in origin not in HEAD (behind);
