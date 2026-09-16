@@ -69,7 +69,7 @@ related:
 | `jaw` | 1 | |
 | `m12_lens_holder` / `noenoeil` | 1+1 | 相机后置也可先打 |
 
-**硬质小计：30 件。** 资料：`microduck-diy/cad/*.3mf`。
+**硬质小计：30 件。** 资料：`cad/*.3mf`。
 
 ## B. 3D 打印 · 软胶（TPU 90–95A）
 

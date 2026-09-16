@@ -7,7 +7,7 @@ tags: [bom, hat, imu, procurement, final]
 sources:
   - concepts/imu-to-dxl-ref-bom.md
   - concepts/head-imu-ref-bom.md
-  - elec_RPI_Robot_HAT/production/ASE01187-C1_elec_RPI_Robot_HAT_BOM.csv
+  - ../refs/elec_RPI_Robot_HAT/production/ASE01187-C1_elec_RPI_Robot_HAT_BOM.csv
 confidence: high
 related:
   - elec-three-boards
@@ -53,7 +53,7 @@ related:
 
 ## C. HAT（完整 · 锁定）
 
-源表：`elec_RPI_Robot_HAT/production/ASE01187-C1_elec_RPI_Robot_HAT_BOM.csv`（含 DNP 行）。
+源表：`refs/elec_RPI_Robot_HAT/production/ASE01187-C1_elec_RPI_Robot_HAT_BOM.csv`（含 DNP 行）。
 
 | LCSC | 型号 / 值 | Qty | 备注 |
 |------|-----------|-----|------|

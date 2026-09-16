@@ -21,7 +21,7 @@ related:
 
 # HAT 焊接配料清单（ASE01187-C1）
 
-> **首板 ×1** 手工贴/焊。真源 BOM：`elec_RPI_Robot_HAT/production/ASE01187-C1_elec_RPI_Robot_HAT_BOM.csv`  
+> **首板 ×1** 手工贴/焊。真源 BOM：`refs/elec_RPI_Robot_HAT/production/ASE01187-C1_elec_RPI_Robot_HAT_BOM.csv`  
 > 采购：[[elec-hat-lcsc-order-2026-09-05]] · [[taobao-diy-procurement-2026-09]]  
 > 板卡：[[board-hat]] · [[elec-rpi-robot-hat]]  
 > **Issue [#3](https://github.com/ScrapMeta/microduck-diy/issues/3) · closed（2026-09-14）** — 配料/焊接/基本上电冒烟通过；TTL 舵机不通改由 [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)。

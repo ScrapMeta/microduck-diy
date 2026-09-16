@@ -31,7 +31,7 @@ Microduck 主控：Rockchip **RK3566**，Wi-Fi/BT，40pin，CSI。跑 **Armbian*
 
 - 支持 **microSD** 与板载 **eMMC**
 - 量产路径文档写 **eMMC**；开发可 SD 烧录后插板
-- 镜像：Armbian Minimal → `provision`；本地 seed：`microduck-diy/image/out/`（见 [[system-flash-armbian]] · [[zero3w-bench-plan]]）
+- 镜像：Armbian Minimal → `provision`；本地 seed：`image/out/`（见 [[system-flash-armbian]] · [[zero3w-bench-plan]]）
 - 详见 [[system-flash-armbian]]
 
 ## 供电

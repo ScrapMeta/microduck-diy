@@ -7,8 +7,8 @@ tags: [hat, dynamixel, bench]
 sources:
   - concepts/hat-solder-kit.md
   - concepts/xl330-cn-bench-kit.md
-  - microduck/scripts/setup-board.sh
-  - microduck/duck-control/src/bus.rs
+  - ../refs/microduck/scripts/setup-board.sh
+  - ../refs/microduck/duck-control/src/bus.rs
   - https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/
 confidence: high
 related:

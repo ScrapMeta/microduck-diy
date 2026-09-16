@@ -21,7 +21,7 @@ related:
 # imu_to_dxl 固件编译（Agent 手册）
 
 > 给其他 agent：**只编译/单测**可按本页；烧录需 ST-Link + 板。  
-> 仓路径：`microduck-diy/imu_to_dxl/` · 硬件真源 **v0.3** · 板卡入口 [[board-imu-to-dxl]]。  
+> 仓路径：`imu_to_dxl/` · 硬件真源 **v0.3** · 板卡入口 [[board-imu-to-dxl]]。  
 > 契约真源仍以仓内 `README.md` + `docs/` 为准；冲突以仓为准并回写本页。
 
 ## 0. 产出与验收
@@ -37,7 +37,7 @@ related:
 ## 1. 工程位置
 
 ```
-microduck-diy/imu_to_dxl/
+imu_to_dxl/
   README.md
   docs/protocol.md · hardware.md
   firmware/          # Makefile 在此
@@ -69,7 +69,7 @@ gcc --version
 ## 3. 编译步骤（复制即用）
 
 ```bash
-cd /mnt/d/projects/microduck/microduck-diy/imu_to_dxl/firmware   # 按本机根路径改
+cd /mnt/d/projects/microduck/imu_to_dxl/firmware   # 按本机根路径改
 make clean
 make host-test
 make g031
@@ -93,7 +93,7 @@ arm-none-eabi-size build/imu_to_dxl.elf
 调试口 **J2 BM07**：2=SWCLK · 3=SWDIO · 4=GND · 7=NRST（详表见仓 `README` / [[imu-to-dxl-ref-schematic]]）。
 
 ```bash
-cd microduck-diy/imu_to_dxl
+cd imu_to_dxl
 ./scripts/flash_openocd.sh
 # 或：./scripts/flash_openocd.sh firmware/build/imu_to_dxl.elf
 ```
@@ -110,7 +110,7 @@ OpenOCD：`interface/stlink.cfg` + `target/stm32g0x.cfg`。调试：`./scripts/d
 | sync_read | addr **124** · **12 B** |
 | 布局 | gyro `i16` LE ×3 + quat xyz IEEE half LE |
 
-主机解码：`microduck/duck-control/src/imu.rs`。矩阵总览：[[firmware-flash-matrix]]。
+主机解码：`refs/microduck/duck-control/src/imu.rs`。矩阵总览：[[firmware-flash-matrix]]。
 
 ## 6. Agent 回写清单
 

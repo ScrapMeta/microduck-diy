@@ -30,7 +30,7 @@ related: [board-hat, elec-three-boards, board-interconnect, np-f550-battery, ope
 
 ## 仓库
 
-本地：`elec_RPI_Robot_HAT/`。软件侧设备树写明 “Pollen Robotics RPI Robot HAT”。
+本地：`refs/elec_RPI_Robot_HAT/`。软件侧设备树写明 “Pollen Robotics RPI Robot HAT”。
 
 ## 采购
 

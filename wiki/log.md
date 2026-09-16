@@ -695,3 +695,12 @@
 - 路径口径统一为**从根写**：`governance/…` · `wiki/…` · `refs/<clone>/…`
 - **运行发现（待办）**：`refs/microduck_app` **Dirty=1** —— 只读克隆内留有未提交改动，违反 §11；`refs/elec_RPI_Robot_HAT` Behind=1（落后上游 1 提交）
 
+## [2026-09-16] wiki | 路径口径改写（批 3/3）
+- **改写规则**：本仓引用去 `microduck-diy/` 前缀（`governance/…` · `cad/…` · `scripts/dxl_ping.py`）；只读参考加 `refs/` 前缀
+- **关键判别**：**只引仓库名时不加前缀**（如「官方量产栈是 Rust `microduck/` + MuJoCo `microduck_rl/`」）——`refs/` 只标**本地路径**
+- **不改**：GitHub URL 里的 `microduck-diy`（是仓名）· `raw/`（不可变）· `_archive/`（归档）· `log.md` 旧条目（append-only）
+- **整页重写**：[[local-workspace-layout]]（布局真源 → 四类目录 + 路径写法约定）
+- **新增约定**：`SCHEMA.md` 加「路径写法」四条；`sources:` frontmatter 统一为 **wiki 根相对**（`../refs/<clone>/…`）
+- **顺带修正**：`system-flash-armbian` 引用 `microduck/docs/robot/install-dev.md` 补 `refs/`；`zero3w-bench-plan` 样张路径改指 `temp/repo-tmp-2026-09-16/`（原 repo `tmp/` 已并入 `temp/`）
+- **既有隐性纠错**：`SCHEMA` 的 `固件 ../imu_to_dxl/` 与 `system-flash-armbian` 的 `[image/](../../image/)` 在旧布局下本就偏一级，现随根即仓而**自然正确**
+

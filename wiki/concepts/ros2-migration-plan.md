@@ -30,7 +30,7 @@ ROS2 为**并行移植与扩展**；勿覆盖官方运行时契约，除非用�
 WSL Ubuntu 22 + Humble：MuJoCo + vendored/Spark ONNX @ **50 Hz**，键盘 / `cmd_vel` 控制。
 
 - 契约：**obs 61 → act 14**
-- 复用：`microduck_rl/scripts/infer_policy.py`
+- 复用：`refs/microduck_rl/scripts/infer_policy.py`
 
 ## 目标平台
 
@@ -55,12 +55,12 @@ WSL Ubuntu 22 + Humble：MuJoCo + vendored/Spark ONNX @ **50 Hz**，键盘 / `cm
 
 ## 参考资产
 
-| 用途 | 路径 |
+| 用途 | 路径（本地只读参考） |
 |------|------|
-| 控制 / 舵机 | `microduck/` · `elec_RPI_Robot_HAT/` |
-| 模型（MJCF → URDF，保持 14 关节顺序） | `microduck_rl/.../robot/microduck/` |
-| ToF / 地图 | `microduck_maploc_rs/` |
-| 语音 | `microduck_sounds/` |
-| 视觉 | `microduck_pet_detect/` |
+| 控制 / 舵机 | `refs/microduck/` · `refs/elec_RPI_Robot_HAT/` |
+| 模型（MJCF → URDF，保持 14 关节顺序） | `refs/microduck_rl/.../robot/microduck/` |
+| ToF / 地图 | `refs/microduck_maploc_rs/` |
+| 语音 | `refs/microduck_sounds/` |
+| 视觉 | `refs/microduck_pet_detect/` |
 
 相关：[[local-workspace-layout]] · [[diy-milestones]] · [[imu-to-dxl-firmware-build]]

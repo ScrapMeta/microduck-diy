@@ -6,7 +6,7 @@ type: entity
 tags: [board, imu, firmware]
 sources:
   - raw/articles/workspace-readme-hardware-2026-08-29.md
-  - ../microduck_rl/src/mjlab_microduck/robot/microduck/robot_walk.xml
+  - ../refs/microduck_rl/src/mjlab_microduck/robot/microduck/robot_walk.xml
 confidence: medium
 related: [board-imu-to-dxl, elec-three-boards, board-interconnect, elec-rpi-robot-hat, opensource-coverage, mechanical-bom-rl, local-workspace-layout]
 ---
@@ -42,7 +42,7 @@ related: [board-imu-to-dxl, elec-three-boards, board-interconnect, elec-rpi-robo
 
 CAD Viewer 能力边界：**GLB/STL 无零件树且易发黑**；**URDF 有颜色、可按 link 点选，但侧栏只有 Joints**；**装配树只有 STEP**。
 
-**工具约定：** Cursor 全局 text-to-cad **0.5**。网格真源：`microduck_rl/.../robot/microduck/`；审阅产物：`microduck-diy/cad/`（仅 3MF）。
+**工具约定：** Cursor 全局 text-to-cad **0.5**。网格真源：`refs/microduck_rl/.../robot/microduck/`；审阅产物：`cad/`（仅 3MF）。
 
 占位 link（若用 URDF 审阅）：
 

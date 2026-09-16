@@ -28,7 +28,7 @@ related:
 | 项 | 内容 |
 |----|------|
 | 工程名 | `elec_RPI_Robot_HAT`（Pollen / HF） |
-| 本地仓 | `elec_RPI_Robot_HAT/` |
+| 本地仓 | `refs/elec_RPI_Robot_HAT/` |
 | 安装 | 与 [[radxa-zero-3w]] **40-pin 叠装于头部**（DIY 定稿 2026-09-08） |
 | 功能 | DXL TTL/485 · 音频 · Qwiic/STEMMA · AP63205→5V · 板载 **BMI088** |
 | DIY 头 IMU | **启用 BMI088** 作头姿；不另装专板（控制环仍不用它） |
@@ -71,8 +71,8 @@ related:
 
 | 类型 | 路径 |
 |------|------|
-| BOM CSV | `elec_RPI_Robot_HAT/production/ASE01187-C1_elec_RPI_Robot_HAT_BOM.csv` |
-| Gerber zip | `elec_RPI_Robot_HAT/production/PCB01186-C1_elec_RPI_Robot_HAT_PCB.zip` |
+| BOM CSV | `refs/elec_RPI_Robot_HAT/production/ASE01187-C1_elec_RPI_Robot_HAT_BOM.csv` |
+| Gerber zip | `refs/elec_RPI_Robot_HAT/production/PCB01186-C1_elec_RPI_Robot_HAT_PCB.zip` |
 | SCH PDF | `…_SCH.pdf` · PCB PDF · STEP zip（同目录） |
 | 三板合并 BOM | [[elec-three-board-bom]] · `assets/bom/three-board-final-bom.csv` |
 | 立创实单 | [[elec-hat-lcsc-order-2026-09-05]]（`SO26090519869`） |

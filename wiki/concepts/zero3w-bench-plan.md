@@ -117,7 +117,7 @@ related:
 
 - [x] CSI 物理连接正确（排线电压/接插复测）
 - [x] 设备树 / 驱动加载 — `imx219` · Model ID `0x0219` · i2c `0x10`
-- [x] 出图或短预览成功 — `/dev/video0` NV12 → 本机 JPEG（样张 `microduck-diy/tmp/cam-remote2.jpg`）
+- [x] 出图或短预览成功 — `/dev/video0` NV12 → 本机 JPEG（样张本地 `temp/repo-tmp-2026-09-16/cam-remote2.jpg`，scratch 不入库）
 
 ### P2 接口
 

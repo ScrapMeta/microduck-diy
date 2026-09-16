@@ -4,7 +4,7 @@
 
 ## Domain
 
-**Microduck DIY 复刻知识库**（`microduck-diy/wiki`）。
+**Microduck DIY 复刻知识库**（`wiki/`）。
 
 **项目目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展硬件与玩法。
 
@@ -16,13 +16,18 @@
 
 官方资料保留为精简参考。非现行调研在 **`_archive/`**。
 
-工作区根：`D:\projects\microduck` · 本 wiki：`D:\projects\microduck\microduck-diy\wiki`。  
-diy 仓：`imu_to_dxl/` · `image/` · `cad/` · `wiki/` · `governance/`。治理：`governance/agent-governance.md`（**唯一版本源**：GitHub 基础工程 + llm-wiki；只常驻 pm；交付物归自有仓）；工作区根 `AGENTS.md` 为转发存根。`microduck_ros2` **不在本 wiki 主轴**（并入 software 范畴，规格见 [[ros2-migration-plan]]）。
+工作区根：`D:\projects\microduck` —— **根即基础工程工作树** · 本 wiki：`wiki/`。  
+本仓：`governance/` · `wiki/` · `imu_to_dxl/` · `image/` · `cad/` · `scripts/` · `.cursor/rules/`。治理：`governance/agent-governance.md`（**唯一版本源**：GitHub 基础工程 + llm-wiki；只常驻 pm；交付物归自有仓）；`AGENTS.md` 为治理入口。只读参考克隆在 `refs/`（ignore）。`microduck_ros2` **不在本 wiki 主轴**（自有兄弟仓，并入 software 范畴，规格见 [[ros2-migration-plan]]）。
 
 ## Conventions
 
 - 文件名：英文小写 + 连字符（如 `radxa-zero-3w.md`）
 - 正文：中文为主；型号、仓库名、命令保持原文
+- **路径写法**（治理 §10）：
+  - 本仓内 → 从根写（`governance/…` · `cad/…`），**不加** `microduck-diy/` 前缀
+  - 只读参考克隆 → `refs/<clone>/…`（例 `refs/microduck/scripts/setup-board.sh`）
+  - 仅引**仓库名**时（如「官方 `microduck_rl` 是 MJCF 真源」）→ **不加** `refs/`
+  - 官方 Issue/PR 链接里的 `microduck-diy` 是**仓名**，不改
 - 每页 YAML frontmatter（见下）
 - 使用 `[[wikilinks]]` 互链；**每页 ≥2 出站 wikilink**
 - 更新页面必须 bump `updated`

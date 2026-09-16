@@ -12,7 +12,7 @@ related: [mechanical-bom-rl, seeed-bearings, microduck-diy, diy-bom, fastener-bo
 
 # RL 3D 打印清单
 
-基于 [[mechanical-bom-rl]]。现行 3MF：`microduck-diy/cad/`。
+基于 [[mechanical-bom-rl]]。现行 3MF：`cad/`。
 
 ## 建议打印 · 硬质（PETG/ASA/结构料）
 

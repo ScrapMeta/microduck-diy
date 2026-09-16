@@ -96,8 +96,8 @@ related:
 ### 复采命令
 
 ```bash
-python3 microduck-diy/scripts/dxl_ping.py info --port /dev/ttyS2 --baud 57600 --id 1
-python3 microduck-diy/scripts/dxl_ping.py scan --port /dev/ttyS2 --baud 1000000,57600
+python3 scripts/dxl_ping.py info --port /dev/ttyS2 --baud 57600 --id 1
+python3 scripts/dxl_ping.py scan --port /dev/ttyS2 --baud 1000000,57600
 ```
 
 `info` 一次给全上表；脚本**只读、不写**，在 Linux 上零依赖（无 `pyserial` 时走 stdlib `termios`）。

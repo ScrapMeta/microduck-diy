@@ -6,7 +6,7 @@ type: concept
 tags: [flash, armbian, emmc, sd]
 sources:
   - raw/articles/image-readme-seed-2026-08-29.md
-  - ../microduck/docs/robot/install-dev.md
+  - ../refs/microduck/docs/robot/install-dev.md
 confidence: high
 related:
   - radxa-zero-3w
@@ -28,7 +28,7 @@ related:
 |----|--------|-------------------|
 | **Armbian 底座** | Armbian 发版（如 26.2.1 → **26.8.1** Minimal） | 仅当底座太旧 / 内核驱动缺（相机、vendor 内核）时换新 Minimal |
 | **microduck 软件**（robotd、mediad、provision 脚本…） | `pollen-robotics/microduck` 频繁合入 | **一般不重刷系统**；开机后对 **最新 `main`** 跑 `provision` 即可拿到 |
-| **本地 seed**（`microduck-diy/image`） | 自建叠加脚本 | 可选；P0 可直接刷已有 `out/*-seed.img.xz` |
+| **本地 seed**（`image/`） | 自建叠加脚本 | 可选；P0 可直接刷已有 `out/*-seed.img.xz` |
 
 **结论（P0）：** 用当前稳定的 **Armbian Minimal · Zero 3 · vendor** 刷一张新 SD 即可。  
 仓库近期大量更新 ≠ 必须重打系统盘；那是 provision / 二进制层。若 SD 上已是很旧的 Armbian，建议直接刷新 Minimal，再 provision。
@@ -58,7 +58,7 @@ related:
 8. **本轮 P0 到此可验收**；装官方栈再：
 
 ```bash
-# 开发机侧（有网、有 token 时）见 microduck/docs/robot/install-dev.md
+# 开发机侧（有网、有 token 时）见 refs/microduck/docs/robot/install-dev.md
 ./scripts/provision-board.sh user@<board-ip>
 ```
 
@@ -67,6 +67,6 @@ related:
 - **开发（本轮）：** SD  
 - **量产倾向：** eMMC（Press Kit）；可先 SD 启动再 `armbian-install` 迁 eMMC  
 
-本地 seed 复刻：[`microduck-diy/image/`](../../image/)（已有 `out/microduck-zero3-20260829-seed.img.xz`；大文件不进 git）。
+本地 seed 复刻：[`image/`](../../image/)（已有 `out/microduck-zero3-20260829-seed.img.xz`；大文件不进 git）。
 
 相关：[[radxa-zero-3w]] · [[zero3w-bench-plan]] · [[firmware-flash-matrix]] · [[bench-power-supply]]

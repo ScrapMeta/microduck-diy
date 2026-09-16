@@ -5,14 +5,14 @@ updated: 2026-09-06
 type: concept
 tags: [mechanical, bom, mujoco]
 sources:
-  - ../microduck_rl/src/mjlab_microduck/robot/microduck/robot_walk.xml
+  - ../refs/microduck_rl/src/mjlab_microduck/robot/microduck/robot_walk.xml
 confidence: high
 related: [print-bom-rl, diy-bom, seeed-bearings, fastener-bom-study]
 ---
 
 # RL 机械网格 BOM（官方 `robot_walk`）
 
-来源：`microduck_rl/.../robot/microduck/robot_walk.xml` + `assets/`。  
+来源：`refs/microduck_rl/.../robot/microduck/robot_walk.xml` + `assets/`。  
 **38 种网格 / 70 个视觉实例**。比 app alpha 网格（34/64，已归档 `_archive/mechanical-bom-alpha`）更新；打印与装配以本页为准。
 
 ## 数量表（入结构）

@@ -6,8 +6,8 @@ type: concept
 tags: [dynamixel, servo, power]
 sources:
   - https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/
-  - microduck/duck-control/src/bus.rs
-  - microduck/scripts/setup-board.sh
+  - ../refs/microduck/duck-control/src/bus.rs
+  - ../refs/microduck/scripts/setup-board.sh
   - concepts/hat-dxl-bus-debug.md
 confidence: high
 related:
@@ -89,12 +89,12 @@ related:
 | **M2** 限流分段 | **确认** + 补「上电前按构型设定」 | §1 |
 | **M3** #1 基线（ID/波特率/固件/电压） | 初判**证据不足**（#1 从未落真源）→ **复测已现场采集**，缺口关闭 | [[xl330-cn-bench-kit]] §测试结论 |
 | **M4** 出厂 57 600 回退 | **确认** —— 且复测中它是**唯一**命中路径 | §2 |
-| **M5** 版本化扫 / Ping 脚本 | **确认** → `microduck-diy/scripts/dxl_ping.py` | `scripts/README.md` |
+| **M5** 版本化扫 / Ping 脚本 | **确认** → `scripts/dxl_ping.py` | `scripts/README.md` |
 | **M6** 官方 `report()` 作一致性基线 | **确认** | §3 |
 
 ## 5. 脚本
 
-`microduck-diy/scripts/dxl_ping.py` —— **只读** Protocol 2.0 扫 / Ping / 基线读取；协议自实现，
+`scripts/dxl_ping.py` —— **只读** Protocol 2.0 扫 / Ping / 基线读取；协议自实现，
 **Linux 上零依赖**（有 `pyserial` 用之，无则退 stdlib `termios`——板子常无 `pip`）；带无硬件 `self-test`。
 
 ```bash

@@ -10,6 +10,6 @@ confidence: medium
 
 # VL53L5CX / VL53L8CX
 
-头部 8×8 ToF（Press Kit 称 compact LiDAR）。经 [[elec-rpi-robot-hat]] Qwiic/Stemma。`tofd` 每次启动经 I2C 上传约 **90 KB** 固件到传感器 RAM。软件在 `microduck/tof`。
+头部 8×8 ToF（Press Kit 称 compact LiDAR）。经 [[elec-rpi-robot-hat]] Qwiic/Stemma。`tofd` 每次启动经 I2C 上传约 **90 KB** 固件到传感器 RAM。软件在 `refs/microduck/tof`。
 
 相关：[[board-interconnect]] · [[firmware-flash-matrix]] · [[microduck]]
