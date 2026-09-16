@@ -1,17 +1,17 @@
 # Upstream version lock (upstreams.lock)
 
-> Generated: 2026-09-16 18:48 by `refresh-upstreams.ps1` - do not hand-edit.
+> Generated: 2026-09-16 18:59 by `refresh-upstreams.ps1` - do not hand-edit.
 > Replaces git submodules for pinning reference-clone versions (governance 10.3).
 > `(this repo)` is the base repository: the workspace root IS its worktree (governance 10).
 > A non-zero `Dirty` on a `readonly` row is a violation: reference clones must stay clean (governance 11).
 
 | Dir | Kind | Remote | Branch | HEAD | Dirty | Behind | Ahead |
 |-----|------|--------|--------|------|-------|--------|-------|
-| `(this repo)` | owned | https://github.com/ScrapMeta/microduck-diy.git | main | `618b3f2` | 9 | 0 | 0 |
-| `microduck_ros2` | owned | (none) | main | `8f0618d` | 0 |  |  |
+| `(this repo)` | owned | https://github.com/ScrapMeta/microduck-diy.git | main | `321fbe9` | 0 | 0 | 0 |
+| `microduck_ros2` | owned | https://github.com/ScrapMeta/microduck_ros2.git | main | `8f0618d` | 0 | 0 | 0 |
 | `refs/elec_RPI_Robot_HAT` | readonly | https://github.com/pollen-robotics/elec_RPI_Robot_HAT.git | main | `23eab11` | 0 | 1 | 0 |
 | `refs/microduck` | readonly | https://github.com/pollen-robotics/microduck.git | main | `6507d2e` | 0 | 0 | 0 |
-| `refs/microduck_app` | readonly | https://github.com/apirrone/microduck_app.git | main | `bca6359` | 1 | 0 | 0 |
+| `refs/microduck_app` | readonly | https://github.com/apirrone/microduck_app.git | main | `bca6359` | 0 | 0 | 0 |
 | `refs/microduck_kinematics_rs` | readonly | https://github.com/apirrone/microduck_kinematics_rs.git | main | `26481ff` | 0 | 0 | 0 |
 | `refs/microduck_maploc_rs` | readonly | https://github.com/apirrone/microduck_maploc_rs.git | main | `c44fd8c` | 0 | 0 | 0 |
 | `refs/microduck_pet_detect` | readonly | https://github.com/apirrone/microduck_pet_detect.git | main | `beae454` | 0 | 0 | 0 |

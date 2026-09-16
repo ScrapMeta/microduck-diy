@@ -704,3 +704,10 @@
 - **顺带修正**：`system-flash-armbian` 引用 `microduck/docs/robot/install-dev.md` 补 `refs/`；`zero3w-bench-plan` 样张路径改指 `temp/repo-tmp-2026-09-16/`（原 repo `tmp/` 已并入 `temp/`）
 - **既有隐性纠错**：`SCHEMA` 的 `固件 ../imu_to_dxl/` 与 `system-flash-armbian` 的 `[image/](../../image/)` 在旧布局下本就偏一级，现随根即仓而**自然正确**
 
+## [2026-09-16] chore | 迁移后收尾三项
+- `microduck_ros2` 建远端 **`ScrapMeta/microduck_ros2`（private）** 并 push（`8f0618d` → `origin/main`）——补上此前挂起的自有仓远端；`upstreams.lock` 的 owned 行现均有 remote
+- 移出 `refs/microduck_app` 内后加的 `买的.3mf`（5.3 MB · 未跟踪）→ `temp/from-refs-microduck_app/`；只读克隆恢复 **Dirty=0**（治理 §11：参考克隆内不留改动，stray 文件移出而非改治理）
+- `handoffs/` 归档保留在 `temp/handoffs-archived-2026-09-16/`（**未硬删**，唯一副本）
+- `upstreams.lock` 重生成：`(this repo)` 与 `refs/microduck_app` 均 **Dirty=0**；`refs/elec_RPI_Robot_HAT` **Behind=1**（落后上游 1 提交——非违规，待定是否更新）
+- **仍开放**：参考克隆若为「运行时会自产文件的应用仓」，长期需靠纪律保持 Dirty=0（本次选择移出 stray 文件，未改 §11）
+
