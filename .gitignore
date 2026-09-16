@@ -25,5 +25,20 @@ image/**/*.img.xz
 image/**/*.sha256
 
 # Local scratch / vendor tool downloads (never commit)
-tmp/
+# `tmp/` was merged into `temp/` on 2026-09-16 when the workspace root became this worktree.
+temp/
 res/
+
+# Read-only reference clones. Local reference only - never deliverables, never committed.
+# NOTE: `git clean -x` DELETES ignored directories and would wipe every clone here.
+# Use `git clean -fd` (no -x) in this repository.
+refs/
+
+# Owned sibling repo. Ignored like the clones, but it IS ours (we have push) - a deliverable,
+# not a read-only reference. It keeps its own .git and is pushed separately. See governance 10.
+microduck_ros2/
+
+# Local VMs, virtualenvs, scratch
+vms/
+.tmp/
+.venv-cad/

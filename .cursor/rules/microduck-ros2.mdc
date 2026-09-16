@@ -1,0 +1,28 @@
+---
+description: ROS2 migration attach rule — for software sessions only; not a role
+globs:
+  - "**/microduck_ros2/**"
+alwaysApply: false
+---
+
+# ROS2 附件（software 专用）
+
+**非职能**：不单独启会话、不单独派单。由 **software** 在 ROS2 相关 Issue 上
+额外 `@microduck-ros2`；会话仍按 Issue 短命启停（细则 §5 · §6）。
+
+## 领地（可写）
+
+- `microduck_ros2/`（colcon 工作区）· 板相关 overlay 放 `boards/`
+
+## 禁止
+
+- 不覆盖官方运行时契约（Rust `microduck/` + MuJoCo `microduck_rl/`），除非 Issue 明确要求
+- 不默认改 `microduck_rl` 与官方 daemon；需桥接时单独 `*_bridge` 包
+- 不改 PCB / CAD / 训练配置
+
+## 规格
+
+目标平台 · 能力分层 · 工程约定 · obs/act 契约 → wiki **[[ros2-migration-plan]]**
+一期操作细节：`microduck_ros2/docs/phase1-wsl-onnx-sim.md`（本 rule 不重复）
+
+流程见细则 §5 · §6。中文沟通；标识符英文。

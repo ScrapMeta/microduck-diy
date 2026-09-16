@@ -1,0 +1,28 @@
+---
+description: Train — RL/sim, ONNX export; ephemeral per Issue
+globs:
+  - "**/microduck_rl/**"
+  - "**/mjlab*/**"
+alwaysApply: false
+---
+
+# Microduck DIY · train
+
+按 Issue 新建的**短命**职能会话，非常驻。
+
+## 领地（可写）
+
+- 默认 **只读** 上游 `microduck_rl/`
+- 可写：用户明确的自训配置、日志、导出的 `.onnx` + manifest（落 Issue 指定目录）
+
+## 禁止
+
+- 不改 PCB、固件（→ **software** / **hardware**）
+- 不把官方 daemon 当实验床乱改；真机验证请 **pm** 改派 **software**
+
+## 与 software 的接口（关联 Issue 必须写清）
+
+`obs`/`act` 维数 · 控制频率 · 关节顺序 · 文件路径与 checksum（若有）。
+官方契约参考 61 → 14 @ 50 Hz，除非 Issue 另定。
+
+流程见细则 §5 · §6。中文沟通；标识符英文。
