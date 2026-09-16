@@ -1,0 +1,16 @@
+[Unit]
+Description=Microduck seed image first-boot provision
+Documentation=file:///opt/microduck/README.seed.md
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/boot/microduck.env
+ConditionPathExists=!/var/lib/robot/microduck-firstboot.done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/microduck-firstboot
+RemainAfterExit=yes
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

@@ -586,3 +586,11 @@
 - 约束重申：7.4 V / 1 A 限流 · 禁止 Type-C 与 +BATT 双灌 · 单挂 U2D2 已验证 XL330 · 本次不用 RS-485
 - Open 现行：#4 HAT TTL · #8 replica0908
 
+## [2026-09-16] reconcile | wiki 与 GitHub 脱节修复 + seed 镜像脚本入库
+- **问题**：`origin/main` 落后本地 25 改 / 10 未跟踪；[[hat-dxl-bus-debug]] 等流程页**仅存在于本机**，而 #4 正文正指向该页 → 规格真源与远端起点的 agent 脱节
+- 修复：`fa66604` 提交并 push 全部 wiki（10 新页 + 25 改页 + BOM/订单表；36 文件 / +1435 −114）· 复核 `origin/main` 已含该 blob
+- **入库**：`image/` seed 镜像脚本与 overlay（`build-base-image.sh` · `overlay/` · `microduck-firstboot`）；`image/out/*.img*` 仍 ignore
+- `.gitignore`：新增 `res/` · `tmp/`（Dynamixel 工具包、相机 nv12 裸数据、`issue6-handoff.md`）· 收敛为 `image/out/`
+- 残留未提交：`cad/microduck_rl_assembly_a1mini.3mf` · `imu_to_dxl_ref_*.eprj2`（非 wiki 范围）
+- 教训：职能 agent 回写 wiki 后须**当轮 push**，否则「真源」只在本机生效
+

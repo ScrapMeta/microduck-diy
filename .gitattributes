@@ -1,0 +1,5 @@
+# Shell scripts are executed on Linux / WSL2 (image build + board firstboot).
+# Force LF in the repo and in the working tree so CRLF never lands in a script.
+*.sh text eol=lf
+image/overlay/usr/local/sbin/* text eol=lf
+image/overlay/etc/systemd/system/* text eol=lf

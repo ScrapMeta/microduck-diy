@@ -1,0 +1,71 @@
+#!/bin/sh
+# First-boot / on-demand provision helper for the Microduck seed image.
+# Reads /boot/microduck.env (or /etc/microduck/firstboot.env), then runs the
+# same scripts as docs/robot/install-dev.md — from /opt/microduck when present.
+set -eu
+
+ENV_FILE=""
+for f in /boot/microduck.env /etc/microduck/firstboot.env; do
+    if [ -f "$f" ]; then
+        ENV_FILE=$f
+        break
+    fi
+done
+
+if [ -n "$ENV_FILE" ]; then
+    # shellcheck disable=SC1090
+    set -a
+    # Only KEY=VALUE lines; ignore comments/blank.
+    # shellcheck disable=SC2163
+    while IFS= read -r line || [ -n "$line" ]; do
+        case "$line" in
+            ''|\#*) continue ;;
+            *=*) export "$line" ;;
+        esac
+    done <"$ENV_FILE"
+    set +a
+fi
+
+OPT=/opt/microduck
+SCRIPTS="$OPT/scripts"
+PROVISION="$SCRIPTS/provision.sh"
+
+if [ ! -f "$PROVISION" ]; then
+    echo "microduck-firstboot: missing $PROVISION" >&2
+    exit 1
+fi
+
+if [ -z "${DUCK_TOKEN:-}" ]; then
+    echo "microduck-firstboot: DUCK_TOKEN empty — write it in /boot/microduck.env" >&2
+    echo "  (required while the microduck repo is private; see install-dev.md)" >&2
+    exit 1
+fi
+
+NAME_ARGS=""
+if [ -n "${DUCK_NAME:-}" ]; then
+    NAME_ARGS="--name ${DUCK_NAME}"
+fi
+
+export DUCK_REPO="${DUCK_REPO:-pollen-robotics/microduck}"
+export DUCK_REF="${DUCK_REF:-main}"
+export DUCK_GSTREAMER="${DUCK_GSTREAMER:-1}"
+export DUCK_RKAIQ="${DUCK_RKAIQ:-1}"
+export DUCK_WEIRD_BLE="${DUCK_WEIRD_BLE:-}"
+export DUCK_PAUSE_BTD="${DUCK_PAUSE_BTD:-}"
+
+if [ -f "$OPT/deploy/dev-key/team.dev.pub" ]; then
+    export DUCK_DEV_KEY="$OPT/deploy/dev-key/team.dev.pub"
+fi
+
+MARKER=/var/lib/robot/microduck-firstboot.done
+mkdir -p /var/lib/robot
+if [ -f "$MARKER" ] && [ "${DUCK_FORCE_FIRSTBOOT:-}" != 1 ]; then
+    echo "microduck-firstboot: already done ($MARKER); set DUCK_FORCE_FIRSTBOOT=1 to re-run"
+    exit 0
+fi
+
+echo "microduck-firstboot: starting provision (ref=${DUCK_REF})"
+# shellcheck disable=SC2086
+sh "$PROVISION" $NAME_ARGS
+date -u +"%Y-%m-%dT%H:%M:%SZ" >"$MARKER"
+echo "microduck-firstboot: provision finished"
