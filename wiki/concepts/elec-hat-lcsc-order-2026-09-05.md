@@ -1,7 +1,7 @@
 ---
 title: HAT 立创采购 · SO26090519869
 created: 2026-09-05
-updated: 2026-09-08
+updated: 2026-09-12
 type: concept
 tags: [board, hat, bom, procurement]
 sources:
@@ -14,6 +14,7 @@ related:
   - elec-three-board-bom
   - diy-bom
   - taobao-diy-procurement-2026-09
+  - hat-solder-kit
 ---
 
 # HAT 立创采购（ASE01187-C1 · 到货核对）
@@ -41,6 +42,7 @@ related:
 
 1. 报价按 **5 套**；立创本单为**部分物料**（32 行）。  
 2. 立创未订 10 项 → 淘宝 09-05 已购（BMI088×1；其余多按 5 套）。链接见淘宝页。  
-3. 到货后在 raw 勾选；状态改 **✅** 并回写 [[diy-bom]]。
+3. 到货后在 raw 勾选；状态改 **✅** 并回写 [[diy-bom]]。  
+4. 配料焊接清单：[[hat-solder-kit]]。
 
-相关：[[elec-three-board-bom]] · [[diy-bom]] · [[taobao-diy-procurement-2026-09]] · [[board-interconnect]]
+相关：[[elec-three-board-bom]] · [[diy-bom]] · [[taobao-diy-procurement-2026-09]] · [[board-interconnect]] · [[hat-solder-kit]]

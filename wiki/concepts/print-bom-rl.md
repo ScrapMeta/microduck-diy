@@ -1,9 +1,9 @@
 ---
 title: RL 3D 打印清单
 created: 2026-09-01
-updated: 2026-09-03
+updated: 2026-09-11
 type: concept
-tags: [mechanical, bom]
+tags: [mechanical, bom, printing]
 sources:
   - concepts/mechanical-bom-rl.md
 confidence: high
@@ -42,5 +42,6 @@ related: [mechanical-bom-rl, seeed-bearings, microduck-diy, diy-bom, fastener-bo
 - 优先 `microduck_rl_assembly.3mf` / `_exploded.3mf`（命名对象）
 - STL 常见为米制，毫米切片常需 ×1000
 - 实心轴承占位：[[seeed-bearings]] 的 `_solid` 件
+- **轴承盘（打印件）：** 切片将 **XY Hole Compensation = 0.05**（Bambu / Orca 等；单位 mm），保证轴承能套入舵盘；其它件勿盲目照抄
 
-相关：[[mechanical-bom-rl]] · [[diy-bom]] · [[microduck-diy]] · [[fastener-bom-study]]
+相关：[[mechanical-bom-rl]] · [[diy-bom]] · [[microduck-diy]] · [[fastener-bom-study]] · [[seeed-bearings]]

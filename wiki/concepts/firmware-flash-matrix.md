@@ -1,12 +1,12 @@
-﻿---
+---
 title: 固件 / 烧录矩阵
 created: 2026-08-30
-updated: 2026-09-06
+updated: 2026-09-14
 type: concept
 tags: [firmware, flash]
 sources: [raw/articles/workspace-readme-hardware-2026-08-29.md]
 confidence: high
-related: [board-imu-to-dxl, imu-to-dxl-v2, opensource-coverage]
+related: [board-imu-to-dxl, imu-to-dxl-firmware-build, imu-to-dxl-v2, opensource-coverage]
 ---
 
 # 固件 / 烧录矩阵
@@ -20,7 +20,7 @@ related: [board-imu-to-dxl, imu-to-dxl-v2, opensource-coverage]
 | [[vl53-tof]] | 每次启动灌 RAM | ✅ tofd |
 | 相机/喇叭/麦 | 否 | 驱动/原理图 |
 
-子板与舵机固件 **不进 OTA**（updater-design §11.1）。DIY 机身 IMU 用 SWD（J2）烧录，见仓内 `scripts/flash_openocd.sh`。
+子板与舵机固件 **不进 OTA**（updater-design §11.1）。DIY 机身 IMU：**编译步骤**见 [[imu-to-dxl-firmware-build]]；SWD（J2）烧录见仓内 `scripts/flash_openocd.sh`。
 
-相关：[[board-imu-to-dxl]] · [[opensource-coverage]] · [[system-flash-armbian]] · [[board-interconnect]]
+相关：[[board-imu-to-dxl]] · [[imu-to-dxl-firmware-build]] · [[opensource-coverage]] · [[system-flash-armbian]] · [[board-interconnect]]
 

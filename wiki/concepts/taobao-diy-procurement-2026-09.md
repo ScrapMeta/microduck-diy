@@ -1,14 +1,16 @@
 ---
 title: 淘宝 DIY 采购对照（2026-08～09）
 created: 2026-09-08
-updated: 2026-09-08
+updated: 2026-09-11
 type: concept
 tags: [procurement, bom, taobao]
 sources:
   - raw/articles/taobao-diy-orders-2026-08-09.md
+  - raw/articles/taobao-np-f550-order-2026-09-11.md
 confidence: high
 related:
   - diy-bom
+  - np-f550-battery
   - elec-hat-lcsc-order-2026-09-05
   - imu-to-dxl-lcsc-order-2026-09-05
   - head-imu-lcsc-order-2026-09-05
@@ -53,6 +55,12 @@ BM04B ×30 同时覆盖 HAT×4 + 机身 SWD + 头 SWD（与立创已订座可合
 | 相机(试验) | IMX415 30P | 08-15 成功 | [商品](https://item.taobao.com/item.htm?id=725478193843) |
 | 线材 | EH 3P 双头 · XT30↔Type-C | 已购 | EH [商品](https://item.taobao.com/item.htm?id=972585639310) · XT30 [商品](https://item.taobao.com/item.htm?id=1060029647292) |
 | 紧固件 | M2 多规格 + 热熔铜螺母 | 09-01～04 多单 | 见 raw / [[fastener-bom-study]] |
+| **电池** | 沣标 **NP-F550 2200 mAh ×2 + 标准双充** | **09-11 已付款 · ¥90** · [[np-f550-battery]] | [商品](https://item.taobao.com/item.htm?id=585415365001) |
+
+### 电池组装备注（09-11）
+
+- 订单 `3316416782030002460` · 归档 `assets/procurement/taobao-np-f550-order-2026-09-11.xlsx` · 摘要 `raw/articles/taobao-np-f550-order-2026-09-11.md`
+- **计划：** 拆下一个充电器的充电头，装到 **`power_support`** 作取电触点；另一充电器外充。
 
 ## 仍注意
 

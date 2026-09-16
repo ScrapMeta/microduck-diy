@@ -18,10 +18,12 @@ imu_to_dxl/hardware/*.epro2
 # Large local print profile (keep other cad/*.3mf)
 cad/microduck_rl_assembly_a2l.3mf
 
-# Image build artifacts (legacy path + temp archive)
-image/**/output/
+# Seed image artifacts (keep scripts/overlay; do not commit images)
+image/out/
 image/**/*.img
 image/**/*.img.xz
-../temp/diy-image-seed/**/output/
-../temp/diy-image-seed/**/*.img
-../temp/diy-image-seed/**/*.img.xz
+image/**/*.sha256
+
+# Local scratch / vendor tool downloads (never commit)
+tmp/
+res/

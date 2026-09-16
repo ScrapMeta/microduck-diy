@@ -549,3 +549,40 @@
 - 组装计划：拆一充电器充电头 → 装到 `power_support` 作取电触点
 - Updated: [[np-f550-battery]] · [[taobao-diy-procurement-2026-09]] · [[diy-bom]]
 
+## [2026-09-15] governance | v0.7 只常驻 pm + 四职能启停
+- Doc: `docs/agent-governance.md` · 入口 `AGENTS.md`
+- 模型：仅 **pm** 常驻；software / hardware / structure / train 按 Issue 新建→回写→pm 关单→删会话
+- ros2 并入 software 范畴（按需 `@microduck-ros2-agent`）
+- Updated: pm/sw/hw/structure/train/ros2 rules · handoffs · [[SCHEMA]] · [[index]] · [[diy-milestones]] · [[local-workspace-layout]]
+
+## [2026-09-15] pm | 职能常驻收尾 · 验收关单
+- Closed: [#10](https://github.com/ScrapMeta/microduck-diy/issues/10) firmware P0+台架 · [#7](https://github.com/ScrapMeta/microduck-diy/issues/7) zero-reply（由 #10 覆盖）· [#9](https://github.com/ScrapMeta/microduck-diy/issues/9) 机身 DXL 回灌评估（不采用）
+- Still open: [#8](https://github.com/ScrapMeta/microduck-diy/issues/8) replica0908 · [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) HAT TTL
+- 收尾粘贴稿：`temp/agent-wrapup-prompts-2026-09-15.md`（本地）
+
+## [2026-09-15] governance | v0.8 基础工程 + llm-wiki · 废止 handoff
+- Doc: `docs/agent-governance.md` · `AGENTS.md` · 通用模板 G2 `docs/templates/agent-governance-generic.md`
+- 启动前提：① 工作区指定 GitHub 基础工程（项目管理）；② 基础工程下 llm-wiki（规格/资料）
+- 废止 handoff；跨域写 Issue，结论进 wiki；新开项目填 §9 信息表即可 bootstrap
+- Updated: pm/sw/hw/structure/train rules · handoffs/README · [[SCHEMA]] · [[index]] · [[diy-milestones]] · [[local-workspace-layout]]
+
+## [2026-09-15] check | Microduck-build-tutorial 同步复核
+- Local `Microduck-build-tutorial` @ `4967821` = `origin/main`（已 fetch）
+- Since eval `9a11a40`：删 `microduck/cad/`、`microduck/docs/`、mjlab `robot` 资源；打印改为根目录 `microduck3D打印.3mf`；README 仍误指 `microduck/cad/`
+- 裁决维持：旁路非主线；OpenRB/Pi/BNO/6V/ID1–14/51 维契约不变
+- Updated: [[aifange-microduck-build-tutorial]] · [[local-workspace-layout]]
+
+## [2026-09-16] clone | ROBOTIS OpenRB-150 板级包（只读参考）
+- `OpenRB-150/` ← [ROBOTIS-GIT/OpenRB-150](https://github.com/ROBOTIS-GIT/OpenRB-150) @ `3e2b07e`（2022-07-26）· Apache-2.0 · 230 文件 / 3.5 MB
+- 内容：SAMD21 Arduino SAMD 板级支持包（`cores/` `libraries/` `variants/` `boards.txt`；VID `0x2F5D` PID `0x2202`）；含 `usb_to_dynamixel` 示例
+- 硬件文件（原理图/Gerber/BOM/3D）不在仓内，走 ROBOTIS 下载 ID 2117/2167/2168/2118·2121
+- 用途：AI-FanGe 教程的 DXL 桥参照；**不**进 diy 主线（我们用 HAT TTL）
+- Updated: [[local-workspace-layout]]
+
+## [2026-09-16] pm | #4 HAT TTL 复查范围补充
+- [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) **仍 open**（主控 ↔ HAT DXL DATA 未打通）；Human 要求 hardware 复查
+- 补标签 `hw` · `bench`（原仅 `task`）；pm 注记补 4 项易漏检：DXL 电源使能 / `ttyS2` 占用 / DATA 空闲电平与方向脚 / 单变量原则
+- 结论要求：给分支定位（供电·串口·物理层·收发器·软件），附 pin2 电压 + pin3 空闲电平 + ping 波形；标 ready-for-pm 后关单
+- 约束重申：7.4 V / 1 A 限流 · 禁止 Type-C 与 +BATT 双灌 · 单挂 U2D2 已验证 XL330 · 本次不用 RS-485
+- Open 现行：#4 HAT TTL · #8 replica0908
+

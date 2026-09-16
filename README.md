@@ -21,6 +21,7 @@
 | [`imu_to_dxl/`](imu_to_dxl/) | 机身 IMU 参考板（v0.3）硬件工程与固件（Dynamixel ID 200） |
 | [`wiki/`](wiki/) | DIY 知识库（先读 [`wiki/SCHEMA.md`](wiki/SCHEMA.md) → [`wiki/index.md`](wiki/index.md)） |
 | [`cad/`](cad/) | 耐久打印包（`.3mf`） |
+| [`image/`](image/) | Zero 3W seed 镜像构建与产物（大文件本地；见该目录 README） |
 
 ## 声明
 

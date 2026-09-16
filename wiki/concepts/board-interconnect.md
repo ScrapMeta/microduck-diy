@@ -1,7 +1,7 @@
 ---
 title: 板级接线与装机拓扑
 created: 2026-08-30
-updated: 2026-09-09
+updated: 2026-09-15
 type: concept
 tags: [board, hat, power]
 sources:
@@ -53,6 +53,8 @@ NP-F550（机身）──电源线──► HAT（头舱）
                             └─ 音频
 摄像头 ──CSI──► Zero（不经 HAT）
 ```
+
+> **备选评估（不采用）：** 机身 ~6 V 经 DXL 3P 回灌 HAT → [[body-imu-hat-dxl-power-eval]] · Issue [#9](https://github.com/ScrapMeta/microduck-diy/issues/9)。定稿仍是上图粗线进 HAT。
 
 ## 3. DXL 怎么接（推荐拓扑）
 

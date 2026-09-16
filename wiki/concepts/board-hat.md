@@ -1,7 +1,7 @@
 ---
 title: HAT 板信息卡（elec_RPI_Robot_HAT）
 created: 2026-09-05
-updated: 2026-09-08
+updated: 2026-09-14
 type: concept
 tags: [board, hat, diy]
 sources:
@@ -83,6 +83,8 @@ related:
 |----|------|
 | **J13 / J14** | EH **3P TTL** · 电气并联 · 两根线束出头舱 |
 | J3 / J11 | EH 4P RS-485 · Microduck **不用** |
+
+485 不焊清单（U8 / J3 / J11 / R40；**R29、C15 要留**）：[[hat-solder-kit]] §6.4。
 
 详图与舵机分组：[[board-interconnect]]。
 

@@ -1,14 +1,15 @@
 ---
 title: AI-FanGe Microduck-build-tutorial
 created: 2026-09-09
-updated: 2026-09-09
+updated: 2026-09-15
 type: entity
 tags: [external, diy, reference, mechanical]
 sources:
-  - ../handoffs/2026-09-09-pm-to-pm-aifange-microduck.md
-  - ../handoffs/2026-09-09-pm-to-software-aifange-sw-eval.md
-  - ../handoffs/2026-09-09-pm-to-hardware-aifange-hw-eval.md
-  - ../handoffs/2026-09-09-pm-to-structure-aifange-mech-eval.md
+  - https://github.com/AI-FanGe/Microduck-build-tutorial
+  - handoffs/2026-09-09-pm-to-pm-aifange-microduck.md
+  - handoffs/2026-09-09-pm-to-software-aifange-sw-eval.md
+  - handoffs/2026-09-09-pm-to-hardware-aifange-hw-eval.md
+  - handoffs/2026-09-09-pm-to-structure-aifange-mech-eval.md
 confidence: high
 related:
   - microduck-diy
@@ -23,9 +24,13 @@ related:
 
 # AI-FanGe · Microduck-build-tutorial
 
-俗称「中文改良版 Microduck」。公开仓是 [AI-FanGe/Microduck-build-tutorial](https://github.com/AI-FanGe/Microduck-build-tutorial)；`AI-FanGe/Microduck` 链接 **404**。
+俗称「中文改良版 Microduck」。公开仓：[AI-FanGe/Microduck-build-tutorial](https://github.com/AI-FanGe/Microduck-build-tutorial)；`AI-FanGe/Microduck` 链接 **404**。
 
-本地：`D:\projects\microduck\Microduck-build-tutorial`（外部只读）。
+| 项 | 值 |
+|----|-----|
+| 本地（只读） | `D:\projects\microduck\Microduck-build-tutorial` |
+| 复核 HEAD（2026-09-15） | `4967821` · `main` = `origin/main`（已 fetch，无落后） |
+| 评估时 HEAD（2026-09-09） | `9a11a40` |
 
 ## 定位
 
@@ -33,60 +38,63 @@ MarcDcls/microduck（microban 系）的中文教程封装：Pi Zero 2 W + OpenRB
 
 ## 对本 diy
 
-**旁路参考，非主线。**（pm 总评 2026-09-09 维持；三职能评估均 done。）
+**旁路参考，非主线。**（pm 总评 2026-09-09 维持；2026-09-15 对照上游增量后 **结论不变**。）
 
 | 做 | 不做 |
 |----|------|
-| 旁路借鉴：装机文档结构、EH 线束工艺、手柄/镜像/过流**思路**（自写） | 主线 BOM 写入 OpenRB / Pi Zero / BNO 替代 200 / ID 1–14 / 其整套 CAD |
+| 旁路借鉴：装机文档结构、EH 线束工艺、手柄/镜像/过流**思路**（自写） | 主线 BOM 写入 OpenRB / Pi Zero / BNO 替代 200 / ID 1–14 / 其整套结构件 |
 | 通用件：XL330、EH 3P 等按官方/diy 清单 | 为「兼容该仓」改 imu-to-dxl v0.3 或 diy cad 定稿 |
 
-详单：`handoffs/2026-09-09-pm-to-pm-aifange-microduck.md` §pm 总评 · sw/hw/structure 各 handoff。
+历史评估链（**handoff 已废止**，仅考古）：工作区根 `handoffs/2026-09-09-pm-to-*-aifange-*.md`。
 
-## 硬件视角（2026-09-09）
+## 上游增量（`9a11a40` → `4967821`）
 
-来源：`handoffs/2026-09-09-pm-to-hardware-aifange-hw-eval.md`（done）。**未改** imu-to-dxl v0.3 / 三板互联。
+自评估后上游仅删除大体积资产，**未改** OpenRB / Pi / BNO / 6 V / ID 1–14 主故事：
+
+| 提交 | 变更 |
+|------|------|
+| `34656ce` | 删除 `mjlab_microduck/.../robot`（仿真网格资源） |
+| `570e0c2` | 删除整棵 `microduck/cad/`（STEP/STL） |
+| `4967821` | 删除 `microduck/docs/`（旧装机/BOM 子文档） |
+
+现行打印物：仓库根 **`microduck3D打印.3mf`**（约 5.3 MB）。根 README BOM 仍写「使用 `microduck/cad/`」——**路径已失效**，以 3mf / 仓库实际文件为准。`docs/assets/`（爆炸图等）仍在。
+
+## 硬件视角
 
 | 项 | 该仓（README 现行） | diy 主线 |
 |----|---------------------|----------|
 | 主控 / 桥 | Pi Zero 2W · **OpenRB-150 USB** | Radxa · **HAT TTL** |
 | 机身 IMU | BNO08x **I²C** | **`imu_to_dxl` ID 200** |
-| 电池 | 成品 **~6 V**（Pi 另 5 V，共地） | **NP-F** → HAT 5–28 V |
+| 电池 | 成品 **~6 V**（Pi 另 5 V，共地） | **NP-F** → HAT（互联定稿；#9 不采用 DXL 回灌） |
 | DXL 座 | EH 3P（同族） | B3B-EH · J13/J14 |
 
 - **可借鉴：** EH 压接/改线长、线序与共地检查。  
 - **禁止混 BOM：** OpenRB、Pi Zero 默认主控、BNO 替代 200、6 V 唯一电池故事、ID 1–14、OpenRB 与 HAT 并接同链。  
-- **制板/订单：无阻塞。**  
-- 注意：内嵌 `docs/bom.md` 仍写旧 HAT+18650，与根 README 不一致——以 README 为准。
+- **制板/订单：无阻塞。**
 
-## 软件视角（2026-09-09）
-
-来源：`handoffs/2026-09-09-pm-to-software-aifange-sw-eval.md`（done）。本地 HEAD `9a11a40`。
+## 软件视角
 
 | 项 | 该仓 | 官方 / diy |
 |----|------|------------|
 | 环 | Python 50 Hz | Rust `robotd` 50 Hz |
 | IMU | BNO08x I²C | `imu_to_dxl` ID 200 |
-| ID | 1–14（无嘴） | 10–14 / 20–24 / 30–34（+嘴） |
-| 策略 | `walk.onnx` **51→14**（cmd3） | **61→14**（cmd13） |
+| ID | 1–14（嘴可选 15，行走不依赖） | 10–14 / 20–24 / 30–34（+嘴） |
+| 策略 | `walk.onnx`；观测按 14 DOF 组装（基线 **51→14** 量级，非官方 61） | **61→14**（cmd13） |
 
-- **可借鉴：** 无头手柄服务、镜像分层、过流/电流代理思路（自写，勿拷 GPL）。
-- **禁止照搬：** ID 图、BNO 主路径、51 维契约、Python 主环当量产权威。
+- **可借鉴：** 无头手柄服务、镜像分层、过流思路（自写，勿拷 GPL）。  
+- **禁止照搬：** ID 图、BNO 主路径、51 维契约、Python 主环当量产权威。  
 - **对 `imu_to_dxl` / `robotd`：无直接代码复用。**
 
-## 结构视角（2026-09-09）
+## 结构视角
 
-来源：`handoffs/2026-09-09-pm-to-structure-aifange-mech-eval.md`（done）。**未改** `microduck-diy/cad/` / day*。
+| 项 | 该仓（现行） | 官方 / diy |
+|----|--------------|------------|
+| 可打印交付 | 根目录 **`.3mf` 包**；仓内 STEP/STL **已删** | `microduck-diy/cad/` + RL 网格对照 |
+| 谱系 | Marc / microban（历史 CAD 已不在树内） | Pollen |
+| 手臂 / 命名 | 评估时有臂、与官方件名 **0 交集** | 无臂；`trunk_base` 等 |
 
-| 项 | 该仓 `microduck/cad/` | 官方 / diy（RL STL） |
-|----|------------------------|----------------------|
-| 谱系 | Marc / microban；Onshape `d424992a…` | Pollen；`80492769…` |
-| 手臂 | **有**（肩/肱/尺 + 轴承座） | **无** |
-| 打印件名 | `pelvis`/`chest`/`trunk_top`/… | `trunk_base`/`left_shell`/`power_support`/… |
-| 与官方名交集 | **0** | — |
-| 舱体叙事 | 旧文档 Pi+HAT@躯干顶；README 现行 OpenRB+BNO（CAD 未重画） | 头舱 Radxa+HAT；背板 NP-F + `imu_to_dxl` |
+- **可借鉴：** 装机文档结构、线束/打印纪律（见历史 structure 评估）。  
+- **禁止当主线模具：** 其 3mf/历史 CAD、带臂 DOF、旧舱体供电几何。  
+- **diy cad：无阻塞。**
 
-- **可借鉴：** 轴承件打印朝向、双电机块先布线再入槽、EH 改线长、脚底增摩、PLA 近焊纪律；装机文档目录结构。
-- **禁止当主线模具：** 整套 STEP/STL/3MF、带臂 DOF、`board_spacer`/trunk_top 支架、18650/6V 内仓几何。
-- **diy cad：无阻塞。** 内嵌 `mjlab_…/assets` 官方同名网格仅仿真用，≠ 可打印 CAD。
-
-相关：[[microduck-diy]] · [[openmicroduck]] · [[board-imu-to-dxl]] · [[board-interconnect]] · [[board-hat]] · [[print-bom-rl]]
+相关：[[microduck-diy]] · [[openmicroduck]] · [[board-imu-to-dxl]] · [[board-interconnect]] · [[board-hat]] · [[print-bom-rl]] · [[local-workspace-layout]]

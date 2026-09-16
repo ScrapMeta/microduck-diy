@@ -17,7 +17,7 @@
 官方资料保留为精简参考。非现行调研在 **`_archive/`**。
 
 工作区根：`D:\projects\microduck` · 本 wiki：`D:\projects\microduck\microduck-diy\wiki`。  
-diy 仓：`imu_to_dxl/` · `wiki/` · `cad/`；治理/工单在工作区根 `docs/` · `handoffs/`。`microduck_ros2` **不在本 wiki 主轴**。
+diy 仓：`imu_to_dxl/` · `wiki/` · `cad/`。治理：`docs/agent-governance.md`（**v0.8：GitHub 基础工程 + llm-wiki；只常驻 pm；无 handoff**）；入口 `AGENTS.md`。`microduck_ros2` **不在本 wiki 主轴**（并入 software 范畴）。
 
 ## Conventions
 

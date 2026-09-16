@@ -1,9 +1,9 @@
 ---
 title: Seeed 轴承网格规格
 created: 2026-09-01
-updated: 2026-09-08
+updated: 2026-09-11
 type: concept
-tags: [mechanical, bom]
+tags: [mechanical, bom, printing]
 sources:
   - concepts/mechanical-bom-rl.md
   - raw/articles/taobao-diy-orders-2026-08-09.md
@@ -34,4 +34,8 @@ App alpha 曾为 default×2 + 大轴承×10；**以 RL 11+3 为准**。
 
 存放：工程侧实心占位 STL（装配预演用，非真轴承）。
 
-相关：[[mechanical-bom-rl]] · [[diy-bom]] · [[taobao-diy-procurement-2026-09]] · [[microduck-diy]]
+## 真轴承 / 轴承盘装配（切片）
+
+打印件里的 **轴承盘**（与舵盘配合、供轴承套入）：切片 **XY Hole Compensation = 0.05 mm**，否则孔偏紧、轴承套不进舵盘。详见 [[print-bom-rl]]「切片提示」。
+
+相关：[[mechanical-bom-rl]] · [[diy-bom]] · [[print-bom-rl]] · [[taobao-diy-procurement-2026-09]] · [[microduck-diy]]
