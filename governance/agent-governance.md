@@ -119,7 +119,7 @@ Milestone = 阶段篮子。`release` / `qa` 不设常驻职能。
 | 职能 | 驻留 | 范畴 | 默认可写领地 |
 |------|------|------|--------------|
 | **pm** | 常驻 | Issue/Milestone · 派单改派 · 验收关单 · wiki 收口 · 发版组织 | `microduck-diy/governance/`（治理）· 工作区根 `AGENTS.md`（存根）· `wiki/` 总述·index·log 收口（各职能写本视角页）· 该仓 Issue/PR/Milestone |
-| **software** | 短命 | 固件 · 总线/协议 · 上机脚本 · 系统镜像 | `microduck-diy/imu_to_dxl/` `image/` `scripts/`；ROS2 时 `microduck_ros2/` |
+| **software** | 短命 | 固件 · 总线/协议 · 台架/上机脚本 · 系统镜像 | `microduck-diy/imu_to_dxl/`（含其 `scripts/`）· `image/`；台架/上机脚本落 `microduck-diy/scripts/`（现无，按需新建）· ROS2 时 `microduck_ros2/` |
 | **hardware** | 短命 | 原理图/PCB · 电气 BOM · 制板接线 | `microduck-diy/imu_to_dxl/hardware/`（板设计）· 订单资产 · wiki 电气页 |
 | **structure** | 短命 | 打印件 · 装配 · 机械 BOM | `microduck-diy/cad/`；机械件数 |
 | **train** | 短命 | 仿真训练 · 评测 · ONNX 与契约 | 默认只读上游 `microduck_rl/`；产物落 Issue 指定目录 |

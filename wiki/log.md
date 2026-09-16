@@ -627,3 +627,16 @@
 - 通用模板 G3→**G4**：bootstrap 改为治理入仓 + 转发存根
 - Updated: [[SCHEMA]] · [[index]] · [[local-workspace-layout]] · [[diy-milestones]]
 
+## [2026-09-16] pm | #4 本轮定调：先审计方法/脚本/参数
+- [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) 追加 pm 注记（[comment](https://github.com/ScrapMeta/microduck-diy/issues/4#issuecomment-5693196184)）：Human 指定本轮**先复查测试方法/脚本/参数**，方法未定案前不动台架
+- 预检出 **M1–M6** 待 hardware 逐条裁决（确认/订正/证据不足）：
+  - **M1 母线 7.4 V 与 XL330 冲突（最高优先）**：手册 3.7–6.0 V · 实测 7.2 V 即过压红灯闪 · [[body-imu-hat-dxl-power-eval]] 建议 **6.0–6.5 V**；wiki 内 3 处旧值 vs 1 处新值；且 `shutdown=52` **锁存 input-voltage fault 保持 torque off** → **错电压本身能造出「零回包」**，正是本单症状族。J13/J14 针2 直连 `+BATT`、舵机**不过 buck**，故台供电压=舵机电压
+  - **M2 限流 1 A 叠 Zero 时不够**：预算 Zero+外设 @5 V ≈1–2 A → 6 V 输入 **1.2–2.5 A**；触限塌陷 → 误判成焊接/overlay 故障
+  - **M3 基线缺失**：[[xl330-cn-bench-kit]] 明细仍空（ID/波特率/固件/电压），而本单要求「同一颗已验证舵机」
+  - **M4 出厂默认回退未写**：官方 `robotd-design` §2.1——新 XL330 出厂 **ID 1 @ 57 600**，`open_bus` 先 1 Mbps、**再切 57 600** 探测；流程只写 1 Mbps → **假零回包**
+  - **M5 无版本化脚本**：`microduck-diy/scripts/` 不存在，SDK/Wizard 在 `res/`·`temp/`（未入库）→ 不可复现
+  - **M6 未用官方 `setup-board.sh` 的 `report()`**：已实现 bus 存在/`fuser` 占用 PID/console 冲突（区分 `/proc/cmdline` 与 `armbianEnv.txt`）/failed units；且 `console=display` **重启才生效**易于误判
+- 已核对无误：`/dev/ttyS2` · 1 Mbps（官方 `baud_rate=3`）· Protocol 2.0 · getty 须 masked · J13/J14 1=GND/2=+BATT/3=DATA
+- 治理改口：§5 software 领地去掉不存在的 `microduck-diy/scripts/`，改为「台架/上机脚本落此、按需新建」
+- Open 现行：#4 HAT TTL（先审计方法）· #8 replica0908 · #9 机身取电评估
+
