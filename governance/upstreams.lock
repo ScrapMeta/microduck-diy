@@ -1,6 +1,6 @@
 # Upstream version lock (upstreams.lock)
 
-> Generated: 2026-09-16 14:05 by `refresh-upstreams.ps1` - do not hand-edit.
+> Generated: 2026-09-16 14:13 by `refresh-upstreams.ps1` - do not hand-edit.
 > Replaces git submodules for pinning upstream versions (governance 10.3).
 > A non-zero `Dirty` on a `readonly` row is a violation: upstream clones must stay clean (governance 11).
 
@@ -16,7 +16,7 @@
 | `microduck_ros2/` | owned | (none) | main | `8f0618d` | 0 |  |  |
 | `microduck_sounds/` | readonly | https://github.com/apirrone/microduck_sounds.git | main | `1a17358` | 0 | 0 | 0 |
 | `Microduck-build-tutorial/` | readonly | https://github.com/AI-FanGe/Microduck-build-tutorial.git | main | `4967821` | 0 | 0 | 0 |
-| `microduck-diy/` | owned | https://github.com/ScrapMeta/microduck-diy.git | main | `cdd32b6` | 3 | 0 | 0 |
+| `microduck-diy/` | owned | https://github.com/ScrapMeta/microduck-diy.git | main | `4236ccc` | 0 | 0 | 0 |
 | `microduck-replica/` | readonly | https://github.com/fanhao375/microduck-replica.git | master | `f533679` | 0 | 0 | 0 |
 | `microduck-simulator/` | readonly | https://huggingface.co/spaces/pollen-robotics/microduck-simulator | main | `023172c` | 0 | 0 | 0 |
 | `OpenMicroDuck/` | readonly | https://github.com/JoyandAI/OpenMicroDuck.git | main | `3992277` | 0 | 0 | 0 |
