@@ -648,3 +648,14 @@
 - 改口落盘：Issue 正文（Constraints/Acceptance/新增 This round）· [[hat-dxl-bus-debug]] §0/§2/§7 · [[bench-power-supply]]（原「7.4–8.4 V」）· [[hat-solder-kit]] §4.0/§4.3（7.4 V 限定为裸 HAT）· [[bam-identification-bench]]
 - 待 hardware：M3 补 #1 基线（ID/波特率/固件）· M4 出厂默认 57 600 回退写进流程 · M5 版本化扫/Ping 脚本 · M6 用官方 `report()` 作一致性基线
 
+## [2026-09-16] audit | #4 M1–M6 逐条裁决 · 落 `scripts/dxl_ping.py`
+- hardware 方法审计（不接线上电）；手册真源 [XL330-M288 eManual](https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/)（当日取）
+  - **M1 确认**（母线 6.0–6.5 V）**但机制订正**：手册 `Shutdown(63)` **bit0 = Input Voltage Error**；**出厂默认 53 含 bit0**，官方 `robotd` 写 **52 恰好清掉 bit0** → 旧说法「52 锁存过压」方向是**反的**。且过压只清 `Torque Enable`、红灯持续闪，**舵机仍应答 Ping/Read** → 是「不动」而非「零回包」；旧表述会误导下一任 agent 漏掉真因
+  - **M2 确认**（纯 HAT 1 A · 叠 Zero 2–3 A）+ 补「**上电前**按构型设好」（台供恒流触限是**拉低母线**，不是干净断开）
+  - **M3 证据不足**：[[xl330-cn-bench-kit]] 基线（端口/ID/波特率/固件/电压）**从未落真源**，wiki·raw·temp·会话均无 → 拒绝臆造，改为**采集位 + 脚本**
+  - **M4 确认**：出厂 **ID 1 @ 57 600**（手册 `Baud Rate(8)` 值 1 默认）；官方 1 Mbps → **57 600 回退**顺序写入流程 §1.1
+  - **M5 确认**：落 `microduck-diy/scripts/dxl_ping.py`（**只读** Protocol 2.0 · 仅依赖 `pyserial` · 无硬件 `self-test` 通过）+ `scripts/README.md`
+  - **M6 确认**：官方 `setup-board.sh` `report()` 作一致性基线，写 §3.1（点名 **`uart2-m0`** · `console=display` **重启才生效** · 区分 `/proc/cmdline` 与 `armbianEnv.txt`）
+- Updated: [[hat-dxl-bus-debug]] · [[dxl-bench-method]]（**新建**）· [[bench-power-supply]] · [[dynamixel-xl330]] · [[xl330-cn-bench-kit]] · [[index]] · `.gitattributes`（`*.py` LF）
+- **拆页**：[[hat-dxl-bus-debug]] 原 191 行 + 本轮 +79 → 超 SCHEMA 200 行上限；方法/参数/探测顺序/`report()` 基线/验收清单拆至 [[dxl-bench-method]]（199 + 125 行），步骤页只留「照做」的值与指向
+

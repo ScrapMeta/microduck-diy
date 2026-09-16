@@ -1,7 +1,7 @@
 ---
 title: XL330-CN 台架测试（国产启动套件）
 created: 2026-09-10
-updated: 2026-09-11
+updated: 2026-09-16
 type: concept
 tags: [servo, dynamixel, procurement, diy]
 sources:
@@ -18,7 +18,8 @@ related:
 
 # XL330-CN 台架测试（国产启动套件）
 
-> **状态：✅ 台架已通过（2026-09-10）。** Issue [#1](https://github.com/ScrapMeta/microduck-diy/issues/1)（closed）。详细截图/参数表 **资料后补**。  
+> **状态：✅ 台架已通过（2026-09-10）。** Issue [#1](https://github.com/ScrapMeta/microduck-diy/issues/1)（closed）。
+> **基线明细：证据不足**（2026-09-16 复核，从未记录）→ 见下「基线参数」· 复测前用 `scripts/dxl_ping.py` 采集。  
 > 规格真源：[XL330-M288 eManual](https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/) · 实体 [[dynamixel-xl330]]
 
 ## 到货 / 在用硬件
@@ -51,21 +52,51 @@ related:
 
 | 项 | 结果 |
 |----|------|
-| 结论 | **通过**（2026-09-10） |
+| 结论 | **通过**（2026-09-10，用户口述确认） |
 | 范围 | 国产启动套件路径：驱动识别 · 扫舵机 · 冒烟运动 |
-| 明细 | **待后补**（端口 / 波特率 / ID / 电压 / 截图等） |
+| 明细 | **未记录**（见下） |
+
+### 基线参数（M3 · 2026-09-16 复核：**证据不足**）
+
+Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) 的前提是「**同一颗** U2D2 已验证的舵机」，
+但 #1 的基线**从未落到任何真源**：wiki / `raw/` / 本机 `temp`·`res` / agent 会话里都**查不到**实测的
+**ID / 波特率 / 固件 / 当时电压**。按治理「**聊天不算**」，此处**不臆造**，据实标为**证据不足**。
+
+| 字段 | 值 | 来源 |
+|------|-----|------|
+| 端口 | 未记录 | — |
+| ID | 未记录（出厂默认 = **1**，未回读） | — |
+| 波特率 | 未记录（出厂默认 = **1 → 57 600**，未回读） | — |
+| 固件版本 | 未记录 | — |
+| 当时电压 | 未记录 | — |
+| 已知（构造性） | XL330-M288-**T-CN** · 国产 U2D2 + PHB · 台架自供电源 · **单只** | raw |
+
+> **缺口不可忽略**：#4 的「同一颗舵机 + 1 Mbps」**没有可核对的基线**，
+> 且**只按 1 Mbps 测会漏掉出厂 57 600**（[[hat-dxl-bus-debug]] §1.1）。
+> 复测前**先采集**下列基线，原始命令与输出贴回 Issue，再写回本页。
+
+### 采集方法（复测时执行）
+
+```bash
+pip install pyserial
+python microduck-diy/scripts/dxl_ping.py info --port COM7 --id <当前ID>   # 读基线
+python microduck-diy/scripts/dxl_ping.py scan --port COM7 --baud 1000000,57600
+```
+
+`info` 一次给全：ID / 波特率 / 固件版本 / Max·Min Voltage Limit / Return Delay Time / PWM Slope / Shutdown / 当时输入电压 / 温度。
+脚本**只读、不写**，自带无硬件 `self-test`。落点：[[hat-dxl-bus-debug]] §1 · `scripts/README.md`。
 
 ### 勾选（汇总）
 
 - [x] 驱动与 U2D2 识别、扫到舵机、台架冒烟（用户确认通过）
-- [ ] 后补：端口名、波特率、ID、电压、固件版本、异常记录与截图
+- [ ] **基线采集**：端口名、波特率、ID、电压、固件版本（用上述脚本；#4 复测前完成）
 
 ### 实验笔记
 
 #### 2026-09-10
 
-- **结果：** 测试通过。  
-- **资料：** 后补。
+- **结果：** 测试通过（用户口述）。  
+- **资料：** 未留存；2026-09-16 复核确认**无法从聊天/仓库重建**。
 
 ## 与官方生态的关系
 

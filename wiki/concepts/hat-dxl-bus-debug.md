@@ -8,6 +8,8 @@ sources:
   - concepts/hat-solder-kit.md
   - concepts/xl330-cn-bench-kit.md
   - microduck/scripts/setup-board.sh
+  - microduck/duck-control/src/bus.rs
+  - https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/
 confidence: high
 related:
   - hat-solder-kit
@@ -16,6 +18,7 @@ related:
   - xl330-cn-bench-kit
   - dynamixel-xl330
   - zero3w-bench-plan
+  - dxl-bench-method
 ---
 
 # HAT TTL 舵机测不通排查
@@ -29,18 +32,12 @@ related:
 
 ## 0. 台供与只接 1 只舵机
 
-> **母线电压 6.0–6.5 V（pm 定案 2026-09-16；本页原写 7.4 V）。**
-> 依据：XL330 手册工作区 **3.7–6.0 V**（控制表默认 Max Voltage Limit ≈ **7.0 V**）；DIY 实测（2026-09-15）
-> **~7.2 V 红灯持续闪（过压报警）**，~6.5 V 上电闪一下后正常。
-> 且官方 `robotd-design` §2.1：`shutdown=52` 错误掩码**锁存 input-voltage fault 并保持 torque off** ——
-> **用错电压本身就会造出「零回包」**，与本单症状同名，勿再当成通信问题查。
-> J13/J14 针2 **就是 `+BATT`**、**舵机不经 buck**，故台供电压 = 舵机电压。
-> 详见 [[dynamixel-xl330]] · [[body-imu-hat-dxl-power-eval]] §3.1。
+> 参数依据 · 机制订正（`shutdown` 位）· 限流分段 · 探测顺序 · 一致性基线 → **[[dxl-bench-method]]**。本页只留台架要照做的值。
 
 | 项 | 设定 |
 |----|------|
-| 电压 | **6.0–6.5 V**（**勿**用 7.4 V 直供舵机） |
-| 电流限 | **纯 HAT 阶段 1 A**；**叠 Zero 后放到 2–3 A** |
+| 电压 | **6.0 V 优先**；**6.0–6.5 V** 为实测可用带（手册上限 6.0 V）；**勿** 7.4 V 直供舵机 |
+| 电流限 | **纯 HAT 阶段 1 A**；**叠 Zero 后 2–3 A**；**按当前构型在上电前设好** |
 | 进电 | J13 或 J14：**针1=GND · 针2=+BATT**；针3 先空 |
 | 禁止 | >6.5 V 直供舵机、30 V、Type-C 与 `+BATT` 同时灌、一次挂多只 |
 
@@ -55,9 +52,21 @@ related:
 | 结果 | 含义 |
 |------|------|
 | U2D2 能扫到 | 舵机/线/ID/波特率 OK → 问题在 **HAT / Zero / 软件** |
-| U2D2 也扫不到 | 先修舵机电源、线序、ID、Wizard 波特率（**1 Mbps** · Protocol **2.0**） |
+| U2D2 也扫不到 | 先修舵机电源、线序；再按 §1.1 走 **1 Mbps → 57 600** 探测顺序（别只按 1 Mbps 就判死） |
 
-记下：**ID、波特率、固件**。后面 HAT 必须用同一套。
+记下：**ID、波特率、固件、当时电压**，后面 HAT 必须用同一套。用脚本采原始输出（勿手抄）：
+
+```bash
+python scripts/dxl_ping.py info --port COM7 --id <当前ID>     # 基线：ID/波特率/固件/电压
+```
+
+### 1.1 出厂默认回退（1 Mbps 扫不到 ≠ 硬件坏）· 订正 M4
+
+新 XL330 **出厂 = ID 1 @ 57 600 baud**——两者**本总线都不用**。**只按 1 Mbps 测会得到假「零回包」**：
+先按 1 Mbps ping 预期 ID；若恰一个缺失 → 探 ID 1（先 1 Mbps、再**重开 57 600**）→ 写 ID/波特率 → 回 1 Mbps →
+查寄存器 → **重启舵机**（重启才清烧写留下的锁存 hardware-error）。
+
+顺序、寄存器与脚本用法见 **[[dxl-bench-method]] §2**。
 
 ---
 
@@ -88,17 +97,25 @@ grep -E '^(console=|overlays=|overlay_prefix=)' /boot/armbianEnv.txt
 
 | 检查 | 要通过 |
 |------|--------|
-| `/dev/ttyS2` 存在 | 无则 overlay：`overlay_prefix=rk3568` + UART2 overlay（`setup-board.sh`） |
+| `/dev/ttyS2` 存在 | 无则 overlay：`overlay_prefix=rk3568` + **`overlays=uart2-m0`**（`setup-board.sh` 的 `REQUIRED_OVERLAY`；`overlay_prefix=rk35xx` 在本板是**错的**，会静默丢口） |
 | `fuser` | **不能**是 `agetty` / `getty` |
 | getty | 必须 **masked**（只 disable 会被 `getty.target` 拉回来） |
 | `console=` | 必须 **`display`**，不能是 `both` / `serial`（内核 printk 会打坏回包） |
 
-修完重启再扫。未跑 `provision` / `setup-board.sh` 时，上面几乎必挂。
+修完**重启**再扫。未跑 `provision` / `setup-board.sh` 时，上面几乎必挂。**`console=display` 重启才生效**。
 
-扫总线（示例；以板上已装工具为准）：
+扫总线用可版本化脚本（勿再靠「板上已装工具」）：
 
-- 官方栈：`robotd` / 仓库自带 ping  
-- 或 Dynamixel Wizard / SDK：端口 **`/dev/ttyS2`**，**1 000 000**，Protocol **2.0**
+```bash
+python scripts/dxl_ping.py scan  --port /dev/ttyS2 --baud 1000000,57600   # 先 1 Mbps，再 57 600 回退
+python scripts/dxl_ping.py info  --port /dev/ttyS2 --id <ID>              # 基线：ID/波特率/固件/电压
+python scripts/dxl_ping.py probe --port /dev/ttyS2 --expect <ID列表>      # 复刻官方探测顺序
+```
+
+- 官方栈：`robotd` / 仓库自带 ping
+- Dynamixel Wizard / SDK：端口 **`/dev/ttyS2`**，**1 000 000**，Protocol **2.0**
+
+一致性基线用官方 `setup-board.sh` 的 `report()`（`fuser` 占用者 PID · console 冲突 · `uart2-m0`）→ **[[dxl-bench-method]] §3**。
 
 ---
 
@@ -176,17 +193,7 @@ U2D2 扫得到这只舵机？
 
 ## 7. 本轮验收
 
-- [ ] U2D2 仍能扫到该舵机  
-- [ ] HAT 针2 = 台供（**6.0–6.5 V**）；限流未顶死（纯 HAT 1 A；叠 Zero 2–3 A）  
-- [ ] getty masked · `console=display` · `fuser` 干净  
-- [ ] 空闲 DATA≈3.3 V；Ping 有主机包  
-- [ ] 接舵机后有回包，软件能读 ID  
+验收清单（含主控↔HAT 补充项：**DXL 口是否真上电** · **单变量原则** · **分支定位** · **证据随单**）
+→ **[[dxl-bench-method]] §6**。M1–M6 裁决 → **§4**（M3 基线**证据不足**，[[xl330-cn-bench-kit]] 已据实标记）。
 
-### 7.1 复查补充（2026-09-16 · 主控↔HAT DATA 未打通）
-
-- [ ] **DXL 口是否真的上电** —— 针2 有压 ≠ 舵机口有压；先量舵机座子电压再谈通信  
-- [ ] **单变量原则** —— 换线/换舵机/换供电策略一次只动一个，评论里写明本次变量  
-- [ ] **分支定位（必须给结论）** —— ①供电未使能 ②串口被占用 ③物理层/方向脚 ④收发器或焊点 ⑤软件配置；证据不足也要写明  
-- [ ] **证据随单** —— pin2 电压 · pin3 空闲电平 · ping 主机包与回包波形 · 软件 ping/read ID 输出  
-
-相关：[[hat-solder-kit]] · [[xl330-cn-bench-kit]] · [[board-interconnect]] · [[zero3w-bench-plan]]
+相关：[[hat-solder-kit]] · [[xl330-cn-bench-kit]] · [[board-interconnect]] · [[zero3w-bench-plan]] · [[dxl-bench-method]]
