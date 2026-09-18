@@ -152,6 +152,19 @@ python3 scripts/servo_swap_compare.py compare xl330.npz rd05t.npz --baseline xl3
 `--duration` 默认 60 s；容差就是按这个长度定的。更短的时长会按比例压缩所有相位
 （大步保持时间变短），脚本会打提示，只适合冒烟测管道。
 
+### 先空载跑，别等台架
+
+`dead_steps` / `hysteresis` / `dead_time` 测的是**虚位与柔度**，**空载就能显形**
+（输出轴在间隙内的自由行程不需要外力）。只有 `ramp_slow` 的摩擦对比需要配重：
+**空载没有力矩，静摩擦几乎不被激励**。
+
+所以：**空载先跑一遍**，只看虚位三个指标，约一小时就能判掉「离合 / 回差」这个
+**重辨识也救不了**的风险；通过了再上摆臂做完整版。
+**注意空载的 `tracking_mae` 不能用来判摩擦**，只用于判虚位。
+
+分阶安排与「要不要做 BAM 辨识」的决策表见
+[`wiki/concepts/bam-identification-bench.md`](../wiki/concepts/bam-identification-bench.md) §「分阶测试」。
+
 ### 与上游 `microduck_rl` 的关系
 
 策略在环的问题仍归 [`refs/microduck_rl/scripts/testbench_sim2real.py`](../refs/microduck_rl/scripts/testbench_sim2real.py)

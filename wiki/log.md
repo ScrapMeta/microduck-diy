@@ -747,3 +747,17 @@
 - **未做（Human 本轮只选工装）**：厂商问询信 · 寄存器扫描脚本 · 上游 PR · 开台架 Issue。**`scripts/dxl_ping.py` 仍只读**，本脚本**非只读**（需 `--setup`），已在 `scripts/README.md` 明示
 - **边界**：本工装只判**单台执行器**。整机替换另有两道：①**批次一致性**（BAM 是**单台**辨识的，15 台散布大则模型等于错；1~2 台测不出）②策略在环（归 `refs/microduck_rl/scripts/testbench_sim2real.py`，可把其 `--mode sim` 轨迹用 `--sim` 并入本工装）
 - Updated: [[xl330-vs-kpower-rd05t]]（§5 新增判定路径第 5 步 · §7 新增开放项）· `scripts/README.md`（新 §「`servo_swap_compare.py`」+ 约定新增「会写总线的脚本须明示非只读」）· [[index]]
+
+## [2026-09-18] bench | 台架物料核实 + 分阶测试决策表 + Wizard 证明力（三处新事实）
+- **问题（Human）**：①厂商称可直接上 **DYNAMIXEL Wizard** 且识别成 XL330，能否测？②BAM 对比测试需要台架吗、缺哪些材料（已有小台夹）？③后续还要做 BAM 辨识吗？
+- **事实 1：仓里已有整套台架打印件**。`refs/microduck_rl/src/mjlab_microduck/robot/xl330_test_bench/` 下 6 件：`bench_holder` ×1 · `arm` **×2** · `spacer` **×2** · `axis` ×1 · `weight` ×1（+ `xl330` 占位）。装配关系由 `xl330_test_bench.xml` 给出，原始 CAD 是 Onshape（链接在 `config.json` 的 `url`）
+  - ⚠ **但这些 STL 不能直接打印**：`config.json` 里 `simplify_stls: true` + `max_stl_size: 1.0`，`arm.stl` 仅 151 KB —— 是**抽稀后**的仿真网格，尺寸/配合精度不足。**要打印须去 Onshape 原文档导出**
+  - 关节行程 `range="-1.3962634 1.3962634"` = **±80°**，与 `testbench_sim2real.py` 及 `servo_swap_compare.py` 的 `MAX_ANGLE` **完全一致** ✓
+- **事实 2（真源冲突，须修正）**：摆臂质量仓内两处不一致 —— `xl330_test_bench.xml` 写 `mass="0.1"`（注释「100 g payload」），而 `testbench_constants.py` 写 `TESTBENCH_ARM_MASS = 0.12`（**120 g，且 `_set_arm_mass()` 会覆盖 XML**）。差 **20 %**。而 BAM 的硬约束正是「**质量必须实测、禁用铭牌标称**」→ **上机前用 0.1 g 秤称实际臂+配重，按实测值填 `--mass`/`--arm-mass`**
+- **事实 3：「能上 Wizard 并识别成 XL330」会发生，但是最弱的证据**。Wizard 按 **`Model Number(0)` 做表查找**：回 1200 → 套 XL330-M288-T 表并如此显示。证明的是**身份声明**，与 `servo_swap_compare.py` 那个「非 1200 即拒绝」的守卫检的是**同一件事**。按证明力分三档记入 §3.1：读（弱）· **写-读回**（中，`robotd` 收养路径前提）· **写 P 增益并看阶跃响应是否真变**（强，BAM 电气前提）。**只读不算证明**：固件可以「存值不用」
+  - **陷阱**：Wizard 套的是 **XL330 的表含合法范围/单位**；克隆件某地址实际含义不同时 **Wizard 照 XL330 显示、看不出差别** —— 即本 wiki 已记过的那类「合理但错误」的数（`model=45056`、`max_voltage_limit=1792.0 V`）。**工具本身掩盖差异**，故「Wizard 正常」不可当通过
+  - **Wizard 顺带能定论 `0x55` 帧异常**（长期待办）：它是**独立实现**，可判固件怪癖 vs 脚本问题
+- **分阶测试（新）**：T1 身份（无台架）→ **T2 空载 A/B（无台架，~1 小时）** → T3 负载 A/B（~1 天）→ T4 辨识（数天–数周）。**关键理由**：`dead_steps`/`hysteresis`/`dead_time` 测**虚位与柔度**，**空载即显形**（间隙内自由行程不需外力）；只有 `ramp_slow` 摩擦对比需配重，**空载无力矩则静摩擦不被激励** → **空载的 `tracking_mae` 不可判摩擦，只判虚位**
+- **「要不要做 T4 辨识」= 取决于 T2/T3 的**诊断分型**，不取决于「能不能用」**：虚位/迟滞型差异 → **不必做**（BAM 拟的是**摩擦**：库仑+黏滞+负载相关，**表达不了运动学/结构属性** → 白费）；仅 `tracking_mae` 大且虚位正常 → **值得做**。**顺序：先 A/B（1 天）再决定辨识（数天–数周），别反过来**
+- **两道未覆盖**：①**批次一致性**（BAM 是**单台**辨识；15 台散布大则模型错，**1~2 台测不出**）②**策略在环**（归 `testbench_sim2real.py`）
+- Updated: [[bam-identification-bench]]（BOM 增「打印件」+「质量真源冲突」+ 新 §「分阶测试」；结论表「何时值得搭辨识台」补指向）· [[xl330-vs-kpower-rd05t]]（新 §3.1 Wizard 证明力三档 + §3.2 可即刻回答的两件事 + §3.3；§5 判定路径重排为 1/2/**2b**/3/4/**5a**/**5b**/6 并加「先便宜后贵」顺序原则）· `scripts/README.md`（新 §「先空载跑，别等台架」）
