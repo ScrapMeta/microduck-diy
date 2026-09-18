@@ -25,9 +25,9 @@ python3 scripts/dxl_ping.py probe --port COM7 --expect 10,11,12
 
 | 子命令 | 作用 |
 |--------|------|
-| `self-test` | CRC（按位实现 vs 查表实现）、**公开报文向量**、报文往返、坏 CRC 拒收、非标准帧回放、`shutdown` 位解码 |
+| `self-test` | CRC（按位实现 vs 查表实现）、**公开报文向量**、报文往返、坏 CRC 拒收、非标准帧回放、`shutdown` 位解码、`Operating Mode(11)` 解码 |
 | `scan` | 在给定波特率（可逗号串列）逐 ID Ping |
-| `info` | 读一个 ID 的基线寄存器，并对照 `robotd` 的期望值 |
+| `info` | 读一个 ID 的基线寄存器（含 **`Operating Mode(11)`**），并对照 `robotd` 的期望值 |
 | `probe` | 复刻官方探测顺序：预期 ID @ **1 Mbps** → 若恰一个缺失，探出厂舵机 **ID 1**（先 1 Mbps，再 **57 600**）|
 
 **基线采集**：`info` 的输出即 Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) / `wiki/concepts/xl330-cn-bench-kit.md`
@@ -64,6 +64,23 @@ CRC-16/IBM 的作用域是「从 `FF FF FD 00` 起到最后一个参数」，**�
 
 > 该字节的**来源未定论**（单位固件怪癖 vs 其它）。交叉验证办法：同一只舵机接 **U2D2 +
 > Dynamixel Wizard** 看是否同样存在 —— Wizard 是独立实现，能一锤定音。
+
+## 为什么 `info` 也读 `Operating Mode(11)`（2026-09-18）
+
+XL330 有**两个**输出限幅，**不是每个模式都同时生效**：
+
+| 寄存器 | 默认 | 生效范围 |
+|--------|------|----------|
+| `PWM Limit(36)` | 885 = 100 % | **所有**模式 |
+| `Current Limit(38)` | 1750 = 1.75 A | 仅 **Current Control(0)** 与 **Current-based Position(5)** |
+
+出厂默认模式是 **3 = Position Control**，此时 `Current Limit(38)` **不生效** ——
+「电流被 1.75 A 钉住」这个常见假设**在默认模式下是错的**：母线升压会让输入电流超出
+6.0 V 额定（1.74 A）而**不受该寄存器保护**。
+
+`Operating Mode(11)` 决定该用哪条结论，而 `robotd` **不写**这个寄存器（只写
+`return_delay_time` / `baud_rate` / `pwm_slope` / `shutdown`），所以只能读出来。
+见 [`wiki/entities/dynamixel-xl330.md`](../wiki/entities/dynamixel-xl330.md) §「母线电压天花板」。
 
 ## 约定
 

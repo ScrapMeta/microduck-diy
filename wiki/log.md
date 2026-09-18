@@ -723,3 +723,12 @@
 - 与既有归档一致：[[xl330-vs-feetech-servos]] · [[xl330-vs-unitree-s288]]（铭牌接近 ≠ drop-in）
 - Updated: [[index]] · `comparisons/`（首次使用该目录）
 
+## [2026-09-18] spec | XL330 母线电压天花板 + `Operating Mode(11)` 进基线
+- **问题**：`Max Voltage Limit(32)` 默认 70，能否改？本项目 NP-F 满电 **8.4 V** 能否设上去？
+- **答案**：**能改，但只能调低**。范围 **31–70 → 3.1–7.0 V**，**8.4 V 设不进去**。该寄存器是**比较器的跳闸点、不是稳压器** → 写 70 只是把报警门槛抬到最高，8.4 V **依然必然置位** Input Voltage Error（+ Alert 0x80），H 桥/母线电容/绕组看到的仍是 8.4 V。**无任何寄存器值能让 8.4 V 合规**
+- **项目级发现（重要）**：官方整机 2S 直供**能跑，靠的是 `robotd` 写 `shutdown=52` 清掉 bit0**（= 关掉过压保护），**不是解决了电压**。推论：把 `shutdown` 改回出厂 **53** = 机器人「满电不能用」；台架那颗 CN 舵机**现在就是 53**（2026-09-16 实测）→ 母线超 7.0 V 即 torque off 且锁存，须 REBOOT。同时解释了 2026-09-15 实测：**7.2 V 持续闪灯**（7.2 > 7.0）、6.5 V 正常
+- **自我纠正（推翻上一轮的推论）**：先前推断「8.4 V 不多买扭矩，因为 `Current Limit(38)` ≤1750 钉死」——**该推断只在 Current Control(0) / Current-based Position(5) 成立**。手册明确 `Current Limit(38)` 的生效范围**仅这两个模式**；而 XL330 **出厂默认是 3 = Position Control**，此时起作用的是 `PWM Limit(36)`（所有模式），`Current Limit(38)` **不生效** → **升压会让输入电流超出 6.0 V/1.74 A 额定而不受该寄存器保护**，比先前判断**更严重**
+- **真源缺口发现**：`Operating Mode(11)` **全仓零记录**（wiki / `raw/` / 脚本都没有）→ 而它恰是判定该问题的前置。**默认 3** 且 `robotd` **不写**该寄存器 → 只能读
+- **脚本变更**：`scripts/dxl_ping.py` 的 `REGISTERS` 增加 `operating_mode(11)`；新增 `OPERATING_MODES` / `CURRENT_LIMITED_MODES` 表与 `decode_operating_mode()`，`info` 直接输出「哪个限幅生效」；`self-test` 加 3 条断言（含保留值 2 必须解成 `unknown`）。**自检通过**；用假舵机回放 2026-09-16 出厂基线，`info` 输出逐项吻合
+- Updated: [[dynamixel-xl330]]（新 §「母线电压天花板」+ 寄存器表补 4 行）· [[body-imu-hat-dxl-power-eval]] §3.3 · [[xl330-cn-bench-kit]]（新增安全事实 5）· `scripts/README.md`（新 §「为什么 info 也读 `Operating Mode(11)`」）
+

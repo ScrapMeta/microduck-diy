@@ -61,6 +61,28 @@ default 53 and is masked out once robotd has written 52. Either way the servo st
 answers Ping/Read - over-voltage stops the motor, not the bus. Do not read a latched
 shutdown as a zero-reply. See `wiki/concepts/dynamixel-xl330.md`.
 
+Operating Mode(11) - which output limit actually binds
+------------------------------------------------------
+`info` also reads Operating Mode(11) because the XL330 carries *two* output ceilings
+and they do not both apply in every mode:
+
+  PWM Limit(36)     = 885 (100%)   applied in **all** operating modes
+  Current Limit(38) = 1,750 mA     applied only in Current Control and
+                                   Current-based Position Control mode
+
+That matters for the bus-voltage decision. `Max Voltage Limit(32)` is writable but its
+range is **31 ~ 70 = 3.1 ~ 7.0 V**, so the register can only be made *stricter* - an
+8.4 V 2S pack cannot be made legal by writing it. Two further consequences:
+
+  * At 8.4 V the Input Voltage Error bit is set unconditionally (8.4 > 7.0 = the
+    highest threshold the register can hold), so the Alert bit(0x80) is always up.
+  * In the factory-default Position Control Mode (3) the Current Limit(38) is *not*
+    enforced, so raising the bus voltage raises the current the servo can draw past
+    its 1.74 A / 6.0 V stall rating - the 1.75 A ceiling does not protect you there.
+
+Read this register before reasoning about torque vs. bus voltage; the bench servo
+shipped at the factory default, so an unread value is an unknown.
+
 Register addresses are from the ROBOTIS XL330-M288 eManual control table.
 """
 
@@ -115,6 +137,7 @@ REGISTERS = {
     "id": (7, 1, "1"),
     "baud_rate": (8, 1, "index"),
     "return_delay_time": (9, 1, "2us"),
+    "operating_mode": (11, 1, "index"),
     "max_voltage_limit": (32, 2, "0.1V"),
     "min_voltage_limit": (34, 2, "0.1V"),
     "pwm_limit": (36, 2, "0.113%"),
@@ -142,6 +165,21 @@ SHUTDOWN_BITS = [
     (0x10, "ElectricalShock"),
     (0x20, "Overload"),
 ]
+
+# Operating Mode(11). The values are not contiguous - 2 and 6..15 are reserved.
+# 3 is the factory default, and it is the one that decides whether Current Limit(38)
+# is enforced at all (see the module docstring).
+OPERATING_MODES = {
+    0: "Current Control",
+    1: "Velocity Control",
+    3: "Position Control",
+    4: "Extended Position Control",
+    5: "Current-based Position",
+    16: "PWM Control (Voltage)",
+}
+
+# Modes in which Current Limit(38) is enforced. PWM Limit(36) applies in all of them.
+CURRENT_LIMITED_MODES = (0, 5)
 
 
 def update_crc(crc: int, data: bytes) -> int:
@@ -485,6 +523,15 @@ def decode_shutdown(value: int) -> str:
     return "|".join(on) if on else "none"
 
 
+def decode_operating_mode(value: int) -> str:
+    """Name the mode, and say whether Current Limit(38) binds in it."""
+    name = OPERATING_MODES.get(value, f"unknown/{value}")
+    if value in OPERATING_MODES:
+        name += "  [Current Limit(38) enforced]" if value in CURRENT_LIMITED_MODES \
+            else "  [PWM Limit(36) is the output limit]"
+    return name
+
+
 def open_bus(port: str, baud: int, timeout: float, verbose: bool) -> Bus:
     return Bus(port, baud, timeout=timeout, verbose=verbose)
 
@@ -534,6 +581,8 @@ def cmd_info(args) -> int:
                 note = f"  -> {value / 10.0:.1f} V" if "voltage" in name else ""
             elif name == "shutdown":
                 note = f"  -> latches on: {decode_shutdown(value)}"
+            elif name == "operating_mode":
+                note = f"  -> {decode_operating_mode(value)}"
             elif name == "hardware_error_status":
                 note = f"  -> {decode_shutdown(value)}"
             elif name == "model_number" and value == MODEL_NUMBER_XL330:
@@ -742,13 +791,23 @@ def cmd_self_test(args) -> int:
     if "InputVoltage" in decode_shutdown(52):
         failures.append("shutdown 52 must NOT include InputVoltage (robotd clears bit 0)")
 
+    # 6) operating mode decode. The register is the one that decides whether
+    # Current Limit(38) is enforced, so a wrong name here would mis-set the
+    # voltage/torque reasoning in the wiki. 2 is reserved, not a mode.
+    if decode_operating_mode(3) != "Position Control  [PWM Limit(36) is the output limit]":
+        failures.append(f"operating mode 3 decoded as {decode_operating_mode(3)!r}")
+    if decode_operating_mode(5) != "Current-based Position  [Current Limit(38) enforced]":
+        failures.append(f"operating mode 5 decoded as {decode_operating_mode(5)!r}")
+    if decode_operating_mode(2) != "unknown/2":
+        failures.append(f"operating mode 2 (reserved) decoded as {decode_operating_mode(2)!r}")
+
     if failures:
         print("self-test FAILED:")
         for f in failures:
             print(f"  - {f}")
         return 1
     print("self-test OK: CRC (bitwise == table), packet round-trip, CRC rejection, "
-          "prefixed framing replay, shutdown bits")
+          "prefixed framing replay, shutdown bits, operating-mode decode")
     return 0
 
 

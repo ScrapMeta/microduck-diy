@@ -89,6 +89,10 @@ related:
 3. `Shutdown = 53` 实测到手，**直接证实** [[dynamixel-xl330]] 的订正：出厂 53 **含** Input Voltage 位，
    `robotd` 写的 52 才是**清掉**它。`Hardware Error Status = 0` + 5.8 V 说明本机没过压、通信正常。
 4. `Current Limit = 1750 (1.75 A)` 实测值可作 [[dxl-bench-method]] 台供限流的参照。
+5. ⚠ **`Shutdown = 53` 的安全含义**：出厂即**锁存** Input Voltage Error → **母线一旦超 7.0 V 即 torque off，且须 REBOOT 才恢复**。
+   该位由 `robotd` 写的 **52** 清掉（= 关保护），所以「能跑」与「有保护」不可兼得。
+   另：`Operating Mode(11)` 当时**未读**（`info` 2026-09-18 才加），而默认 **3 = Position Control** 下 `Current Limit(38)` **不生效** → **下次复测需补读**。
+   见 [[dynamixel-xl330]] §「母线电压天花板」。
 
 > ⚠ 回包帧**多一个固定字节 `0x55`**（`LEN = DATA + 4`），按规格解析会把每个寄存器整体错位一字节。
 > 见 `scripts/README.md` §「两个已踩过的坑」· [[dxl-bench-method]] §5。
