@@ -164,8 +164,12 @@ Wizard 里真正有区分力的测法，按证明力分三档：
 
 - **诊断**：`scripts/dxl_ping.py` 读的就是 DXL 地址（`Model Number(0)` 期望 **1200**）。对不上则
   [[dxl-bench-method]] 的整套基线口径失效 → **没有可比的台架数据**
-- **再辨识**：[[bam-identification-bench]] 的电气前提明确要求「能读位置/速度/电压、**可写 P 增益寄存器**、
+- **再辨识**：[[bam-identification-bench]] 的电气前提要求「能读位置/速度/电压、**可写 P 增益寄存器**、
   堵转 ≥0.3 N·m」。RD05T 堵转 0.588 N·m ✓ 过关，但**若不暴露可写 P 增益 → BAM 做不了 → 本项目 sim2real 路线上直接出局**
+  - **该前提不是社区笔记的转述，而是 BAM 源码本身的行为**（2026-09-18 核对）：`bam/dynamixel/record.py:65`
+    在辨识 setup 循环里**每轮**调用 `write_position_p_gain(ID, args.kp)`；本项目
+    `refs/microduck_rl/scripts/testbench_sim2real.py:317` 同样先写、`:322` 再读回校验。
+    → **P 增益不可写 = 辨识工具直接跑不起来**，这不是我们的额外要求
 
 ## 5. 判定路径（第 2 步最便宜且决定性）
 

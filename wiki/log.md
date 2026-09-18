@@ -770,3 +770,10 @@
 - **核对中发现一条此前未记录的规则（已补入对比页 §4.2）**：eManual 明确 —— **切换 `Operating Mode(11)` 会重置增益**（`Position PID(80,82,84)`、`Velocity PI(76,78)`、Feedforward(88,90)）。→ **写入顺序必须先设模式、再设增益**；若克隆件重置规则不同，**同一条命令序列会得到不同的最终增益，而读回值可能都「对」**（又一类「合理但错误」）。与本项目相关：`robotd` **从不设** `Operating Mode`，而 `testbench_sim2real.py` 真机路径是「先 mode 再 gain」——**顺序是对的**
 - **信中新增 B5**：问厂商是否同样遵循「EEPROM 区仅在 `Torque Enable(64)=0` 时可写」与「切模式重置增益」两条规则（我们依赖前者写 EEPROM、依赖后者定写入顺序）
 - Updated: [[index]]（「主线执行器/采购」下新增一行）· [[xl330-vs-kpower-rd05t]]（§5 第 1 步加询问函链接 · §7 开放项标注「询问函已备（**待发出**）」· §4.2 新增「增益会被 Operating Mode 重置」一行）· `log.md`
+
+## [2026-09-18] query | A3 依据升级：BAM 源码本身就在写 P 增益寄存器
+- **由来**：一条后台搜索（找 `refs/` 里 SDK 头文件中的 DXL 地址常量）完成。结论：**`refs/` 无 DXL SDK 地址表**，只有对 rustypot 封装函数的调用（地址在编译好的 `.pyd` 内）→ **当日改用 XL330-M288 eManual 核对是唯一可行路径**，前述核对结论不变
+- **顺带捞到的佐证（有价值）**：**BAM 官方辨识脚本自己就写该寄存器** —— `refs/microduck_rl/.venv/.../bam/dynamixel/record.py:65`，在辨识 setup 循环里**每轮**调用 `write_position_p_gain(ID, args.kp)`（`Xl330PyController`，1 Mbps，timeout 0.01）。本项目 `refs/microduck_rl/scripts/testbench_sim2real.py:317` 同样先写、`:322` 再读回校验
+- **意义**：询问函 **A3**（`Position P Gain(84)` 可写且生效）的依据，从「[[bam-identification-bench]] 社区 BOM 笔记的转述」**升级为「BAM 源码行为」** —— P 增益不可写 = **辨识工具直接跑不起来**，不是我们额外加的要求。对厂商的说服力不同（是上游工具链的硬需求，不是我方偏好）
+- **信中增强**：A3 补「该方法的官方实现本身就要求改写此寄存器」说明；并追加一问「**读回值是否等于写入值**」——固件静默钳位超范围值是常见做法，钳位则要求给出实际接受范围
+- Updated: [[xl330-vs-kpower-rd05t]] §4.5（补源码出处，注明「该前提不是社区笔记的转述」）· [[rd05t-vendor-inquiry-2026-09-18]]（A3 依据 + 读回校验一问）· `log.md`
