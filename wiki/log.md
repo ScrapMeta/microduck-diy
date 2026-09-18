@@ -761,3 +761,12 @@
 - **「要不要做 T4 辨识」= 取决于 T2/T3 的**诊断分型**，不取决于「能不能用」**：虚位/迟滞型差异 → **不必做**（BAM 拟的是**摩擦**：库仑+黏滞+负载相关，**表达不了运动学/结构属性** → 白费）；仅 `tracking_mae` 大且虚位正常 → **值得做**。**顺序：先 A/B（1 天）再决定辨识（数天–数周），别反过来**
 - **两道未覆盖**：①**批次一致性**（BAM 是**单台**辨识；15 台散布大则模型错，**1~2 台测不出**）②**策略在环**（归 `testbench_sim2real.py`）
 - Updated: [[bam-identification-bench]]（BOM 增「打印件」+「质量真源冲突」+ 新 §「分阶测试」；结论表「何时值得搭辨识台」补指向）· [[xl330-vs-kpower-rd05t]]（新 §3.1 Wizard 证明力三档 + §3.2 可即刻回答的两件事 + §3.3；§5 判定路径重排为 1/2/**2b**/3/4/**5a**/**5b**/6 并加「先便宜后贵」顺序原则）· `scripts/README.md`（新 §「先空载跑，别等台架」）
+
+## [2026-09-18] query | RD05T 厂商询问函（新页 `queries/`）+ 寄存器地址逐项核对
+- **新增** `wiki/queries/rd05t-vendor-inquiry-2026-09-18.md`（`type: query`）——`queries/` 目录首次启用（原唯一一页已在 `_archive/`）
+- **结构**（便于厂商逐条答、便于事后追踪）：**使用条件**（先给对方判断依据，不必反问）→ **A 三个决定性问题** → B 寄存器对照 → C 保护阈值 → D 机械/动力学 → E 供货一致性 → 「需要/不需要什么」
+- **A 三个决定性问题**（任一不满足即淘汰）：`A1` 是否完整实现 Protocol 2.0 · `A2` `Model Number(0)` 与 `Firmware Version(6)` **具体数值**（「能识别成 XL330」不足以回答）· **`A3` `Position P Gain(84)` 是否可写且写入后响应真的改变**（分①生效 / ②读回是新值但响应不变 / ③被忽略三档，请其实测；②③ 则 BAM 路径直接不可用）
+- **准确性核对（重要）**：本地无权威控制表（`refs/` 里没有地址表），故去 **XL330-M288 eManual** 逐项核对信中全部地址与范围 —— **全部一致**：`Model Number`0 · `Baud Rate`8 · `Return Delay Time`9（默认 250 = 500 µs/台 ✓）· `Operating Mode`11 · `Max/Min Voltage Limit`32/34（31~70 = 3.1~7.0 V ✓）· `PWM Limit`36 · `Current Limit`38 · `PWM Slope`62 · `Shutdown`63（默认 53 ✓）· `Torque Enable`64 · `Status Return Level`68 · `Hardware Error Status`70 · `Position D/I/P Gain` **80/82/84**（范围 **0~16,383**，P 默认 **400** ✓）· `Goal Position`116 · `Present PWM/Current/Velocity/Position` **124/126/128/132**（**124–135 无空隙** ✓）· `Present Input Voltage/Temperature` **144/146**（**144–146** ✓）。信中表格已补上 **XL330 默认值 + 范围** 两列，使厂商可按行答「是/否」
+- **核对中发现一条此前未记录的规则（已补入对比页 §4.2）**：eManual 明确 —— **切换 `Operating Mode(11)` 会重置增益**（`Position PID(80,82,84)`、`Velocity PI(76,78)`、Feedforward(88,90)）。→ **写入顺序必须先设模式、再设增益**；若克隆件重置规则不同，**同一条命令序列会得到不同的最终增益，而读回值可能都「对」**（又一类「合理但错误」）。与本项目相关：`robotd` **从不设** `Operating Mode`，而 `testbench_sim2real.py` 真机路径是「先 mode 再 gain」——**顺序是对的**
+- **信中新增 B5**：问厂商是否同样遵循「EEPROM 区仅在 `Torque Enable(64)=0` 时可写」与「切模式重置增益」两条规则（我们依赖前者写 EEPROM、依赖后者定写入顺序）
+- Updated: [[index]]（「主线执行器/采购」下新增一行）· [[xl330-vs-kpower-rd05t]]（§5 第 1 步加询问函链接 · §7 开放项标注「询问函已备（**待发出**）」· §4.2 新增「增益会被 Operating Mode 重置」一行）· `log.md`
