@@ -43,7 +43,7 @@
 
 - [[xl330-cn-bench-kit]] — 国产启动套件台架（**✅ 通过**；资料后补）
 - [[xl330-vs-kpower-rd05t]] — **平替对比（评估中）**：铭牌≈等同 · 接口兼容 · 协议未证 · 台架可判定
-- [[rd05t-vendor-inquiry-2026-09-18]] — **厂商询问函**：寄存器兼容 · **P 增益可写性** · 保护阈值
+- [[rd05t-vendor-inquiry-2026-09-18]] — **问询函**：寄存器兼容 · **P 增益可写性** · 保护阈值（可发送件：同目录 `.pdf`，用 `scripts/md_to_pdf.py` 生成）
 - [[robotis]] · [[dynamixel-xl330]] · [[robotis-xl330-order-2026-09-05]]
 - [[seeed-bearings]] · [[fastener-bom-study]]
 - [[taobao-diy-procurement-2026-09]]

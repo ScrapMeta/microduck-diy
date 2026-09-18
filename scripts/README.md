@@ -177,9 +177,43 @@ python3 scripts/servo_swap_compare.py compare xl330.npz rd05t.npz \
 
 `self-test` 会交叉核对本脚本的 tick 数与上游 `make_target_schedule` 一致（只读 `refs/`，不改它）。
 
+## `md_to_pdf.py` — 把一页 wiki 渲染成 PDF（给人看的）
+
+wiki 里有一部分内容是**要发出去的**：厂商询问函、给台架上的人看的流程。`.md` 对这类读者是错的形状——
+拿到的是原始标记：读不懂的 frontmatter、塌掉的表格、指向他没有的页面的 `[[链接]]`。
+
+```bash
+python3 scripts/md_to_pdf.py --check                                  # 报告用哪个浏览器
+python3 scripts/md_to_pdf.py wiki/queries/rd05t-vendor-inquiry-2026-09-18.md \
+    --exclude-regex '^相关：'                                          # 去掉只在仓内成立的尾行
+```
+
+**它只渲染一页，刻意不做静态站点生成器** —— 真源仍是 wiki，这只是一次性导出。
+它**剥掉只在仓内成立的东西**（frontmatter、`[[wikilink]]`、以及你点名要删的行），
+而**不是**让人再维护一份「可发送副本」：**第二份副本就是会漂移的那份**。
+
+排版用**无头 Chrome/Edge 打印**（本机已有，且无需装 LaTeX 就能处理中文与表格）。
+字体栈第一顺位是**真实的 CJK 字体**而非泛化的 `sans-serif` —— 后者可能解析到只有拉丁字形的字体，
+中文会渲染成方框，而**这不会体现在退出码里**。故渲染后会**把 PDF 读回来**核对正文是否还在
+（无 `pymupdf` 则跳过并说明），同理台架脚本查读回值而不看写入返回值。
+
+```text
+退出码 0 只代表「Chrome 退出了」。本脚本判成功看的是**文件真的在、且文字真的能读回**——
+因为 Chrome 对相对 Windows 路径会报 "cannot find the path specified" **同时仍然返回 0**。
+```
+
+> **约定豁免（唯一一个）**：本节约定要求「无硬件可跑的 `self-test`」，本工具**没有**——
+> 它的前置条件不是硬件而是**浏览器**，故以 `--check` 声明前置条件。它是唯一非台架脚本。
+
+### 产物放哪
+
+PDF 与源 `.md` **同级**（如 `wiki/queries/xxx.md` → `xxx.pdf`），因为它就是要发出去的那份。
+它是**派生物**：源改了要**重新生成**，不要手工编辑 PDF。中间 HTML 默认不落盘（`--keep-html` 可留）。
+
 ## 约定
 
-- 新增脚本请自带 `--help` 与无硬件可跑的 `self-test`（本仓无台架时的唯一回归手段）。
+- 新增**台架**脚本请自带 `--help` 与无硬件可跑的 `self-test`（本仓无台架时的唯一回归手段）；
+  非台架工具用 `--check` 声明前置条件（目前仅 `md_to_pdf.py`）。
 - 结果与参数**回写 Issue + wiki**；脚本只保证「怎么跑」，结论仍以 Issue 为准。
 - 会写总线的脚本必须在**文件名或文档里明示非只读**，并给出 `--setup` 之类的**显式开关**：
   本仓的默认预期是「探针只读」。
