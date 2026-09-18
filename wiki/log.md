@@ -777,3 +777,11 @@
 - **意义**：询问函 **A3**（`Position P Gain(84)` 可写且生效）的依据，从「[[bam-identification-bench]] 社区 BOM 笔记的转述」**升级为「BAM 源码行为」** —— P 增益不可写 = **辨识工具直接跑不起来**，不是我们额外加的要求。对厂商的说服力不同（是上游工具链的硬需求，不是我方偏好）
 - **信中增强**：A3 补「该方法的官方实现本身就要求改写此寄存器」说明；并追加一问「**读回值是否等于写入值**」——固件静默钳位超范围值是常见做法，钳位则要求给出实际接受范围
 - Updated: [[xl330-vs-kpower-rd05t]] §4.5（补源码出处，注明「该前提不是社区笔记的转述」）· [[rd05t-vendor-inquiry-2026-09-18]]（A3 依据 + 读回校验一问）· `log.md`
+
+## [2026-09-18] query | 询问函补齐 `Protocol Type(13)`：A1 的直接验证项此前漏在表外
+- **由来**：第二条后台搜索完成（在 `refs/` 找 P Gain 地址字面量 + 导出 `wiki/entities/dynamixel-xl330.md` 的地址表）。结论：**`refs/` 无地址常量，只有注释**；wiki entity 页确有完整地址表 —— **均无新信息**
+- **但暴露一处真缺口**：**A1 问「是否完整实现 Protocol 2.0」，而表中没有 `Protocol Type(13)`** —— 它恰恰是该问题的**直接验证项**。核准 eManual：`Protocol Type` = **RW，默认 2，范围 2 ~ 22**（`Drive Mode`=10 默认 0；`Homing Offset`=20；`Max/Min Position Limit`=48/52 默认 4,095/0；`Feedforward 1st/2nd`=90/88）
+- **信中补齐**（A1 与 B1）：A1 补「最直接答法：读回 `Protocol Type(13)` 数值」；B1 表新增 **`Protocol Type(13)`**（标为 A1 直接验证项）· `Drive Mode(10)` · `Homing Offset(20)` · `Max/Min Position Limit(48/52)` · `Feedforward 1st/2nd(90/88)`；并把 `Goal Position(116)` 的「范围」由「4 字节」订正为 **`Min(52)` ~ `Max(48)`**
+- **新增 B6（静默裁剪）**：XL330 的 `Goal Position(116)` 可写范围受 `Min/Max Position Limit(48/52)` 约束（出厂 0~4,095 = 一整圈）。问：出厂值与可写范围？超限时**裁剪**还是**拒绝**？我们的 ±80°（≈±910 pulse）是否落在限位外？
+  - **为何单列一问**：**被静默裁剪的指令看起来完全正常** —— 舵机照常动、只是动得不够，**反馈里读不出「指令被改过」** → 会伪装成「舵机没劲」或「模型不准」，极难定位。与本项目已记录的「合理但错误」（`model=45056`、`max_voltage_limit=1792.0 V`、被钳位的增益）**同属一类**
+- Updated: [[rd05t-vendor-inquiry-2026-09-18]]（A1 · B1 表 5 行 · 新增 B6）· `log.md`

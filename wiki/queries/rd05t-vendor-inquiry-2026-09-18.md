@@ -41,6 +41,7 @@ related:
 ## A. 三个决定性问题（任一不满足则本项目不适用）
 
 **A1. 是否完整实现 DYNAMIXEL Protocol 2.0？**（若否，请说明实际协议）
+> 最直接的答法：**读回 `Protocol Type(13)` 的数值**（XL330 出厂为 **2**，可写范围 2 ~ 22）。
 
 **A2. 上电后 `Model Number(0)` 读回的数值是多少？`Firmware Version(6)` 是多少？**
 > 写「能识别成 XL330」不足以回答——我们问的是**具体数值**。
@@ -79,7 +80,11 @@ related:
 | `Model Number` | 0 | **1,200** | 只读 | 身份识别 |
 | `Baud Rate` | 8 | 1 | 0 ~ 6 | 设为 1 Mbps（值 3）|
 | `Return Delay Time` | 9 | **250** | 0 ~ 254（2 µs）| **必须能设 0**：出厂 250 = 500 µs/台，在 16 台设备上吃掉 8 ms/周期，占 20 ms 预算的 **40 %** |
+| `Drive Mode` | 10 | 0 | 0 ~ 13 | 方向位（bit 0 反转）。若贵司件方向相反，我们需知道能否用它纠正 |
 | `Operating Mode` | 11 | **3** | 0 ~ 16 | 位置控制需为 **3** |
+| **`Protocol Type`** | **13** | **2** | **2 ~ 22** | **← A1 的直接验证项：请读回此处数值。若为 2 即实现 Protocol 2.0** |
+| `Homing Offset` | 20 | 0 | ±1,044,479 | 零位标定 |
+| `Max / Min Position Limit` | 48 / 52 | 4,095 / 0 | 0 ~ 4,095 | **见 B6** |
 | `Max Voltage Limit` | 32 | **70** | 31 ~ 70（0.1 V）| 见 C1 |
 | `Min Voltage Limit` | 34 | 35 | 31 ~ 70（0.1 V）| — |
 | `PWM Limit` | 36 | 885 | 0 ~ 885（0.113 %）| 输出限幅（所有模式生效）|
@@ -92,7 +97,8 @@ related:
 | `Position D Gain` | 80 | 0 | **0 ~ 16,383** | **见 A3** |
 | `Position I Gain` | 82 | 0 | **0 ~ 16,383** | **见 A3** |
 | `Position P Gain` | 84 | **400** | **0 ~ 16,383** | **见 A3** |
-| `Goal Position` | 116 | — | 4 字节 | 位置指令 |
+| `Feedforward 1st / 2nd Gain` | 90 / 88 | 0 / 0 | 0 ~ 16,383 | 切模式时同样会被重置 |
+| `Goal Position` | 116 | — | **`Min Position Limit(52)` ~ `Max Position Limit(48)`** | 位置指令（**见 B6**）|
 | `Present PWM` | 124 | — | 只读 | **见 B2** |
 | `Present Current` | 126 | — | 只读（1 mA）| 见 B2 |
 | `Present Velocity` | 128 | — | 只读（**0.229 rev/min**）| 见 B2 |
@@ -107,8 +113,17 @@ related:
 
 **B4.** `Operating Mode(11)` 支持哪几种模式？与 XL330 的 6 种是否一致？
 
-**B5.** XL330 规定 **EEPROM 区寄存器仅在 `Torque Enable(64)=0` 时可写**，且**切换 `Operating Mode(11)` 会重置增益**（`Position PID(80,82,84)` 等）。
+**B5.** XL330 规定 **EEPROM 区寄存器仅在 `Torque Enable(64)=0` 时可写**，且**切换 `Operating Mode(11)` 会重置增益**（`Position PID(80,82,84)`、`Velocity PI(76,78)`、`Feedforward(88,90)`）。
 贵司件是否遵循同样的规则？（我们的写入顺序依赖它：先设模式、再设增益）
+
+**B6. 位置限位（会造成「静默裁剪」，请务必确认）**
+XL330 的 `Goal Position(116)` 可写范围是 **`Min Position Limit(52)` ~ `Max Position Limit(48)`**，出厂为 **0 ~ 4,095**（对应一整圈）。
+- 贵司件这两项的**出厂值**与**可写范围**是多少？
+- 超出限位时，`Goal Position` 是**被裁剪到限位**，还是**被拒绝**？
+- 我们的指令幅度约 **±80°（≈ ±910 pulse）**，是否会落在限位之外？
+
+> 之所以专门问：**被静默裁剪的指令看起来完全正常**——舵机照常动，只是动得不够，而反馈里读不出「指令被改过」。
+> 这会伪装成「舵机没劲」或「模型不准」，极难定位。
 
 ---
 
