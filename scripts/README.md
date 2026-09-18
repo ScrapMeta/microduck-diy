@@ -82,7 +82,92 @@ XL330 有**两个**输出限幅，**不是每个模式都同时生效**：
 `return_delay_time` / `baud_rate` / `pwm_slope` / `shutdown`），所以只能读出来。
 见 [`wiki/entities/dynamixel-xl330.md`](../wiki/entities/dynamixel-xl330.md) §「母线电压天花板」。
 
+## `servo_swap_compare.py` — 换舵机 A/B（XL330 vs 候选件）
+
+回答一个具体问题：**换一颗舵机上去，原厂训练结果所依赖的那个执行器还在不在？**
+铭牌接近、接口能插、插上能转，都**不能**回答它 —— 克隆件会照转，同时带着另一条摩擦曲线、
+更大的齿轮虚位、或一个原厂没有的柔度元件。
+
+判据是**差值之差**：同一条激励分别跑 XL330（基线，其 sim2real gap 已被接受）与候选件，
+比两者「偏离指令曲线的样子」像不像。**绝对误差不重要，误差的*形状*才重要。**
+
+刻意做成**开环**（无策略 / 无 MuJoCo / 无 BAM / 无 mjlab）—— 两个好处：
+只依赖 `rustypot` + `numpy`（能在 Zero 本机上跑）；且**隔离出执行器**，
+而策略在环的测试会把执行器差异与控制器稳定性混在一起。
+
+```bash
+python3 scripts/servo_swap_compare.py self-test         # 无硬件
+
+# 1) 基线：台架那台 XL330，电压全程固定
+python3 scripts/servo_swap_compare.py record --label xl330 \
+    --port /dev/ttyUSB0 --id 1 --setup --vin 6.2 --out xl330.npz
+# 2) 候选：换舵机，其余参数逐字不动
+python3 scripts/servo_swap_compare.py record --label rd05t \
+    --port /dev/ttyUSB0 --id 1 --setup --vin 6.2 --out rd05t.npz
+# 3) 结论
+python3 scripts/servo_swap_compare.py compare xl330.npz rd05t.npz --baseline xl330
+```
+
+**⚠️ 本脚本不是只读的**（与 `dxl_ping.py` 相反）：动态测试必须写
+`Operating Mode(11)` / 位置增益 / torque / goal position。因此它**无 `--setup` 拒绝执行**、
+逐条打印每次写入、**每个增益读回校验**（固件会静默钳位超范围值，被钳的增益会伪装成动力学差异）、
+退出前关 torque。
+
+### 四相激励：不同缺陷在不同激励下现形
+
+| 相 | 激励 | 抓什么 |
+|----|------|--------|
+| `steps_large` | ±32~80° 阶跃 | 总体动力学、超调、可达带宽 |
+| `steps_small` | ±1/2/5/10° 阶跃 | **死区与回差**：小指令直接不动 |
+| `ramp_slow` | ±30° 慢三角 | 静摩擦（稳定跟随误差）与黏滞 |
+| `reversals_fast` | ±25° 快速反向 | **迟滞**：同一角度从两个方向到达的差 |
+
+### 指标与诊断
+
+| 指标 | 含义 |
+|------|------|
+| `tracking_mae/rms/max` | 偏离指令的幅度 |
+| `dead_time_s` | 指令变化后**覆盖半步**所需时间（弹性元件 / 摩擦变大 = 起步更慢）|
+| `dead_steps` | **完全没动**（<指令 20 %）的小步数量 —— 死区最干净的签名 |
+| `hysteresis` | 反向到达同一角度的差 |
+
+判定容差 `1.25×` / `2×`（pass / suspect / fail）。`dead_steps` 是**计数**不是倍数：
+基线 0、候选若干 = 出现了一个基线没有的死区 → 直接 fail。
+
+**诊断分型**（决定能不能修）：
+
+- 只 `tracking_mae` 大 → 摩擦/电机不同 → **重新辨识摩擦可以救**
+- `dead_time` / `hysteresis` / `dead_steps` 也大 → **机械虚位或柔度元件**（过载离合正是这个样子）
+  → **重辨识救不了**，任何控制器都消不掉机械虚位
+
+### 两个设计要点
+
+1. **守卫 `Model Number(0)`**：非 1200 时**拒绝执行**，除非显式 `--allow-unknown-model`。
+   上游驱动 `duck-control/src/bus.rs` 的 `adopt_replacement` **没有这个守卫** ——
+   只要能 Ping + 能写寄存器就会被**静默收养**为关节舵机，失败只会以「走不好」的形式出现。
+   本脚本的守卫是刻意补上的。
+2. **调度哈希校验**：激励由确定性序列生成并落盘，`compare` 校验两次录音的哈希**完全相同**，
+   不一致即**拒绝比较** —— 比错激励得出的「差值之差」比没有结论更糟。
+
+`--duration` 默认 60 s；容差就是按这个长度定的。更短的时长会按比例压缩所有相位
+（大步保持时间变短），脚本会打提示，只适合冒烟测管道。
+
+### 与上游 `microduck_rl` 的关系
+
+策略在环的问题仍归 [`refs/microduck_rl/scripts/testbench_sim2real.py`](../refs/microduck_rl/scripts/testbench_sim2real.py)
+（同一个 ONNX 在 sim 与真机各跑一遍）。把它的 `--mode sim` 轨迹喂进来即可一次拿到两者：
+
+```bash
+python3 scripts/servo_swap_compare.py compare xl330.npz rd05t.npz \
+    --baseline xl330 --sim sim_trace.npz
+```
+
+`self-test` 会交叉核对本脚本的 tick 数与上游 `make_target_schedule` 一致（只读 `refs/`，不改它）。
+
 ## 约定
 
 - 新增脚本请自带 `--help` 与无硬件可跑的 `self-test`（本仓无台架时的唯一回归手段）。
 - 结果与参数**回写 Issue + wiki**；脚本只保证「怎么跑」，结论仍以 Issue 为准。
+- 会写总线的脚本必须在**文件名或文档里明示非只读**，并给出 `--setup` 之类的**显式开关**：
+  本仓的默认预期是「探针只读」。
+

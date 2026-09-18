@@ -732,3 +732,18 @@
 - **脚本变更**：`scripts/dxl_ping.py` 的 `REGISTERS` 增加 `operating_mode(11)`；新增 `OPERATING_MODES` / `CURRENT_LIMITED_MODES` 表与 `decode_operating_mode()`，`info` 直接输出「哪个限幅生效」；`self-test` 加 3 条断言（含保留值 2 必须解成 `unknown`）。**自检通过**；用假舵机回放 2026-09-16 出厂基线，`info` 输出逐项吻合
 - Updated: [[dynamixel-xl330]]（新 §「母线电压天花板」+ 寄存器表补 4 行）· [[body-imu-hat-dxl-power-eval]] §3.3 · [[xl330-cn-bench-kit]]（新增安全事实 5）· `scripts/README.md`（新 §「为什么 info 也读 `Operating Mode(11)`」）
 
+
+## [2026-09-18] tool | 换舵机 A/B 工装 `servo_swap_compare.py` + 驱动侧两个缺口（实测确认）
+- **背景**：RD05T 厂商称「一比一复刻」「加入很贴合」。但**它的规格书自证不是固件级 1:1**——「过载离合」是 XL330 **没有**的机构，真·1:1 不可能多出一个元件；且 Kt 低 2 %、ID 范围 0~253 vs「253 ID (0~252)」。故「1:1」应读作**外形/接口/装配 1:1**，不是固件/动力学 1:1
+- **新工装** `scripts/servo_swap_compare.py`：同一条**确定性激励**分别跑 XL330（基线）与候选件，出**差值之差**报告。刻意**开环**（无策略/MuJoCo/BAM/mjlab）——只依赖 `rustypot`+`numpy`（能在 Zero 本机跑），且**隔离执行器**，避免把执行器差异与控制器稳定性混在一起
+- **四相激励**（不同缺陷在不同激励下现形）：`steps_large` 总体动力学 · `steps_small` **死区/回差** · `ramp_slow` 静摩擦 · `reversals_fast` **迟滞**
+- **关键指标 `dead_steps`**：**完全没动**（< 指令 20 %）的小步数量。原实现把它折进 `dead_time_s` 的均值，于是一个 3° 死区**被读成「舵机略慢」而不是「有死区」**——正是不可证伪的那种错。改为独立计数后，3° 死区被正确判 **FAIL**
+- **诊断分型**（决定能不能修）：只 `tracking_mae` 大 → 摩擦/电机不同 → **重辨识可救**；`dead_time`/`hysteresis`/`dead_steps` 也大 → **机械虚位或柔度元件（离合正是这样）→ 重辨识救不了**，任何控制器都消不掉
+- **驱动侧两个缺口（本次实测确认，非推断）**：对 `refs/microduck` 全文检索 `operating_mode` 与 `model_number` —— **零命中**。即 ①全栈**从不设** `Operating Mode(11)`，驱动**依赖默认 3**；`testbench_sim2real.py` 真机路径**显式写** `write_operating_mode(3)`，但**机器人不写**。②`adopt_replacement` **不校验 `Model Number(0)`** → 只要能 Ping + 能写寄存器就被**静默收养**为关节舵机，失败**只会以「走不好」出现**。工装因此**自加** `Model Number != 1200 即拒绝** 的守卫（需 `--allow-unknown-model` 显式绕过）
+- **口径订正（本轮发现的工具假阴性）**：本仓 `refs/` 被 gitignore，而 `Grep` 工具默认遵守 `.gitignore` → **对 `refs/` 的搜索会静默返回零命中**。上一条「`Operating Mode(11)` **全仓零记录**」的「全仓」**不成立**，实际只覆盖 wiki/`raw/`/脚本；`refs/` 的结论是本次用 shell 单独检索得到的（结果一致，故**结论不变，措辞过宽**）
+- **自检 + 干跑**（两条独立证据）：`self-test` 通过（调度确定性/相位覆盖/与上游 `make_target_schedule` 的 tick 数交叉核对/指标检出/裁决与诊断逻辑）。另用**假舵机端到端**跑通 `record→compare`：伪造一台「同电机但 3° 死区」的件，工装判 **FAIL** 并归因「dead zone…非摩擦」✓
+- **干跑抓出两个自身缺陷**（写代码时看不见）：①`dead_steps` 只看**相位内部**变化 → 相位切换处那一步被漏掉；②相位按**均分 tick** 切割 → 短时长把后面相位**截断**。均已修
+- **守卫被验证有效（意外收获）**：干跑复用了旧代码留下的调度文件，`record` 依**调度哈希不符即拒绝**返回 5，避免了拿两次不同激励的录音去算「差值之差」
+- **未做（Human 本轮只选工装）**：厂商问询信 · 寄存器扫描脚本 · 上游 PR · 开台架 Issue。**`scripts/dxl_ping.py` 仍只读**，本脚本**非只读**（需 `--setup`），已在 `scripts/README.md` 明示
+- **边界**：本工装只判**单台执行器**。整机替换另有两道：①**批次一致性**（BAM 是**单台**辨识的，15 台散布大则模型等于错；1~2 台测不出）②策略在环（归 `refs/microduck_rl/scripts/testbench_sim2real.py`，可把其 `--mode sim` 轨迹用 `--sim` 并入本工装）
+- Updated: [[xl330-vs-kpower-rd05t]]（§5 新增判定路径第 5 步 · §7 新增开放项）· `scripts/README.md`（新 §「`servo_swap_compare.py`」+ 约定新增「会写总线的脚本须明示非只读」）· [[index]]
