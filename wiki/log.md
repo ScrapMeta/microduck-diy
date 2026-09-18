@@ -711,3 +711,15 @@
 - `upstreams.lock` 重生成：`(this repo)` 与 `refs/microduck_app` 均 **Dirty=0**；`refs/elec_RPI_Robot_HAT` **Behind=1**（落后上游 1 提交——非违规，待定是否更新）
 - **仍开放**：参考克隆若为「运行时会自产文件的应用仓」，长期需靠纪律保持 Dirty=0（本次选择移出 stray 文件，未改 §11）
 
+## [2026-09-18] compare | XL330 vs Kpower RD05T（新页）
+- **新增 Layer-2**：[[xl330-vs-kpower-rd05t]]（`type: comparison`）· raw ingest `raw/articles/kpower-rd05t-spec-2026-09-18.md` · 原件存档 `raw/assets/kpower-rd05t/`
+- **铭牌结论**：RD05T 几乎**逐项等同** XL330-M288-T——尺寸 20×34×26 / 18 g 全同；堵转 6 kgf·cm@6 V(−1.9 %) / 5.2@5 V(−1.9 %)；堵转电流 **1740/1470 mA 完全相同**；空载 125/100 rev·min⁻¹（+1.6 %/−2.9 %）；分辨率 0.088°/pulse ≈ 4096；波特率 9600–4M 同。派生 **Kt 低 2 %**（0.338 vs 0.345 N·m/A @6 V）→ 疑同源电机 + 同档齿轮箱
+- **接口确认兼容**：XL330 为 **JST EHR-03**，RD05T 写 `EH2.54-3P` → **同一 EH 系列**；引脚 1 GND/2 VDD/3 DATA 同；电平兼容；**物理层描述逐字相同**（8bit/1stop/No parity）
+- **协议未证（第一阻塞）**：规格书只给物理层，**无寄存器地址表**；ID 范围 **0~253** vs XL330「253 ID (0~252)」；自家产品线为 `PWM/UART-TTL/RS-485/CAN-bus`；末尾明写「**控制协议可定制**」
+- **缺项**：减速比 · 工作模式 · 内部 PID 增益可写性 · 过压/过流阈值与锁存语义 · 齿轮虚位/回中差/定位精度 · 花键齿数 —— 恰是决定动力学的那些
+- **关键推论**：①**过载离合**是 XL330 没有的串联弹性+滑移元件，策略中无此模型；②[[bam-identification-bench]] 硬前提是**可写 P 增益寄存器** → 不可写则**连辨识都做不了**；③XL330 的 `Max Voltage Limit(32)` 默认 **70=7.0 V 且可设**，若 RD05T 卡 6.0 V 不可调，本项目 6.0–6.5 V 母线将**持续过压**
+- **判定路径**：最便宜且决定性 = 上台架跑 `scripts/dxl_ping.py info`，看 `Model Number(0)` 是否读回 **1200**（不用猜）
+- **分用途**：整机替训练结果 → **不要**；台架/调试备件 → 合适；勿与 XL330 混挂同一受策略驱动总线
+- 与既有归档一致：[[xl330-vs-feetech-servos]] · [[xl330-vs-unitree-s288]]（铭牌接近 ≠ drop-in）
+- Updated: [[index]] · `comparisons/`（首次使用该目录）
+
