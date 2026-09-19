@@ -1,7 +1,7 @@
 ---
 title: DIY BOM（v0.1 汇总）
 created: 2026-09-03
-updated: 2026-09-11
+updated: 2026-09-19
 type: concept
 tags: [diy, bom, mechanical, board]
 sources:
@@ -84,7 +84,7 @@ related:
 
 | 物料 | 规格/型号 | 数量 | 说明 |
 |------|-----------|------|------|
-| 舵机 | [[dynamixel-xl330]]（XL330-M288-T） | **15** | **主单** [[robotis-xl330-order-2026-09-05]]；另淘宝样机+套件 → [[taobao-diy-procurement-2026-09]] |
+| 舵机 | [[dynamixel-xl330]]（XL330-M288-T） | **15** | 装机 **15 台 = 闲鱼 14**（5 国产组装 ＋ 9 原厂，预计 **09-21** 到）**＋ 现有 1**；原厂单 [[robotis-xl330-order-2026-09-05]] **延误**（预计 10 月中旬可能发，到货转备件）；另淘宝样机+套件 → [[taobao-diy-procurement-2026-09]] |
 | 法兰螺丝（horn） | **PHS M2×6 TAP** | **6**/台 → 整机 **90** | 随舵机装箱「Bolts for horns」 |
 | 机身框架螺丝 | **PHS M2×8 TAP** | **10**/台 → 整机 **150** | 随舵机装箱「Bolts for frames」；**不是**法兰钉 |
 | 薄壁轴承 | 16×22×4（[[seeed-bearings]]） | **11** | 淘宝已购 **11**（10+1）· [链接](https://item.taobao.com/item.htm?id=930534977802) |
@@ -111,10 +111,11 @@ related:
 
 | 物料 | 选型 | 数量 | 状态 |
 |------|------|------|------|
-| 主控（**头舱**） | [[radxa-zero-3w]] | 1 | 淘宝 08-29 · [ZERO 3W](https://item.taobao.com/item.htm?id=746425059858) · ⏳ |
-| 电源+DXL HAT（**头舱**） | [[elec-rpi-robot-hat]] / [[elec-hat-lcsc-order-2026-09-05]] | 1 | 含板载 **BMI088=头 IMU** · 立创+淘宝 · [[taobao-diy-procurement-2026-09]] · 配料焊 [[hat-solder-kit]] · ⏳ |
-| 机身 IMU（**测试 1 号 · v0.3**） | [[board-imu-to-dxl]] / [[imu-to-dxl-ref-bom]] | 打样 | 立创 **`SO26090921960`** + 配单 **`BOM260909006316`** · ⏳；**缺 BM07（C160393）** → [[imu-to-dxl-lcsc-order-2026-09-09]] |
-| 电池 | [[np-f550-battery]]（沣标 2200 mAh×2 + 双充） | 1 套 | 淘宝 **09-11 已付款** · [[taobao-diy-procurement-2026-09]]；组装拆充电极装 **`power_support`** · 台架仍可用 XT30↔Type-C · [[bench-power-supply]] |
+| 主控（**头舱**） | [[radxa-zero-3w]] | 1 | 淘宝 08-29 · [ZERO 3W](https://item.taobao.com/item.htm?id=746425059858) · ✅ **在手**（P0 镜像通过 · [[zero3w-bench-plan]]） |
+| 电源+DXL HAT（**头舱**） | [[elec-rpi-robot-hat]] / [[elec-hat-lcsc-order-2026-09-05]] | 1 | 含板载 **BMI088=头 IMU** · 立创+淘宝 · [[taobao-diy-procurement-2026-09]] · 配料焊 [[hat-solder-kit]] · ✅ **首板完成**（另 3 块待焊） |
+| 机身 IMU（**测试 1 号 · v0.3**） | [[board-imu-to-dxl]] / [[imu-to-dxl-ref-bom]] | 打样 | 立创 **`SO26090921960`** + 配单 **`BOM260909006316`** · ✅ **焊 5 块 / 烧 3 块**；**缺 BM07（C160393）** → [[imu-to-dxl-lcsc-order-2026-09-09]] |
+| 电池 | [[np-f550-battery]]（沣标 2200 mAh×2 + 双充） | 1 套 | 淘宝 **09-11 已付款** · ✅ **到货**（2 电 ＋ 双充）· [[taobao-diy-procurement-2026-09]]；组装拆充电极装 **`power_support`** · 台架仍可用 XT30↔Type-C · [[bench-power-supply]] |
+| **降压模块**（母线 6.0 V） | 待补型号 | 3 | ✅ 到货 **5 V/15 A ×1 · 6 V/4 A ×2** · 电池 → 模块 → HAT 4P · [[bench-power-supply]] |
 
 网格占位件（`elec_rpi_robot_hat_pcb` 等）：**勿当真机打印件**。
 

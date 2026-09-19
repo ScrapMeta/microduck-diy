@@ -881,3 +881,16 @@
 - **`.gitignore`**：补回 `tmp/`（本地临时 —— 本轮那份蓝图就住在那里）
 - **校验**：`wiki_lint` 61 页 **0 error / 3 warning**（3 条即上述记账）· `refs_lint` 76 文件 313 引用 **0 error**
 - Updated: `AGENTS.md`（重写）· `.cursor/skills/{pm,hardware,software,structure}/SKILL.md`（新）· [[tasks]]（新）· [[index]] · [[local-workspace-layout]] · [[diy-milestones]] · [[ros2-migration-plan]] · [[raw-inventory]] · `README.md` · `scripts/README.md` · `scripts/wiki_lint.py`（新）· `scripts/refs_lint.py`（新）· `scripts/upstreams.lock` · `scripts/refresh-upstreams.ps1`（移入）· `.github/workflows/ci.yml`（新）· `.gitignore` · `_archive/governance/`（旧治理归档 ＋ README）· **删** `wiki/SCHEMA.md` · `log.md`
+
+## [2026-09-19] pm | 现状收拢：焦点换挡到「整机装配 ＋ 供电链路」；台账 / 里程碑 / BOM 一次对齐
+- **由来（Human）**：检查收拢当前情况 ＋ 下一步计划（6 项）
+- **现状（本轮录入，均为口述事实）**：主控 · HAT · 机身 IMU · 系统镜像台架**均已完成**；机身 IMU 板 **焊 5 块 · 烧录 3 块**；**摄像头 2 颗**（Pi Cam V2 ＋ 亚博 IMX219）均已测；电池 **2 颗 ＋ 双充**；**降压模块到货**（5 V/15 A ×1 · 6 V/4 A ×2）；**舵机两批** —— 原厂单 [[robotis-xl330-order-2026-09-05]] **延误**（预计 **10 月中旬**可能发）· **闲鱼批** 5 国产组装 ＋ 9 原厂，预计 **09-21 周一**到；在途 VL53**L8CX** ToF ＋ 喇叭 **3525 4 Ω 3 W**（均 **09-23 周三**）；手柄用 Xbox（在手）＋ 可试亚博智能 PS2
+- **焦点换挡**：原「HAT TTL [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)（`0x55` 帧定论）」→ **整机装配 ＋ 供电链路 ＋ 官方软件联调**；#11 降为**承重项**（不阻塞主线）
+- **台账**：[[tasks]] 重写 —— 进行中 6 项（叠装供电 · **直供对照** · #11 · 3 块 HAT · 官方软件联调 · IMU 竖装 `power_support`）＋ 待办 11 项（新增闲鱼到货装机 · 手柄冒烟 · 喇叭/ToF 到货先测 · 本轮物料事实落页）；已完成补 4 行（IMU 5/3 · 物料到货 ×3）
+- **里程碑**：[[diy-milestones]] 新增「**物料到位（2026-09-19）**」表（8 行）＋ 母线 6.0 V 一句；v0.1 清单补勾 **#9**（回灌**不采用**），新增「整机装配 / 多板复现 / 官方软件联调 / 闲鱼装机」四项
+- **BOM**：[[diy-bom]] §C 舵机行补两批状态与延误 · §E 状态列 ⏳→✅（主控 / HAT / 机身 IMU / 电池），新增「**降压模块**」一行
+- **两处红线提醒（写进 [[tasks]]，pm 不代签 Gate）**：① **直供对照**属 **8.4 V > XL330 上限 6.0 V** 的**超规程**验证（[[dynamixel-xl330]]「母线电压天花板」），只作对照、**不作装机口径**；`Shutdown(63)` 清 bit0 后**再无过压保护** ② **上电 / 剪线改线 / 验收**只有 Human 能签
+- **未做（改派，不越界）**：未建硬件实体页（降压模块型号 · 闲鱼订单 · 手柄页）→ 归 `/microduck-hardware`、`/microduck-software`；未替用户拍板 · 未扩范围
+- **已确认（Human 2026-09-19）**：「闲鱼到货 ＋ 手中 **15 个**」= **闲鱼 14**（5 国产组装 ＋ 9 原厂）**＋ 现有 1** → 装机 **15 台**；原厂单到货后转备件
+- **分支处置（Human 指示「只保留 main」）**：治理改造 commit → 本 wiki 收口 commit，**快进合并进 `main`**，`governance/minimal` 本地 ＋ 远端一并删除
+- Updated: [[tasks]]（重写）· [[diy-milestones]] · [[diy-bom]] · [[index]]（现行焦点 ＋ 现行优先级）· `log.md`

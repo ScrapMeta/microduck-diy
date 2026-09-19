@@ -3,8 +3,9 @@
 > **Agent 先读：** 本文件 · [[tasks]]（欠什么）· [[log]]（最近 30 条）· [`AGENTS.md`](../AGENTS.md)（规则）
 > 本 wiki：`wiki/` · 更新：2026-09-19
 > **目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展
-> **现行焦点：** HAT TTL [#11](https://github.com/ScrapMeta/microduck-diy/issues/11) —— 上总线值 ＋ `0x55` 帧定论
-> （[#4](https://github.com/ScrapMeta/microduck-diy/issues/4) **2026-09-16 台架已打通**：57 600 / ID 1 出厂舵机 · 基线已采集）
+> **现行焦点（2026-09-19 收拢）：** **整机装配 ＋ 供电链路**（主控/HAT/降压模块/电池 → 母线 **6.0 V**）＋ **官方软件联调**（HAT ＋ 机身 IMU ＋ 1 舵机 · 麦/喇叭）
+> （承重项仍在：HAT TTL [#11](https://github.com/ScrapMeta/microduck-diy/issues/11) —— 上总线值 ＋ `0x55` 帧定论）
+> 明细见 [[tasks]] 台账 · 物料到位表见 [[diy-milestones]]
 
 ## 现行定稿（优先）
 
@@ -75,11 +76,12 @@
 
 **领域：** Microduck DIY 复刻知识库（`wiki/`）。
 
-**现行优先级：**
+**现行优先级（2026-09-19 收拢）：**
 
-1. **机身 IMU `imu-to-dxl v0.3`**（1 号 32×22）— 原理图 / PCB / BOM / 互联
-2. **装机电控定稿** — HAT + 总线 + 互联
-3. **DIY BOM / 里程碑** — 与上两项对齐的采购与进度
+1. **整机装配 ＋ 供电链路** — 主控 / HAT / 降压模块 / 电池叠装，电池 → 降压模块 → HAT 母线 **6.0 V**
+2. **官方软件联调** — HAT ＋ 机身 IMU（ID 200）＋ 舵机（ID 1）· 麦 / 喇叭 / 手柄
+3. **多板复现 ＋ 装机** — 另 3 块 HAT 焊接测试 · 闲鱼批舵机到货后装 15 台整机
+4. **承重项（不阻塞上面）** — HAT TTL `0x55` 帧异常（[#11](https://github.com/ScrapMeta/microduck-diy/issues/11)）· 执行器平替判定（RD05T / 飞特）
 
 官方资料保留为精简参考；非现行调研在 `_archive/`。
 
