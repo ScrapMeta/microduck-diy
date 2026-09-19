@@ -1,26 +1,27 @@
 # Upstream version lock (upstreams.lock)
 
-> Generated: 2026-09-16 18:59 by `refresh-upstreams.ps1` - do not hand-edit.
+> Generated: 2026-09-19 14:08 by `refresh-upstreams.ps1` - do not hand-edit.
+> Remote state: remotes contacted by this run (-Fetch): Behind/Ahead are current.
 > Replaces git submodules for pinning reference-clone versions (governance 10.3).
 > `(this repo)` is the base repository: the workspace root IS its worktree (governance 10).
 > A non-zero `Dirty` on a `readonly` row is a violation: reference clones must stay clean (governance 11).
 
 | Dir | Kind | Remote | Branch | HEAD | Dirty | Behind | Ahead |
 |-----|------|--------|--------|------|-------|--------|-------|
-| `(this repo)` | owned | https://github.com/ScrapMeta/microduck-diy.git | main | `321fbe9` | 0 | 0 | 0 |
+| `(this repo)` | owned | https://github.com/ScrapMeta/microduck-diy.git | main | `14ebc23` | 2 | 0 | 0 |
 | `microduck_ros2` | owned | https://github.com/ScrapMeta/microduck_ros2.git | main | `8f0618d` | 0 | 0 | 0 |
 | `refs/elec_RPI_Robot_HAT` | readonly | https://github.com/pollen-robotics/elec_RPI_Robot_HAT.git | main | `23eab11` | 0 | 1 | 0 |
-| `refs/microduck` | readonly | https://github.com/pollen-robotics/microduck.git | main | `6507d2e` | 0 | 0 | 0 |
+| `refs/microduck` | readonly | https://github.com/pollen-robotics/microduck.git | main | `6507d2e` | 0 | 111 | 0 |
 | `refs/microduck_app` | readonly | https://github.com/apirrone/microduck_app.git | main | `bca6359` | 0 | 0 | 0 |
 | `refs/microduck_kinematics_rs` | readonly | https://github.com/apirrone/microduck_kinematics_rs.git | main | `26481ff` | 0 | 0 | 0 |
 | `refs/microduck_maploc_rs` | readonly | https://github.com/apirrone/microduck_maploc_rs.git | main | `c44fd8c` | 0 | 0 | 0 |
 | `refs/microduck_pet_detect` | readonly | https://github.com/apirrone/microduck_pet_detect.git | main | `beae454` | 0 | 0 | 0 |
-| `refs/microduck_rl` | readonly | https://github.com/pollen-robotics/microduck_rl.git | develop | `53b8971` | 0 | 0 | 0 |
+| `refs/microduck_rl` | readonly | https://github.com/pollen-robotics/microduck_rl.git | develop | `53b8971b` | 0 | 1177 | 0 |
 | `refs/microduck_sounds` | readonly | https://github.com/apirrone/microduck_sounds.git | main | `1a17358` | 0 | 0 | 0 |
 | `refs/Microduck-build-tutorial` | readonly | https://github.com/AI-FanGe/Microduck-build-tutorial.git | main | `4967821` | 0 | 0 | 0 |
-| `refs/microduck-replica` | readonly | https://github.com/fanhao375/microduck-replica.git | master | `f533679` | 0 | 0 | 0 |
+| `refs/microduck-replica` | readonly | https://github.com/fanhao375/microduck-replica.git | master | `f533679` | 0 | 9 | 0 |
 | `refs/microduck-simulator` | readonly | https://huggingface.co/spaces/pollen-robotics/microduck-simulator | main | `023172c` | 0 | 0 | 0 |
-| `refs/OpenMicroDuck` | readonly | https://github.com/JoyandAI/OpenMicroDuck.git | main | `3992277` | 0 | 0 | 0 |
+| `refs/OpenMicroDuck` | readonly | https://github.com/JoyandAI/OpenMicroDuck.git | main | `3992277` | 0 | 17 | 0 |
 | `refs/OpenRB-150` | readonly | https://github.com/ROBOTIS-GIT/OpenRB-150.git | master | `3e2b07e` | 0 | 0 | 0 |
 
 ## Checks
@@ -28,4 +29,5 @@
 - Owned rows must have a remote; if one is missing, create the GitHub repo first.
 - Every readonly row must show Dirty = 0. If not, clean it or export the work into an owned repo.
 - Non-zero Behind means a reference clone lags upstream; decide whether to update.
+- A zero Behind proves nothing unless this run used `-Fetch`: it may only mean nobody fetched since the clone.
 - New clones belong in `refs/`, which is .gitignored. Never run `git clean -x` (governance 10.4).

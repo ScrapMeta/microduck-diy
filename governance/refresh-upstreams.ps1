@@ -6,6 +6,11 @@
 #
 # Usage (from anywhere):
 #   powershell -ExecutionPolicy Bypass -File governance\refresh-upstreams.ps1
+#   powershell -ExecutionPolicy Bypass -File governance\refresh-upstreams.ps1 -Fetch
+#
+# -Fetch contacts every remote first (network). Without it the Behind / Ahead columns are
+# only as fresh as each clone's LAST fetch - which may be its clone date, so they can read
+# 0 while upstream has moved on. The generated header records which mode produced it.
 #
 # Layout it assumes (governance section 10): the workspace root IS this repository's
 # worktree, so read-only clones live under refs/ and are .gitignored. Owned sibling
@@ -14,6 +19,10 @@
 # Read-only: never modifies any repository.
 # ASCII-only on purpose: Windows PowerShell 5.1 reads BOM-less .ps1 as ANSI,
 # so non-ASCII source breaks parsing. Keep this file ASCII.
+
+param(
+    [switch]$Fetch
+)
 
 $ErrorActionPreference = 'Stop'
 
@@ -56,6 +65,10 @@ if (Test-Path $refsDir) {
 
 $rows = @()
 foreach ($t in $targets) {
+    # Off by default: the script stays offline and instant. Behind/Ahead are then only as
+    # fresh as the last fetch in that clone, which for a clone nobody has touched since is
+    # its clone date - hence the header this run writes.
+    if ($Fetch) { Get-GitValue $t.Dir @('fetch', '--quiet', 'origin') | Out-Null }
     $remote = Get-GitValue $t.Dir @('remote', 'get-url', 'origin')
     if ([string]::IsNullOrWhiteSpace($remote)) { $remote = '(none)' }
     $branch = Get-GitValue $t.Dir @('rev-parse', '--abbrev-ref', 'HEAD')
@@ -80,11 +93,17 @@ foreach ($t in $targets) {
 
 $stamp = Get-Date -Format 'yyyy-MM-dd HH:mm'
 $bt = [char]96
+if ($Fetch) {
+    $fetchNote = 'remotes contacted by this run (-Fetch): Behind/Ahead are current'
+} else {
+    $fetchNote = 'NO fetch by this run: Behind/Ahead are only as fresh as each clone last was'
+}
 
 $md = New-Object System.Collections.Generic.List[string]
 $md.Add('# Upstream version lock (upstreams.lock)')
 $md.Add('')
 $md.Add('> Generated: ' + $stamp + ' by ' + $bt + 'refresh-upstreams.ps1' + $bt + ' - do not hand-edit.')
+$md.Add('> Remote state: ' + $fetchNote + '.')
 $md.Add('> Replaces git submodules for pinning reference-clone versions (governance 10.3).')
 $md.Add('> ' + $bt + '(this repo)' + $bt + ' is the base repository: the workspace root IS its worktree (governance 10).')
 $md.Add('> A non-zero ' + $bt + 'Dirty' + $bt + ' on a ' + $bt + 'readonly' + $bt + ' row is a violation: reference clones must stay clean (governance 11).')
@@ -102,6 +121,7 @@ $md.Add('')
 $md.Add('- Owned rows must have a remote; if one is missing, create the GitHub repo first.')
 $md.Add('- Every readonly row must show Dirty = 0. If not, clean it or export the work into an owned repo.')
 $md.Add('- Non-zero Behind means a reference clone lags upstream; decide whether to update.')
+$md.Add('- A zero Behind proves nothing unless this run used ' + $bt + '-Fetch' + $bt + ': it may only mean nobody fetched since the clone.')
 $md.Add('- New clones belong in ' + $bt + 'refs/' + $bt + ', which is .gitignored. Never run ' + $bt + 'git clean -x' + $bt + ' (governance 10.4).')
 $md.Add('')
 
