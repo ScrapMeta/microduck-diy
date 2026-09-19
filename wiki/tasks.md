@@ -83,21 +83,11 @@ tags: [index, workspace]
 > **删除说明**：原「本轮物料事实落页」整行删掉 —— 它没有自己的触发条件，是各宿主任务的**收尾动作**，
 > 验收已分发：降压模块 → T-01；闲鱼批 → T-11；ToF/喇叭 → T-12；摄像头/电池已在手且已有页。
 
-## 完成（11 · 未归档）
+## 完成（0 · 未归档）
 
 | 编号 | 任务 | 结果说明 | 落点 |
 |---|---|---|---|
-| — | 结构可干装配 | **完成**：Human 确认「打印件 / 紧固件 / 轴承 11＋3 / XL330 均装得上」（2026-09-19）。⚠️ `件数是否已并入` [[mechanical-bom-rl]] **未核实**；[[diy-milestones]] 对应行**未改勾**（同行含未完成的机身 IMU 竖装 → **T-06**） | [[mechanical-bom-rl]] |
-| — | 机身 IMU v0.3 固件 P0 修复 ＋ U2D2 验收 | **完成**：Ping/Read 1000 · SyncRead 10 min 无超时（`a49a628`） | [[imu-to-dxl-firmware-build]] · 原 #10 |
-| — | 机身 6 V 经 DXL 回灌 HAT 评估 | **关闭**：不采用 —— 电池经降压模块稳在 6.0 V 长期运行 | [[body-imu-hat-dxl-power-eval]] · 原 #9 |
-| — | HAT TTL 舵机 bring-up | **完成**：出厂 ID 1 @ 57 600 应答复现 · 基线已采集 | [[hat-dxl-bus-debug]] · [[xl330-cn-bench-kit]] · 原 #4 |
-| — | Zero 3W P1 相机台架 | **完成**：probe `0x0219` · `/dev/video0` 可抓 NV12 · **两颗模块（Pi Cam V2 ＋ 亚博 IMX219）均过** | [[imx219-camera]] · [[zero3w-bench-plan]] · 原 #5 |
-| — | HAT 配料焊接 | **完成**：首板（DNP 项已省）· 另备 **3 块待焊** → **T-03** | [[hat-solder-kit]] · 原 #3 |
-| — | 机身 IMU 板：焊接 **5** 块 · 烧录 **3** 块 | **完成**：尚缺逐板基线与装机分配 | [[board-imu-to-dxl]] · [[imu-to-dxl-firmware-build]] |
-| — | Zero 3W P0 系统台架 | **完成**：flash / boot / SSH 通过 | [[zero3w-bench-plan]] · 原 #2 |
-| — | XL330-CN 舵机台架冒烟 | **完成**：通过（2026-09-10） | [[xl330-cn-bench-kit]] · 原 #1 |
-| — | 物料：电池 ＋ 降压模块 到货 | **完成**：F550 **×2** ＋ 双充（2 位）· 降压模块 **5 V/15 A ×1 · 6 V/4 A ×2** | [[np-f550-battery]] · [[bench-power-supply]] |
-| — | 物料：舵机两批下单 | **完成**（下单本身）：**原厂单** [[robotis-xl330-order-2026-09-05]]（延误，预计 **10 月中旬**可能发）· **闲鱼批** 5 国产组装 ＋ 9 原厂 → 到货另计 **T-11** | [[diy-bom]] §C |
+| — | *（本批已归档）* | 上一批 **11** 行于 2026-09-19 归档 → [#12](https://github.com/ScrapMeta/microduck-diy/issues/12)（开完即关） | — |
 
 > 终态行**就地留在本页**；pm 推送时把已归档的行归入 Issue 后**从本页删掉**（git 历史留痕）。
 
