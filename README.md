@@ -61,7 +61,7 @@
   —— 这三条是红线，正文只在 [`AGENTS.md`](AGENTS.md)（「红线」「仓库形态」），此处不复制
 - 路径一律**从根写**：`wiki/…` · `cad/…` · `refs/microduck/scripts/setup-board.sh`
 - 全树与各目录角色：`wiki/concepts/local-workspace-layout.md`（**布局真源**）
-- **GitHub 只当 git 远端与历史归档**：不建 PR · 不开 Issue · 不建标签（规则见 [`AGENTS.md`](AGENTS.md)）
+- **GitHub 只当 git 远端与历史归档**：不建 PR · 不建标签 · **Issue 只作 pm 归档**（开完即关）—— 推送与 Issue 归 pm（规则见 [`AGENTS.md`](AGENTS.md)）
 
 ## 声明
 
