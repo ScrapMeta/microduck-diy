@@ -836,3 +836,28 @@
 - **顺带发现的升级机会（待办，未做）**：`microduck-replica` 那 9 个提交与我们直接相关 —— ①**整机 15 颗舵机首次上电、能站起来坐下**（附 `首次上电-2026-09-18.mp4` · `站起来.gif`）②`software/飞特适配架构.md`（493 行）与 **`docs/飞特资料/`（飞特官方一手：SCS 协议 · SMS/STS 磁编码内存表手册）** ③`tools/servo-web/`（网页舵机调试台 + `feetech.py`）④`imu_to_dxl 首板实测：3.3 V 正常，J4/J5 PH 座外壳跟飞特插头不配（削壳能用，v2 换座）`（与本项目 imu_to_dxl 同类工作）⑤`tools/radxa/` 烧卡脚本。其中**飞特官方内存表**可把 [[xl330-vs-feetech-servos]] 的依据从社区转述**升为厂商一手**
 - **执行**：`-ff-only` 快进 5 个克隆（`microduck 6507d2e→344925c` · `microduck_rl 53b8971b→cb70b792` · `microduck-replica f533679→3599731` · `OpenMicroDuck 3992277→21c5a19` · `elec_RPI_Robot_HAT 23eab11→88d51fa`），全部 `Dirty=0`
 - Updated: [[local-workspace-layout]]（版本锁定行加 `-Fetch` 与「`Behind=0` 不等于已最新」）· `governance/agent-governance.md` **§10.3 重写**（补「脚本默认不联网」+ 上述判据）· `governance/upstreams.lock`（两次重生成）· `governance/refresh-upstreams.ps1`（`-Fetch` + 表头 + Checks）· `log.md`
+
+## [2026-09-19] servo | 挖 microduck-replica 的飞特路线：SCS 是 DXL 1.0 血统；并订正本 wiki 4 处错值
+- **由来（Human）**：研究一下 microduck-replica 的飞特舵机，参数指标和官方、kpower 的比较一下，协议、sdk、实现、硬件等挖掘一下
+- **结论先行**：这条路换的不是「同一颗舵机的另一家供应商」，而是**换了一个动力学等级**。HD-1910 在 6 V 堵转 **1.18 N·m / Kt 0.735 N·m/A**，XL330 是 **0.60 / 0.345**——**Kt 2.13 倍**；而 RD05T 的 Kt 与 XL330 只差 **2 %**。所以 **RD05T 理论上能复用原厂训练结果，HD-1910 不能**（replica 自己写明「大概率不能直接走」）
+- **协议（最有价值的发现）**：**飞特 SCS = Dynamixel Protocol 1.0 血统**，不是 2.0 ——
+  - 帧格式**逐字相同**：`FF FF ID LEN INSTR …PARAMS CHK`，`CHK = ~(ID+LEN+INSTR+ΣPARAMS) & 0xFF`（1.0 的取反和，**不是 2.0 的 CRC-16**）
+  - 指令码大面积同源：PING/READ/WRITE/REG_WRITE/ACTION = 1/2/3/4/5；**REBOOT = 0x08 同码同义**；SYNC_READ/WRITE = 0x82/0x83
+  - **但寄存器表无一处运动核心同址**：ID 5 vs 7 · 模式 33 vs 11 · 目标位置 42 vs 116 · 当前位置 56 vs 132 · 增益 **21/23/22 在 EEPROM** vs 84/82/80 在 RAM · 扭矩开关 40 vs 64。仅温度上限(13) 与锁(55) 同址
+  - ⚠️ `0x06` 是「**恢复 0x09 备份的参数**」，**不是恢复出厂** —— 依据 2019 版手册或 SDK 头文件会得出「飞特没有 REBOOT」的错误结论（replica 与两轮评审都栽过）
+- **一个会伪装成「舵机没劲」的坑**：飞特位置/速度/电流用 **BIT15 方向位（符号-幅值）**、负载用 BIT10；DXL 用**补码**。`0x8001` 实为 −1，按补码解码是 **−32767**，**差 3 万倍且不报错**。位置寄存器在舵机模式只用 0–4095，两编码恰好一致 → **「位置读对了」不能证明解码对了**，属本项目反复遇到的「合理但错误」类
+- **实现（两个设计层面的收获）**：
+  1. **增益在 EEPROM，但「锁着写」正好当 RAM 用** —— 内存表 55 原文「写 1 打开写入锁，写入 EPROM 地址的值**掉电不保存**」→ 不解锁直接写 P = 写入被接受、只是不落盘 = XL330 的 RAM 语义，**零磨损**。把一个硬件限制反用成特性。附带：**D 不要清零**（出厂 D=32 是 320:1 高减速比的整定）
+  2. **换协议最容易被忽略的连带代价：IMU 不在总线上了** —— 官方把 `imu_to_dxl` 做成 DXL 从机（ID 200）混在同一次 `sync_read` 里，**协议一换这个设计就断**。处置：A 重写小板固件冒充飞特 ID 200 / B BNO085 直飞 I2C（先做 B）
+  - 另两条：出厂模式是 **4**（不是 0/3，且两个官方来源对模式 4 含义不一致 → 以实机底账为准）· **应答级别必须 = 1**（`0` 时除读/PING 不回包，rustypot 每笔写超时 30 ms，15 颗拖垮 init）
+- **SDK**：飞特官方只有 C/C++、Python、FD 上位机（**全在 Gitee，无 Rust**）；但官方 `duck-control` 已依赖的 **`rustypot 1.6.0` 就带飞特 STS 内存表**（据 replica：`v1.rs` 的 `0x82/0x83` 就是**为飞特加的**，DXL 1.0 本身没有）。⚠️ **rustypot 未在本工作区安装/vendored，此条我方尚未独立复核**
+- **硬件（三处会咬人）**：① **脚序是反的**——HD-1910 `1=Signal 2=Vcc 3=GND` vs XL330/RD05T `1=GND 2=Vdd 3=Data`；好在 **2.0 vs 2.5 mm 间距插不进对方**，只剩「自己压线压反」这一种可能 ② **外形：三台同尺寸**——**20×34×26（含主舵盘）**；规格书的 **23 mm 是「不含主舵盘」的量法**，不是深度差 ③ **供电哲学相反**——HD-1910 原生 4–8.4 V（2S 正当），官方 XL330 却是**超压跑**（上限 6.0 V 挂 6.6–8.2 V，靠 `shutdown=52` 清掉过压位）
+- **⚠️ 我在此处犯过一个错，Human 当场纠正**：初稿把 HD-1910 写成「薄 3 mm → 结构上不是直接替换」，**把「不含舵盘的量法」当成了真实差异，还顺着它推了一个不存在的原因**。而**我们自己的来源早就标注过**——[[openmicroduck]] 的 `docs/servo.md` 原文：「飞特 / ED330 是 34×20×23、深度少约 3 mm，**但HD1910来说，其实是测量部位不一样**，孔距要拿实物核」。**教训：一手规格书的尺寸要问清量法与基准**（含不含舵盘/花键/线座），否则会拿一个量法差去解释一个真实现象（replica 压腿处确实干涉，但**原因不是尺寸差**，它自己标「待补」）
+- **⚠️ 订正本 wiki 4 处错值（其中 1 处安全相关）**：归档页 `_archive/entities/feetech-hd-1910.md` 记的是 **`1=GND · 2=Vcc · 3=Signal`** —— **那是 HL-2915 与 Dynamixel 的脚序**；同页的重量 **22.5 g 也是 HL-2915 的**（HD-1910 是 21 g）。另对比页把电压写成 5–8.4 V（应 4–8.4）、堵转写成 10 kg·cm（应 15@7.4V / 12@6V）。**这与 replica 记录的那个坑是同一个**（它也曾拿 `HL-2915` 那一行当「飞特接口惯例」去推荐 HD-1910）。间距防错让实物触发不了，但**自己压线就是烧舵机的一条路**
+- **执行**：按 `_archive/README.md` 的「恢复到现行 = 移回并写回 index+log」——
+  - **迁出并重写** `entities/feetech-hd-1910.md`（订正 4 处 + 三方对比 + 保护/反馈 + 开放项），删归档副本
+  - **新建** `concepts/feetech-scs-bus.md`（协议 · 寄存器对照 · 符号位 · EEPROM 增益 · SDK · 实现接缝 · 对换执行器评估的意义）
+  - **新建** `entities/microduck-replica.md`（承接两页的 wikilink，避免悬空）
+  - **订正归档**：`comparisons/xl330-vs-feetech-servos.md`（表 + 订正note）· `entities/feetech.md` · `entities/feetech-hl-2909.md` 的 `5–8.4 V` · `_archive/INDEX.md`
+- **对 RD05T 评估的反照（方法论收获）**：飞特把命题证成了实测——**即使协议全打通、15 颗能站起来，「走」仍要等重训**。所以 RD05T 的判定**不该卡在「协议不同怎么办」**，而应聚焦「**它到底是不是真 DXL、P 增益能否写**」，即 [[bam-identification-bench]] 的电气闸门与 `scripts/servo_swap_compare.py` 的守卫已在检的那两件事。一句话：**飞特是「已知的不同」，RD05T 是「未知的相同」**
+- Updated: [[feetech-hd-1910]]（恢复为现行 · 重写）· [[feetech-scs-bus]]（新）· [[microduck-replica]]（新）· [[xl330-vs-feetech-servos]]（订正）· `_archive/entities/feetech.md` · `_archive/entities/feetech-hl-2909.md` · `_archive/INDEX.md` · [[index]] · `log.md`

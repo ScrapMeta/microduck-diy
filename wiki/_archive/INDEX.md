@@ -1,7 +1,7 @@
 ---
 title: Wiki archive index
 created: 2026-09-09
-updated: 2026-09-09
+updated: 2026-09-19
 type: summary
 tags: [index, workspace]
 sources: []
@@ -13,8 +13,12 @@ related: []
 
 主入口见 [_archive/README.md](README.md)。下列为 2026-09-09 迁入文件（相对 `_archive/`）：
 
+> **2026-09-19 迁出**：`entities/feetech-hd-1910` **恢复为现行页**
+> （→ `entities/feetech-hd-1910.md`），因 [[microduck-replica]] 已走通该舵机且订正了
+> 脚序等 4 处错值；协议分析另建 `concepts/feetech-scs-bus.md`。
+
 ## entities/
-- feetech.md · feetech-sts3032 · feetech-sts3215 · feetech-hd-1910 · feetech-hl-2909 · feetech-hl-2915 · feetech-hl-3915
+- feetech.md · feetech-sts3032 · feetech-sts3215 · feetech-hl-2909 · feetech-hl-2915 · feetech-hl-3915
 - unitree.md · unitree-s288.md
 - openmicroduck.md · aifange-microduck-build-tutorial.md
 

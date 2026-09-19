@@ -1,7 +1,7 @@
 ---
 title: Feetech HL-2909
 created: 2026-09-08
-updated: 2026-09-08
+updated: 2026-09-19
 type: entity
 tags: [servo, feetech]
 sources:
@@ -48,8 +48,10 @@ related:
 
 ## 对 Microduck / DIY 的含义
 
-- 电压属 **12 V 轨**：电池串数或升压、HAT MOSFET、总线铜箔与 `imu_to_dxl` 取电都要按 12 V 重算；比 [[feetech-hd-1910]]（5–8.4 V）改动大。
+- 电压属 **12 V 轨**：电池串数或升压、HAT MOSFET、总线铜箔与 `imu_to_dxl` 取电都要按 12 V 重算；比 [[feetech-hd-1910]]（**4–8.4 V**）改动大。
 - 协议非 DXL → 官方 `robotd` 不能直接驱动；OpenMicroDuck 走飞特兼容栈。
 - 外形与 XL330 同档但深度 23 mm vs 26 mm，孔距需实物核。
+  > ⚠️ **2026-09-19 加注**：HD-1910 那组的 23 mm 已查明是**不含主舵盘的量法**（含舵盘同为 26 mm），
+  > 本行的 23 mm 很可能同理 —— **别据此判定深度差**，孔距仍要实物核。
 
 相关：[[feetech-hd-1910]] · [[feetech-hl-2915]] · [[xl330-vs-feetech-servos]] · [[openmicroduck]] · [[feetech]]

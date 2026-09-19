@@ -1,7 +1,7 @@
 ---
 title: Feetech（飞特）
 created: 2026-08-30
-updated: 2026-09-08
+updated: 2026-09-19
 type: entity
 tags: [company, servo, feetech]
 sources:
@@ -18,7 +18,7 @@ confidence: high
 
 - [[feetech-sts3032]] — 最贴 XL330 电气
 - [[feetech-sts3215]] — 更大扭矩；BAM 已有模型
-- [[feetech-hd-1910]] — 5–8.4 V TTL；开源小鸭预售款（OpenMicroDuck）
+- [[feetech-hd-1910]] — **4–8.4 V** TTL；开源小鸭路线（**已恢复为现行页**，见 [[feetech-scs-bus]]）
 - [[feetech-hl-2909]] — 9–14 V 样机款；规格书同 HL-2915-C002
 - [[feetech-hl-2915]] — 早期笔记口径（与规格书冲突时以 PDF 为准）
 - [[feetech-hl-3915]] — 12V 铝壳恒力版

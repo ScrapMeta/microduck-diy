@@ -1,7 +1,7 @@
 # Wiki Index
 
 > **Agent 先读：** [[SCHEMA]] · 本文件 · [[log]]  
-> 本 wiki：`wiki/` · 更新：2026-09-18  
+> 本 wiki：`wiki/` · 更新：2026-09-19  
 > **目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展  
 > **现行焦点：** HAT TTL [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)——**2026-09-16 台架已打通**（57 600 / ID 1 出厂舵机 · 基线已采集）· 机身 IMU 固件 [#10](https://github.com/ScrapMeta/microduck-diy/issues/10)
 
@@ -44,6 +44,7 @@
 - [[xl330-cn-bench-kit]] — 国产启动套件台架（**✅ 通过**；资料后补）
 - [[xl330-vs-kpower-rd05t]] — **平替对比（评估中）**：铭牌≈等同 · 接口兼容 · 协议未证 · 台架可判定
 - [[rd05t-vendor-inquiry-2026-09-18]] — **问询函**：寄存器兼容 · **P 增益可写性** · 保护阈值（可发送件：同目录 `.pdf`，用 `scripts/md_to_pdf.py` 生成）
+- [[feetech-hd-1910]] — **飞特 HD-1910 备选执行器**（规格书 A/0；订正脚序 4 处错值）· 协议 [[feetech-scs-bus]] · 已走通路线见 [[microduck-replica]]
 - [[robotis]] · [[dynamixel-xl330]] · [[robotis-xl330-order-2026-09-05]]
 - [[seeed-bearings]] · [[fastener-bom-study]]
 - [[taobao-diy-procurement-2026-09]]
