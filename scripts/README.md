@@ -1,7 +1,18 @@
-# `microduck-diy/scripts/` — 台架 / 上机脚本
+# `microduck-diy/scripts/` — 台架 / 上机脚本 ＋ 机械校验
 
-> 可版本化的台架脚本。**规格真源**仍是 `wiki/`；本目录只放能在板上或台架复跑的**代码**。
-> 治理见 [`../governance/agent-governance.md`](../governance/agent-governance.md) §5。
+> 可版本化的台架脚本。**规格真源**仍是 `wiki/`；本目录只放能在板上或台架复跑的**代码**，
+> 外加两台守漂移的 linter 与上游版本锁定。规则见 [`../AGENTS.md`](../AGENTS.md)。
+
+## 目录一览
+
+| 文件 | 是什么 |
+|---|---|
+| `dxl_ping.py` | 台架 DXL **只读**扫 / Ping / 基线（Protocol 2.0 · 零依赖 · 自带 `self-test`） |
+| `servo_swap_compare.py` | 换舵机 A/B 对比（**非只读**，须显式 `--setup`） |
+| `md_to_pdf.py` | 把一页 wiki 渲染成 PDF（给人看的可发送件） |
+| `wiki_lint.py` | wiki 规范：frontmatter · 行数 · 死链 |
+| `refs_lint.py` | 仓内引用：反引号与链接里的路径必须存在 |
+| `refresh-upstreams.ps1` · `upstreams.lock` | `refs/` 克隆的版本锁定（**`-Fetch` 才联网**） |
 
 ## 为什么在这里
 
@@ -207,14 +218,39 @@ python3 scripts/md_to_pdf.py wiki/queries/rd05t-vendor-inquiry-2026-09-18.md \
 
 ### 产物放哪
 
-PDF 与源 `.md` **同级**（如 `wiki/queries/xxx.md` → `xxx.pdf`），因为它就是要发出去的那份。
+PDF 与源 `.md` **同级**（如 `wiki/queries/rd05t-vendor-inquiry-2026-09-18.md` → 同名 `.pdf`），因为它就是要发出去的那份。
 它是**派生物**：源改了要**重新生成**，不要手工编辑 PDF。中间 HTML 默认不落盘（`--keep-html` 可留）。
+
+## 两台 linter —— 守「别漂」（2026-09-19 加）
+
+规则在 [`../AGENTS.md`](../AGENTS.md)，**机械校验在这两台脚本** —— 它们抓的是人不会主动发现的那类漂移：
+页面改了名、规则搬了家，但别处还写着老路径。
+
+```bash
+python3 scripts/wiki_lint.py     # frontmatter · 行数 · 死链
+python3 scripts/refs_lint.py     # 反引号 / 链接里的仓内路径是否存在
+```
+
+- **`wiki_lint.py`** —— 正文页必须有 frontmatter（`title` `created` `updated` `type` `tags`）· **≤ 200 行** ·
+  `[[name]]` 形式的 wikilink 与相对 `.md` 链接必须解析得到。
+  豁免：`raw/` `_archive/` `assets/` **整体跳过**（改它们的链接等于篡改历史记录）·
+  `index` / `log` / `tasks` 免 frontmatter 与行数 · **`log.md` 另免死链**（只追加的流水，历史链接不该回溯失效）·
+  超长页有 `OVERSIZE_ACK` 记账表：**只减不增**（超记账值即 error，降到 ≤200 行提示删条目；欠账记在 `wiki/tasks.md`）。
+- **`refs_lint.py`** —— 扫反引号与 markdown 链接里**指向本仓**的路径。
+  判据**宁缺勿滥**：只有**首段命中仓库根的真实条目**的片段才当路径看（`scripts/dxl_ping.py` 会查，
+  `tof/src/sensor.rs` 这种上游仓内部相对路径不查）。
+  **关键机制**：用 `git check-ignore` 自己判断「这个路径是不是本来就不该存在」——
+  `refs/` `temp/` `microduck_ros2/` 这些被 ignore 的本地件在**干净克隆里合法缺席**；
+  不这么做 CI 会天天报假错。
+
+CI（`.github/workflows/ci.yml`）在 push / PR 到 `main` 时跑这两条。
+**改脚本的参数（`MAX_LINES` · `SKIP_DIRS` · `TARGET_GLOBS` …）等于改规格**，先读 `AGENTS.md` 的改法表。
 
 ## 约定
 
 - 新增**台架**脚本请自带 `--help` 与无硬件可跑的 `self-test`（本仓无台架时的唯一回归手段）；
   非台架工具用 `--check` 声明前置条件（目前仅 `md_to_pdf.py`）。
-- 结果与参数**回写 Issue + wiki**；脚本只保证「怎么跑」，结论仍以 Issue 为准。
+- 结果与参数**回写 wiki**（`wiki/log.md` ＋ 对应页）；脚本只保证「怎么跑」，结论以 wiki 为准。
 - 会写总线的脚本必须在**文件名或文档里明示非只读**，并给出 `--setup` 之类的**显式开关**：
   本仓的默认预期是「探针只读」。
 

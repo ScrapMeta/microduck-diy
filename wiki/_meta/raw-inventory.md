@@ -1,7 +1,7 @@
 ---
 title: Raw inventory
 created: 2026-08-30
-updated: 2026-09-11
+updated: 2026-09-19
 type: summary
 tags: [index]
 sources: []
@@ -36,4 +36,4 @@ confidence: high
 | `assets/procurement/*.xls` | 对应 BOM/订单原件 |
 | `assets/bom/` | 合并 BOM CSV |
 
-相关：[[SCHEMA]] · [[local-workspace-layout]] · [[taobao-diy-procurement-2026-09]] · [[robotis-xl330-order-2026-09-05]] · [[elec-hat-lcsc-order-2026-09-05]] · [[imu-to-dxl-replica-lcsc-order-2026-09-08]]
+相关：[[index]] · [[local-workspace-layout]] · [[taobao-diy-procurement-2026-09]] · [[robotis-xl330-order-2026-09-05]] · [[elec-hat-lcsc-order-2026-09-05]] · [[imu-to-dxl-replica-lcsc-order-2026-09-08]]

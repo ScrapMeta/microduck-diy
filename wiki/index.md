@@ -1,9 +1,10 @@
 # Wiki Index
 
-> **Agent 先读：** [[SCHEMA]] · 本文件 · [[log]]  
-> 本 wiki：`wiki/` · 更新：2026-09-19  
-> **目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展  
-> **现行焦点：** HAT TTL [#4](https://github.com/ScrapMeta/microduck-diy/issues/4)——**2026-09-16 台架已打通**（57 600 / ID 1 出厂舵机 · 基线已采集）· 机身 IMU 固件 [#10](https://github.com/ScrapMeta/microduck-diy/issues/10)
+> **Agent 先读：** 本文件 · [[tasks]]（欠什么）· [[log]]（最近 30 条）· [`AGENTS.md`](../AGENTS.md)（规则）
+> 本 wiki：`wiki/` · 更新：2026-09-19
+> **目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展
+> **现行焦点：** HAT TTL [#11](https://github.com/ScrapMeta/microduck-diy/issues/11) —— 上总线值 ＋ `0x55` 帧定论
+> （[#4](https://github.com/ScrapMeta/microduck-diy/issues/4) **2026-09-16 台架已打通**：57 600 / ID 1 出厂舵机 · 基线已采集）
 
 ## 现行定稿（优先）
 
@@ -37,7 +38,7 @@
 - `scripts/dxl_ping.py` — **台架 DXL 只读扫/Ping/基线脚本**（Protocol 2.0 · 零依赖 · 自带 `self-test`）
 - [[local-workspace-layout]] — **布局真源**
 - [[ros2-migration-plan]] — ROS2 并行移植规格（software 范畴）
-- [Agent 治理](../governance/agent-governance.md)（**根即基础工程工作树** · llm-wiki · 只常驻 pm · 交付物归自有仓）· [`AGENTS.md`](../AGENTS.md) 为治理入口 · `.cursor/rules/` 入仓
+- [[tasks]] — **任务台账**（取代 GitHub Issue）· 规则 [`AGENTS.md`](../AGENTS.md) · 角色手册 `.cursor/skills/`
 
 ### 主线执行器 / 采购
 
@@ -60,8 +61,93 @@
 
 ## 归档
 
-非现行 Layer-2：[`_archive/`](_archive/README.md)。`raw/` 不可变 ingest。
+非现行 Layer-2：[`_archive/`](_archive/README.md)（含 [`_archive/governance/`](_archive/governance/README.md) —— 2026-09-19 停用的旧治理层）。`raw/` 不可变 ingest。
 
 ## Raw
 
-清单：[_meta/raw-inventory](_meta/raw-inventory.md)
+清单：[[raw-inventory]]
+
+---
+
+## wiki 规范
+
+> 这一节的规范由 `scripts/wiki_lint.py` **机械执行** —— 脚本的判定即规格。
+
+**领域：** Microduck DIY 复刻知识库（`wiki/`）。
+
+**现行优先级：**
+
+1. **机身 IMU `imu-to-dxl v0.3`**（1 号 32×22）— 原理图 / PCB / BOM / 互联
+2. **装机电控定稿** — HAT + 总线 + 互联
+3. **DIY BOM / 里程碑** — 与上两项对齐的采购与进度
+
+官方资料保留为精简参考；非现行调研在 `_archive/`。
+
+**约定**
+
+- 文件名：英文小写 + 连字符（如 `radxa-zero-3w.md`）；正文中文为主；型号、仓库名、命令保持原文
+- **路径写法**：本仓内**从根写**（`wiki/…` · `cad/…`）；只读参考克隆写 `refs/<clone>/…`（例 `refs/microduck/scripts/setup-board.sh`）；
+  仅引**仓库名**时不加 `refs/`（那是仓名不是本地路径）；官方链接里的仓名 `microduck-diy` 不改
+- 每页 YAML frontmatter（`title` · `created` · `updated` · `type` · `tags`）；页间用 wikilink 互链
+- 更新必须 bump `updated`；新页必须写进本文件对应分节；每次动作**追加** [[log]]
+- **页长 ≤ 200 行**，超了拆页
+- 综合 ≥3 个来源的段落末可加 provenance：`^[raw/articles/….md]`
+- **禁止修改 `raw/` 正文**（纠错写在 Layer-2 页；`sha256` 等 frontmatter 元数据可补全）
+- **不做媒体生产**：本仓不生图、不合成封面、不跑生图流水线；`wiki/assets/` 只保存 CAD/官方/采购等**原始资料**
+
+**frontmatter**
+
+```yaml
+---
+title: Page Title
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+type: entity | concept | comparison | query | summary
+tags: []
+sources: []
+confidence: high | medium | low
+related: []
+---
+```
+
+`raw/` 另用 `source_url` · `ingested` · `sha256`。
+
+**标签表**（新增标签前必须先登记本表）
+
+| 组 | 标签 |
+| --- | --- |
+| 组织 | `company` `person` `lab` `open-source` `unitree` |
+| 产品 | `product` `pack` `press-kit` `diy` |
+| 硬件板 | `board` `hat` `imu` `mcu` `sbc` |
+| 执行器传感 | `servo` `dynamixel` `feetech` `tof` `camera` `audio` `nfc` `battery` |
+| 供电烧录 | `power` `flash` `emmc` `sd` `firmware` |
+| 软件仿真 | `armbian` `runtime` `rl` `sim2real` `bam` `mujoco` |
+| 机械 | `mechanical` `bom` `fastener` |
+| 工具采购 | `jlceda` `procurement` |
+| 元 | `comparison` `query` `index` `workspace` `final` |
+
+**页阈值**
+
+- **建页**：实体/概念出现在 2+ 来源，或对单次研究/官方文档为中心主题
+- **并入已有页**：已有覆盖则更新，不另起同义页 · **不建页**：一笔带过、域外话题
+- **拆分**：>200 行 · **归档**：完全被替代 → `_archive/`，并从本 index 移除
+
+**更新政策**
+
+1. 新来源通常覆盖旧事实；注明日期
+2. 真冲突：两说并存 + `contradictions:` / `contested: true`
+3. Press Kit / 官方文档 vs 本地仓库：以**本地已克隆仓库 + 实测笔记**为准写 Layer-2，并注明 Press Kit 说法
+4. alpha 网格（Pi Zero 2W / np_f970）与量产（Radxa / NP-F550）差异必须显式标注
+5. **外形口径**：DIY 板框以信息卡 / `*-ref-pcb-layout` 实布为准；MJCF placeholder 尺寸单独标注，勿与实布混写
+
+**目录结构**
+
+```
+wiki/
+├── index.md · tasks.md · log.md
+├── raw/         # 不可变 ingest：articles · papers · transcripts · tests · assets
+├── assets/      # 原始资料：pcb · procurement · bom（禁止 AI 生图）
+├── entities/ · concepts/ · comparisons/ · queries/
+├── _archive/    # 被替代页（含 governance/ —— 停用的旧治理层）
+└── _meta/       # 索引页（raw-inventory）
+```

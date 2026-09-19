@@ -1,7 +1,7 @@
 ---
 title: ROS2 迁移计划与契约
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-19
 type: concept
 tags: [runtime, rl, sim2real, workspace]
 sources:
@@ -16,7 +16,7 @@ confidence: high
 # ROS2 迁移计划与契约
 
 > **定位：** ROS2 属 **software** 范畴的并行移植，**不是**独立职能。
-> 治理条款见 `.cursor/rules/microduck-ros2.mdc`；本页为**契约摘要**。
+> 操作手册见 `.cursor/skills/microduck-software/SKILL.md`（ROS2 一节）；本页为**契约摘要**。
 > **细节与实施步骤**：`microduck_ros2/docs/ros2-migration-plan.md`（详版规划）·
 > `microduck_ros2/docs/phase1-wsl-onnx-sim.md`（一期操作）。
 > ⚠️ `microduck_ros2/` **尚未纳入版本控制**——本页是唯一有版本历史的契约记录，改契约先改本页。

@@ -41,7 +41,7 @@ imu_to_dxl/
   README.md
   docs/protocol.md · hardware.md
   firmware/          # Makefile 在此
-  scripts/flash_openocd.sh · debug_openocd.sh
+  scripts/           # flash_openocd.sh · debug_openocd.sh
 ```
 
 脚位宏：`firmware/include/md_config.h` · 板级：`firmware/platform/stm32g031/board_g031.c`（对齐 v0.3）。

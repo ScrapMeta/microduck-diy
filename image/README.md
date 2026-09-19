@@ -10,7 +10,7 @@
 | `out/*.sha256` | 校验 |
 
 刷写：**推荐 [Armbian Imager](https://imager.armbian.com/)** 选「本地镜像」→ 选上述 `.img.xz` → 写入 microSD。  
-**不推荐** balenaEtcher（见 wiki [[system-flash-armbian]]）。
+**不推荐** balenaEtcher（见 `wiki/concepts/system-flash-armbian.md`）。
 
 底座默认曾用：`Armbian_26.8.1_Radxa-zero3_trixie_vendor_6.1.115_minimal`（清华源）。
 
@@ -26,4 +26,4 @@ export DUCK_REPO_ROOT=/mnt/d/projects/microduck/microduck
 
 ## 刷机后
 
-见 wiki：[[system-flash-armbian]] · [[zero3w-bench-plan]] · 官方 `microduck/docs/robot/install-dev.md`。
+见 wiki：`wiki/concepts/system-flash-armbian.md` · `wiki/concepts/zero3w-bench-plan.md` · 官方 `microduck/docs/robot/install-dev.md`。

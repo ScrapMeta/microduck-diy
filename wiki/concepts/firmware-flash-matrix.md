@@ -20,7 +20,7 @@ related: [board-imu-to-dxl, imu-to-dxl-firmware-build, imu-to-dxl-v2, opensource
 | [[vl53-tof]] | 每次启动灌 RAM | ✅ tofd |
 | 相机/喇叭/麦 | 否 | 驱动/原理图 |
 
-子板与舵机固件 **不进 OTA**（updater-design §11.1）。DIY 机身 IMU：**编译步骤**见 [[imu-to-dxl-firmware-build]]；SWD（J2）烧录见仓内 `scripts/flash_openocd.sh`。
+子板与舵机固件 **不进 OTA**（updater-design §11.1）。DIY 机身 IMU：**编译步骤**见 [[imu-to-dxl-firmware-build]]；SWD（J2）烧录见 `imu_to_dxl/scripts/flash_openocd.sh`。
 
 相关：[[board-imu-to-dxl]] · [[imu-to-dxl-firmware-build]] · [[opensource-coverage]] · [[system-flash-armbian]] · [[board-interconnect]]
 

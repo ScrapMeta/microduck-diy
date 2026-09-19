@@ -8,4 +8,4 @@
 | `procurement/` | 立创 BOM/订单 XLS |
 | `bom/` | 合并 BOM CSV |
 
-**禁止：** AI 生图、小红书封面合成、baoyu 流水线产物。政策见 [[SCHEMA]] · [[local-workspace-layout]]。
+**禁止：** AI 生图、小红书封面合成、baoyu 流水线产物。政策见 [[index]] § wiki 规范 · [[local-workspace-layout]]。

@@ -861,3 +861,23 @@
   - **订正归档**：`comparisons/xl330-vs-feetech-servos.md`（表 + 订正note）· `entities/feetech.md` · `entities/feetech-hl-2909.md` 的 `5–8.4 V` · `_archive/INDEX.md`
 - **对 RD05T 评估的反照（方法论收获）**：飞特把命题证成了实测——**即使协议全打通、15 颗能站起来，「走」仍要等重训**。所以 RD05T 的判定**不该卡在「协议不同怎么办」**，而应聚焦「**它到底是不是真 DXL、P 增益能否写**」，即 [[bam-identification-bench]] 的电气闸门与 `scripts/servo_swap_compare.py` 的守卫已在检的那两件事。一句话：**飞特是「已知的不同」，RD05T 是「未知的相同」**
 - Updated: [[feetech-hd-1910]]（恢复为现行 · 重写）· [[feetech-scs-bus]]（新）· [[microduck-replica]]（新）· [[xl330-vs-feetech-servos]]（订正）· `_archive/entities/feetech.md` · `_archive/entities/feetech-hl-2909.md` · `_archive/INDEX.md` · [[index]] · `log.md`
+
+## [2026-09-19] governance | 治理改造：3 份规则副本 → 单文件 ＋ 角色技能 ＋ 两台 linter
+- **由来（Human）**：按 `tmp/solo-governance-playbook.md` 把本仓改造成**最简洁**的工程治理
+- **盘点（改造前）**：治理 **504 行** —— `AGENTS.md` 18 ＋ `governance/agent-governance.md` 219 ＋ 通用模板 135 ＋ `.cursor/rules/*.mdc` 6 个共 132；同一套不变量写在 **3 处** = 漂移点。台账无 `wiki/tasks.md`，过程全在 GitHub（12 Issue · 1 Milestone · 0 PR）；**零机械校验**
+- **定案四条（Human）**：角色 **4 个**（pm · hardware · software · structure，train 并入 software）· 删 `SCHEMA.md`（规范拆开）· GitHub **完全冻结** · 落 `governance/minimal` 分支待 review
+- **规则收敛**：`AGENTS.md` 重写为 **93 行**（红线 6 条 · 改规则/技能/wiki 三行表 · 记录约定 ＋ 角色→必写记录表 · 角色表 · 仓库形态 · GitHub · 不收录）。红线新增「不代签 Gate」的具体项：上电 / 剪线改线 / 制板下单 / 烧录量产固件
+- **角色换形态**：`.cursor/rules/*.mdc`（按 Issue 启停的短命职能）→ `.cursor/skills/<role>/SKILL.md`（**能自己进化**的操作手册 · `disable-model-invocation: true` 只许人唤起）。每个技能含「职能 · 记录 wiki · **不做** · 手册（具体命令与落点）· **沉淀区** · 红线」。**ros2 附件与 train 职能一并并入 software**（各保留一节，不再各占一个会话）
+- **台账迁移**：新建 `wiki/tasks.md` —— #11（进行中）· 7 项（待办，含 #8）· 7 项（近 30 天已完成，带结论与落点）。历史 Issue #1–#11 与 Milestone `v0.1` **冻结保留只读**；[[diy-milestones]] 的过程面由 Issue 改指台账
+- **`SCHEMA.md` 拆除**：frontmatter / 行数 / `raw/` 只读 → `AGENTS.md`「记录约定」（由 linter 机械执行）；领域 · 现行优先级 · 路径写法 · 标签表 · 页阈值 · 更新政策 → [[index]] 新增「wiki 规范」一节。**文件删除**（内容已搬，无第二副本）
+- **旧治理归档不删**：`agent-governance.md` · 通用模板 · 6 个 rule → `_archive/governance/`（rule 改名 `rule-*.mdc` 以区分来源）＋ 该目录 README 写清**为什么停用**与新旧对照表。`upstreams.lock` ＋ `refresh-upstreams.ps1` 移到 `scripts/` —— 它们是**工具**不是规则（引用同步 3 处）
+- **新增两台 linter（本步最省事、效果最大）**：`scripts/wiki_lint.py`（frontmatter · 行数 · 死链）＋ `scripts/refs_lint.py`（反引号与链接里的仓内路径）。判据都写在文件头
+  - `refs_lint` 的关键机制：用 **`git check-ignore`** 自己判断「这个路径是不是本来就不该存在」—— `refs/` `temp/` `microduck_ros2/` 在干净克隆里**合法缺席**，不这么做 CI 天天报假错。路径判据**宁缺勿滥**：只认**首段命中仓库根真实条目**的片段（`scripts/dxl_ping.py` 查，上游仓内部的 `tof/src/sensor.rs` 不查）
+  - 豁免一律按「**历史不该回溯失效**」立：`raw/` `_archive/` `assets/` 整体跳过 · `index`/`log`/`tasks` 免 frontmatter 与行数 · **`log.md` 另免死链** · `refs_lint` 不扫 `_archive/` 与 `log.md`
+- **接 CI**：`.github/workflows/ci.yml` —— push / PR 到 `main` 跑两台 linter ＋ `compileall`
+- **跑出来的真漂移（都是既有的，头一次被照出来，已全修）**：① `firmware-flash-matrix` 写「仓内 `scripts/flash_openocd.sh`」，实际在 `imu_to_dxl/scripts/` ② `imu-to-dxl-firmware-build` 的目录树把 `scripts/` 挂在仓根 ③ `entities/microduck-diy.md` 存的是 **UTF-8 BOM**（linter 改为读入即剥 BOM）④ `tmp/cam-*.jpg` 指向已移到 `temp/repo-tmp-2026-09-16/` 的旧路径 ⑤ 新技能手册里两处目录写错（`entities/imu-to-dxl-v2` · `concepts/seeed-bearings`）
+- **超长页「不拆、改记账」（Human 定）**：[[hat-solder-kit]] **399** · [[xl330-vs-kpower-rd05t]] **220** · [[rd05t-vendor-inquiry-2026-09-18]] **203** 超 200 行上限。`wiki_lint.py` 加 `OVERSIZE_ACK` **只减不增**表（超记账值即 error；降到 ≤200 行则提示删条目），欠账记进 [[tasks]]。理由：第三页是**对外可发送件**（PDF 由本页生成），拆页就不成一封信了 —— 这类例外另行再定
+- **同步引用 8 处**：根 `README.md`（新增「去哪找什么」＋「怎么干活」角色表）· [[index]]（承接 SCHEMA 的规范节）· [[local-workspace-layout]]（布局表重写，新增 `AGENTS.md` / `.cursor/skills/` / `.github/`）· [[diy-milestones]] · [[ros2-migration-plan]] · [[raw-inventory]] · `wiki/assets/README.md` · `scripts/README.md`（新增「目录一览」＋「两台 linter」两节）
+- **`.gitignore`**：补回 `tmp/`（本地临时 —— 本轮那份蓝图就住在那里）
+- **校验**：`wiki_lint` 61 页 **0 error / 3 warning**（3 条即上述记账）· `refs_lint` 76 文件 313 引用 **0 error**
+- Updated: `AGENTS.md`（重写）· `.cursor/skills/{pm,hardware,software,structure}/SKILL.md`（新）· [[tasks]]（新）· [[index]] · [[local-workspace-layout]] · [[diy-milestones]] · [[ros2-migration-plan]] · [[raw-inventory]] · `README.md` · `scripts/README.md` · `scripts/wiki_lint.py`（新）· `scripts/refs_lint.py`（新）· `scripts/upstreams.lock` · `scripts/refresh-upstreams.ps1`（移入）· `.github/workflows/ci.yml`（新）· `.gitignore` · `_archive/governance/`（旧治理归档 ＋ README）· **删** `wiki/SCHEMA.md` · `log.md`

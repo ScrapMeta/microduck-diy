@@ -17,29 +17,51 @@
 - 公众号：**人工具身智能**
 - 相关主题：手搓小小鸭
 
+## 去哪找什么
+
+| 入口 | 内容 |
+|------|------|
+| [`AGENTS.md`](AGENTS.md) | **唯一规则源**：红线 · 改规则/技能/wiki · 记录约定 · 角色表 |
+| [`wiki/`](wiki/) | **规格与资料真源** → 导航 [`index.md`](wiki/index.md) · 欠什么 [`tasks.md`](wiki/tasks.md) · 流水 [`log.md`](wiki/log.md) |
+| [`.cursor/skills/`](.cursor/skills/) | **角色操作手册**：唤起 `/microduck-pm` · `/microduck-hardware` · `/microduck-software` · `/microduck-structure` |
+| [`scripts/`](scripts/) | 台架 / 上机脚本 ＋ `wiki_lint.py` · `refs_lint.py` ＋ `upstreams.lock` |
+| [`imu_to_dxl/`](imu_to_dxl/) | 机身 IMU 参考板（v0.3）硬件工程与固件（Dynamixel ID 200） |
+| [`cad/`](cad/) | 耐久打印包（`.3mf`） |
+| [`image/`](image/) | Zero 3W seed 镜像构建与产物（大文件本地；见该目录 README） |
+
 ## 仓库结构
 
 | 目录 | 内容 |
 |------|------|
-| [`governance/`](governance/) | **治理细则**（唯一版本源）· 通用模板 · `upstreams.lock` |
-| [`wiki/`](wiki/) | DIY 知识库 = **规格真源**（先读 [`wiki/SCHEMA.md`](wiki/SCHEMA.md) → [`wiki/index.md`](wiki/index.md)） |
-| [`imu_to_dxl/`](imu_to_dxl/) | 机身 IMU 参考板（v0.3）硬件工程与固件（Dynamixel ID 200） |
-| [`cad/`](cad/) | 耐久打印包（`.3mf`） |
-| [`image/`](image/) | Zero 3W seed 镜像构建与产物（大文件本地；见该目录 README） |
-| [`scripts/`](scripts/) | 台架 / 上机脚本（`dxl_ping.py` 等） |
-| [`.cursor/rules/`](.cursor/rules/) | 职能 rule（pm 常驻 + 四职能 + ros2 附件）—— **入仓，受版本控制** |
-| [`AGENTS.md`](AGENTS.md) | **Agent 治理入口**：不变量 + 指向 `governance/` |
+| [`wiki/`](wiki/) | DIY 知识库 ＝ **规格真源** |
+| [`scripts/`](scripts/) | 台架 / 上机脚本 · 两台 linter · 上游版本锁定 |
+| [`imu_to_dxl/`](imu_to_dxl/) | 机身 IMU v0.3 · 板设计 ＋ 固件 |
+| [`cad/`](cad/) | 耐久打印包 |
+| [`image/`](image/) | Zero 3W seed 镜像构建与 overlay |
+| `.github/workflows/` | CI：push `main` 跑两台 linter |
 | `refs/` | **只读参考克隆**（ignore）：官方 / 社区 / 教程仓 |
 | `microduck_ros2/` | **自有兄弟仓**（ignore）：ROS2 并行移植，独立 push |
 | `temp/` `vms/` `.venv-cad/` | 本地临时（ignore）· **非真源** |
+
+## 怎么干活
+
+唤起一个角色就开始干 —— 不设 Issue 路由、不填交接表、不等审批。
+
+```
+/microduck-pm          治理 · 台账 · wiki 收口 · 跨域改派（不写实现）
+/microduck-hardware    原理图 / PCB · 电气 BOM · 制板接线 · 台架电测
+/microduck-software    固件 · 总线协议 · 上机脚本 · 系统镜像 · ROS2 · 训练 / ONNX
+/microduck-structure   cad/ 打印件 · 装配 · 机械 BOM 件数
+```
 
 ## 本地工作区约定
 
 - **只读参考一律放 `refs/`**：新增克隆放这里即自动被 ignore
 - **禁用 `git clean -x`**：它会删除被 ignore 的目录 —— 包括 `refs/` 下全部参考克隆。只用 `git clean -fd`
 - **交付物归自有仓**：`refs/` 内只读；产出落本仓或 `microduck_ros2/`，上游不留未提交改动
-- 路径一律**从根写**：`governance/…` · `wiki/…` · `refs/microduck/scripts/setup-board.sh`
-- 全树与各目录角色：wiki [[local-workspace-layout]]（布局真源）
+- 路径一律**从根写**：`wiki/…` · `cad/…` · `refs/microduck/scripts/setup-board.sh`
+- 全树与各目录角色：`wiki/concepts/local-workspace-layout.md`（**布局真源**）
+- **GitHub 只当 git 远端与历史归档**：不建 PR · 不开 Issue · 不建标签
 
 ## 声明
 

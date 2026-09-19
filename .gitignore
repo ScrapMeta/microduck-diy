@@ -25,8 +25,10 @@ image/**/*.img.xz
 image/**/*.sha256
 
 # Local scratch / vendor tool downloads (never commit)
-# `tmp/` was merged into `temp/` on 2026-09-16 when the workspace root became this worktree.
+# `tmp/` was merged into `temp/` on 2026-09-16 when the workspace root became this worktree;
+# a new `tmp/` appeared since (the portability blueprint lived there) - keep both ignored.
 temp/
+tmp/
 res/
 
 # Read-only reference clones. Local reference only - never deliverables, never committed.

@@ -1,7 +1,7 @@
 ---
 title: DIY 里程碑
 created: 2026-09-03
-updated: 2026-09-15
+updated: 2026-09-19
 type: concept
 tags: [diy, workspace, open-source]
 sources: []
@@ -24,7 +24,7 @@ related:
 
 # DIY 里程碑
 
-[[microduck-diy]] 的项目阶段用语义化版本号（`v0.x`）标记。过程面：GitHub Issue（治理 [细则](../../governance/agent-governance.md)）。
+[[microduck-diy]] 的项目阶段用语义化版本号（`v0.x`）标记。过程面：[[tasks]] 台账（GitHub Issue 已冻结只读，见 [`AGENTS.md`](../../AGENTS.md)）。
 
 ## 项目目标
 
