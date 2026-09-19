@@ -947,3 +947,14 @@
 - **活跃数量**：16 → **12**（删 3 ＋ 关 1）
 - **未改（守边界）**：`AGENTS.md`「记录约定」表只写了 `wiki/tasks.md`，**未加** `tasks-done.md` —— 规则改动要中立会话 ＋ Human 点头，本轮只做台账。**待办项**见下条回复
 - Updated: [[tasks]]（重写 · 加编号 · 移出已完成）· [[tasks-done]]（新）· [[index]]（导航 ＋ 目录结构）· `log.md`
+
+## [2026-09-19] pm | T-09 执行（获批范围）：删 Python38 孤儿树；余项卡提权
+- **由来（Human）**：「继续完成，并关闭任务」→ 选 **T-09 工具链清理**（获批范围：删 `C:\Python\Python38` ＋ 剔其两条机器 PATH ＋ 清注册表），并关 T-09
+- **预检（只读）先行** —— 三个实测与台账记载**不符**，先摆给 Human 再动手：① `Python39` **还有 `python.exe`**（不是纯残留）② HKLM `PythonCore\3.8` 与 `3.9` **两条都在**（台账只提了 3.9）③ `Python38` **在卸载列表里已无任何条目** → 判定它是**卸载失败的孤儿树**（`python.exe` 也没了），可安全删
+- **已执行**：删 `C:\Python\Python38` —— **1648.5 MB / 45193 项 / 14.5s**。删后 `C:\Python` 只剩 `miniconda3` ＋ `Python39`；三条坏 `Scripts` 入口（`tensorboard` / `huggingface-cli` / `modelscope`）实测**已消失**；`python` 落回 **3.12**
+- **⚠️ 未执行（卡提权）**：机器 PATH 两条死路径 ＋ HKLM `PythonCore\3.8` 仍需管理员；本会话**两次** `Start-Process -Verb RunAs` 均未落地（无备份文件 · 无结果文件 · PATH 与注册表原样），agent 会话**提不了权**。提权脚本已备好交 Human
+- **因此 T-09 没关** —— 你选的关闭前提（PATH ＋ 注册表清掉）还差一次 UAC。**不把「没做」记成「做完」**（[[tasks-done]] 的立表规矩）；这一步你一跑完，我就把 T-09 搬进 `tasks-done.md`
+- **T-09 ② 改判（重要）**：`C:\Python\Python39` **是注册完整的活安装**（`python.exe` 在 · 卸载子项 10 条齐全 · `py -0` 认到 3.9），**删它 = 删一个能跑的解释器**，与「清残留」不是一回事 → **重新等 Human 定**。另发现其 HKLM `InstallPath` 误写 `C:\Python39\`（不存在），这正解释 `py -3.9` 为何「注册在册却跑不起来」
+- **未碰**：`miniconda3`（870.8 MB，留删待定）· 商店 `python3.exe` 别名（GUI）
+- **踩坑（自记）**：追加本页时用 `Get-Content -Raw` + `Add-Content -Encoding UTF8` 把 UTF-8 临时文件按 ANSI 读入 → **双重编码写坏**，已 `git checkout` 撤回改用 `[IO.File]::ReadAllText/WriteAllText` ＋ UTF8 无 BOM 重做。**本仓中文页追加一律走 .NET UTF-8 API，不用 `Get-Content`/`Add-Content` 通道**
+- Updated: [[tasks]] T-09（改判 ＋ 余项）· [[local-workspace-layout]] §宿主工具链（残留拆成 ①② ＋ 3.9 的坑 ＋ miniconda）· `log.md`

@@ -64,7 +64,10 @@ CAD 网格真源：`refs/microduck_rl/.../robot/microduck/`；审阅 3MF 输出�
 | **`python3`** | 仍是 **Microsoft Store 占位符**（`…\WindowsApps\python3.exe`）→ 报 not found | 脚本里的 `python3` 在开发机上**不可直接用**；要修得去「设置 → 应用 → 应用执行别名」**关掉** `python3.exe`（GUI，agent 改不了） |
 | **`py`** | 可用（默认 **3.12**）· `py -3.9` **坏**（注册表指向不存在的 `C:\Python39`） | 别拿 `py -3` 当通用入口 |
 | **PATH 顺序** | **机器 PATH 整体在用户 PATH 之前** | 要抢回 `python`，光丢进用户 PATH 尾部没用 |
-| **残留** | 机器 PATH 有两条死路径 `C:\Python\Python38\Scripts;` `C:\Python\Python38;`，而该目录**已无 `python.exe`**（只剩孤立 `site-packages`） | 那批坏 `Scripts\*.exe` 抢在真货之前解析 `tensorboard` / `huggingface-cli` / `modelscope`，**执行即静默失败** |
+| **残留 ①（已清）** | `C:\Python\Python38` **目录本身 2026-09-19 已删**（1648.5 MB 孤儿树：卸载项早已没有、`python.exe` 也没了，只剩孤立 `site-packages`） | 原来那批坏 `Scripts\*.exe` 抢在真货之前解析 `tensorboard` / `huggingface-cli` / `modelscope`，**执行即静默失败**；目录一删，`python` 即落回 3.12 |
+| **残留 ②（未清 · 卡提权）** | **机器 PATH 仍留两条死路径** `C:\Python\Python38\Scripts;` `C:\Python\Python38;` · **HKLM `PythonCore\3.8` 仍在** | 指向已不存在的目录；写入 HKLM / 机器 PATH **都要管理员**，agent 会话**提不了权**（UAC 得你点） |
+| **3.9 的坑** | `C:\Python\Python39\` **是活的**（`python.exe` 在）· 但 HKLM `PythonCore\3.9\InstallPath` 写的是 **`C:\Python39\`（不存在）** | 所以 `py -3.9` **注册在册却跑不起来**；它**不是残留**，删它等于删一个注册完整的安装 |
+| **miniconda3** | `C:\Python\miniconda3`（870.8 MB）有 `python.exe` | 留删**未定**，不在任何 PATH 条目里 |
 
 **脚本版本下限 = Python 3.9**：`scripts/` 下四个脚本**只用 stdlib**，唯一的新语法是 `str.removeprefix`。
 实测 **3.9.7 与 3.12.10** 上 `wiki_lint` / `refs_lint` 均 **0 error**。
@@ -75,7 +78,9 @@ CAD 网格真源：`refs/microduck_rl/.../robot/microduck/`；审阅 3MF 输出�
 本仓现场：`.venv-cad`（3.11 ＋ cadgen 0.5.0）· `refs/microduck_rl/.venv`（3.12）。
 
 > ⚠️ **agent 会话的 PATH 是启动时快照** —— 改完 PATH **要新开终端**才生效。
-> 未清项（`C:\Python\Python38` · `C:\Python\Python39` · 两条死 PATH · 商店别名）见 [[tasks]]。
+> **已清**：`C:\Python\Python38` 目录（2026-09-19）。
+> **未清**：机器 PATH 两条死路径 ＋ HKLM `PythonCore\3.8`（**要管理员**）· 商店 `python3` 别名（**GUI**）·
+> `C:\Python\Python39` 与 `C:\Python\miniconda3` 的留删判定 —— 全部记在 [[tasks]] **T-09**。
 
 ## 路径写法约定
 
