@@ -47,7 +47,6 @@ tags: [index, workspace]
 |---|---|---|---|---|
 | **T-06** | 机身 IMU 改竖装 `power_support` 背板 | `/microduck-structure` | 竖装不干涉电池 / 腿 / 线束 · 孔位与所需线长写回 [[mechanical-bom-rl]] · [[board-interconnect]] §1 | 2026-09-19 现状收拢 |
 | **T-07** | 手柄冒烟：Xbox（在手）· 亚博智能 PS2（待试） | `/microduck-software` | 与官方 `refs/microduck/configd/src/pad.rs` 按键表**逐键对齐**；配不配得上写清；结论落新页 | 2026-09-19 |
-| **T-08** | 拆页：3 页超 200 行上限 | `/microduck-pm` 收口 · 内容归 `/microduck-hardware` | `hat-solder-kit` **399** → 3 页（配料/DNP · 焊接工艺 · 分步测试）· `xl330-vs-kpower-rd05t` **220** → 2 页（事实层 · 判断层）· `rd05t-vendor-inquiry` **203**（对外可发送件 —— 拆前先定「单页件是否该有例外」）。**只减不增**：拆完从 `scripts/wiki_lint.py` 的 `OVERSIZE_ACK` 删条目 | 治理改造 2026-09-19 |
 
 ## 执行（WIP）
 
@@ -79,7 +78,7 @@ tags: [index, workspace]
 
 | 编号 | 任务 | 结果说明 | 落点 |
 |---|---|---|---|
-| — | *（暂无）* | — | — |
+| **T-08** | 超长页处置（原「拆页：3 页超 200 行上限」） | **完成**：`hat-solder-kit` **399 → 194 行**（**不拆页** —— 按 Human「尽量简化，保留关键点」重写：章节号 `§3.x/§4.x/§6.x` 与全部数值保留，删重复位号枚举 / LCSC 参考号 / 冗长论证）→ 已从 `OVERSIZE_ACK` 删条目；`xl330-vs-kpower-rd05t` **220** · `rd05t-vendor-inquiry` **203** 经 Human 2026-09-19 批为**永久例外（不拆页）**，表语义由「欠拆页记账」改「已批准例外 · 只减不增」 | [[hat-solder-kit]] · `scripts/wiki_lint.py` · `scripts/README.md` |
 
 > **本表只放真任务的终态行** —— 真做完写「**完成**：结论 ＋ 落点」，判定不做写「**关闭**：不采用 / 被谁吸收」。
 > **pm 推送时**把已归档的行归入 Issue → **从本页删掉**（git 历史 ＋ [`log.md`](log.md) 留痕）。

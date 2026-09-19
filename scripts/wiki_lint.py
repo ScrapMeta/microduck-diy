@@ -35,12 +35,14 @@ META_NAMES = {"index.md", "log.md", "tasks.md"}  # wiki 根的导航类文件
 LINK_EXEMPT_NAMES = {"log.md"}  # 只追加的流水：历史链接不该回溯失效
 SKIP_DIRS = {"raw", "_archive", "assets"}  # 历史 / 素材，整体豁免
 MAX_LINES = 200
-# 「已知超长 · 只减不增」—— 迁移期欠账，不是豁免：页长**只能降不能升**，降到 ≤MAX_LINES 就得从这张表删掉。
-# 记账在 wiki/tasks.md。新增条目 = 改规格，先读 AGENTS.md「改规则 / 技能 / wiki」。
+# 「已批准例外 · 不拆页」—— Human 2026-09-19 决定：下列页**不拆**（都是「单页件」，拆了就不成一件事），
+# 超 200 行属既定状态，不是欠账。**只减不增**：数值是当下账面，页长只能降不能升 —— 要涨先在**这里**改数值
+# （= 显式记账）。改规格前先读 AGENTS.md「改规则 / 技能 / wiki」。出处：wiki/log.md 2026-09-19 · wiki/tasks.md T-08。
 OVERSIZE_ACK = {
-    "concepts/hat-solder-kit.md": 399,
-    "comparisons/xl330-vs-kpower-rd05t.md": 220,
+    # 对外可发送件：PDF 由本页生成，拆页就不成一封信了
     "queries/rd05t-vendor-inquiry-2026-09-18.md": 203,
+    # 对比页：T-10 回函结论还要写进来
+    "comparisons/xl330-vs-kpower-rd05t.md": 220,
 }
 REQUIRED_KEYS = ("title", "created", "updated", "type", "tags")
 IGNORE_WIKILINKS = {"...", ""}
@@ -136,16 +138,16 @@ def main() -> int:
                 if DATE_RE.match(c) and DATE_RE.match(u) and u < c:
                     warnings.append(f"{name}: `updated`({u}) 早于 `created`({c})")
 
-            # 2) 行数（含「已知超长 · 只减不增」记账）
+            # 2) 行数（含「已批准例外 · 只减不增」记账）
             key = md.relative_to(WIKI).as_posix()
             ack = OVERSIZE_ACK.get(key)
             if nlines > MAX_LINES:
                 if ack is None:
                     errors.append(f"{name}: {nlines} 行 > {MAX_LINES}，请拆页")
                 elif nlines > ack:
-                    errors.append(f"{name}: {nlines} 行 > 记账值 {ack} —— 只减不增，请先拆页")
+                    errors.append(f"{name}: {nlines} 行 > 记账值 {ack} —— 已批准例外 · 只减不增：要涨先在 scripts/wiki_lint.py 改记账值")
                 else:
-                    warnings.append(f"{name}: {nlines} 行 > {MAX_LINES}（已知欠拆页 · 记账 {ack} · 见 wiki/tasks.md）")
+                    warnings.append(f"{name}: {nlines} 行 > {MAX_LINES}（已批准例外 · 不拆页 · 记账 {ack}）")
             elif ack is not None:
                 warnings.append(f"{name}: 已降到 {nlines} 行 ≤ {MAX_LINES} —— 请从 wiki_lint.py 的 OVERSIZE_ACK 删掉这一行")
 

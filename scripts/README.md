@@ -236,7 +236,8 @@ python3 scripts/lint_selftest.py # 上面两台的自检：注入故障，必须
   `[[name]]` 形式的 wikilink 与相对 `.md` 链接必须解析得到。
   豁免：`raw/` `_archive/` `assets/` **整体跳过**（改它们的链接等于篡改历史记录）·
   `index` / `log` / `tasks` 免 frontmatter 与行数 · **`log.md` 另免死链**（只追加的流水，历史链接不该回溯失效）·
-  超长页有 `OVERSIZE_ACK` 记账表：**只减不增**（超记账值即 error，降到 ≤200 行提示删条目；欠账记在 `wiki/tasks.md`）。
+  超长页分两类：**没记账的 → error 要求拆页**；`OVERSIZE_ACK` 里的 = **已批准的例外（不拆页 · 对外可发送件 / 对比页）**，
+  其数值**只减不增**（超记账值即 error，降到 ≤200 行提示删条目；批准出处见该文件内的注释）。
 - **`refs_lint.py`** —— 扫反引号与 markdown 链接里**指向本仓**的路径。判据分两层：
   1. **哪些像仓内路径**：首个路径段要命中 `root_entries() ∪ KNOWN_PREFIXES`。
      `KNOWN_PREFIXES` 收**历史前缀** —— 否则「整个目录被删 / 改名」这类**最该抓**的漂移反而会放行

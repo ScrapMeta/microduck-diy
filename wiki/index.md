@@ -24,7 +24,7 @@
 - [[body-imu-hat-dxl-power-eval]] — 机身 6 V 经 DXL 回灌 HAT（**不采用** · #9）
 - [[elec-three-boards]] — HAT · 机身 IMU · 头（HAT BMI088）
 - [[board-hat]] · [[elec-rpi-robot-hat]] — 官方 HAT
-- [[hat-solder-kit]] — **HAT 焊接配料 / 波次 / DNP**
+- [[hat-solder-kit]] — **HAT 焊接配料 / DNP / 工艺 / 分步测试**
 - [[hat-dxl-bus-debug]] — HAT TTL 舵机测不通（**2026-09-16 已打通** · 示波器 + 台供）
 - [[dxl-bench-method]] — **台架方法真源**（参数 · 57 600 回退 · `report()` 基线 · M1–M6 · 复测结果）
 - [[dual-imu-board-selection]] — 双 IMU 选型结论
@@ -124,7 +124,7 @@ related: []
 | 执行器传感 | `servo` `dynamixel` `feetech` `tof` `camera` `audio` `nfc` `battery` |
 | 供电烧录 | `power` `flash` `emmc` `sd` `firmware` |
 | 软件仿真 | `armbian` `runtime` `rl` `sim2real` `bam` `mujoco` |
-| 机械 | `mechanical` `bom` `fastener` |
+| 机械 | `mechanical` `bom` `fastener` `assembly` `solder` |
 | 工具采购 | `jlceda` `procurement` |
 | 元 | `comparison` `query` `index` `workspace` `final` |
 
@@ -132,7 +132,7 @@ related: []
 
 - **建页**：实体/概念出现在 2+ 来源，或对单次研究/官方文档为中心主题
 - **并入已有页**：已有覆盖则更新，不另起同义页 · **不建页**：一笔带过、域外话题
-- **拆分**：超页长上限（数见 [`AGENTS.md`](../AGENTS.md)「记录约定」）· **归档**：完全被替代 → `_archive/`，并从本 index 移除
+- **拆分**：超页长上限（数见 [`AGENTS.md`](../AGENTS.md)「记录约定」）；**例外**（经 Human 批准不拆页的「单页件」，如对外可发送件 / 对比页）记在 `scripts/wiki_lint.py` 的 `OVERSIZE_ACK` 表内 · **归档**：完全被替代 → `_archive/`，并从本 index 移除
 
 **更新政策**
 
