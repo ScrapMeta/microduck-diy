@@ -254,6 +254,11 @@ rule 只写**本职能特有条款**（领地 / 禁止 / 边界）；公共流�
 `governance/upstreams.lock` 记录 `refs/` 下每个克隆的 目录 / remote / 分支 / HEAD / 脏状态 / 落后提交数。
 用 `governance/refresh-upstreams.ps1` 重新生成。这样既拿到「钉版本」的好处，又不必把上游仓纳入本仓。
 
+**但脚本默认不联网**：`Behind` / `Ahead` 只反映每个克隆**最后一次 fetch** 的快照 ——
+对一个 clone 之后没人动过的克隆，那就是 **clone 当天**。所以 **`Behind=0` 不构成「已最新」的证据**，
+它可能只意味着「没人 fetch 过」。判断上游有没有动，必须用 `-Fetch`（会联系各 remote）重新生成；
+`upstreams.lock` 的表头自述本次是否联网。
+
 ### 10.4 `git clean -x` 是禁手
 
 `refs/` `microduck_ros2/` `temp/` `vms/` `.venv-cad/` 都被 ignore，

@@ -820,3 +820,19 @@
 - **头壳出声孔：查不出可靠结论**（已如实标注，不猜）。`hole_analysis.json` 里 `bottom_head_shell` 16 孔 / `top_head_shell` 6 孔 / `face_part` 18 孔，**均无 35 mm 级孔** —— 最大是 `bottom_head_shell` 上两个 **Ø13.5 × 1.2 mm** 浅孔。可能是栅格由许多小孔组成被逐孔检出，或逆向网格简化掉了栅格。**须看实物**。Human 本轮选择自行实测（不继续挖）
 - **仍缺的尺寸**：ToF **breakout 模块**外形 —— 原厂用模块（否则接不出 Stemma 4P）但**BOM 未钉型号**，故无权威值；裸芯片为 **6.4 × 3.0 × 1.75 mm**（⚠️ 来自 ST 数据手册，**仓库内无此数据**，已标注来源）
 - Updated: [[vl53-tof]]（全面重写：型号/在役实况/光学/接口/地址语义/尺寸两级 + 采购坑）· [[hat-solder-kit]] §6.3（喇叭净空 35×25×7 + 尺度核对 + 出声孔存疑）· `log.md`
+
+## [2026-09-19] governance | 查 refs 上游更新：5 个落后；`upstreams.lock` 的 `Behind` 一直在骗人
+- **由来（Human）**：查看 refs 工程是否有更新
+- **方法先纠自己的错**：`refresh-upstreams.ps1` **从不 fetch**，其 `Behind` 只比 `origin/<branch>`（**上次 fetch 的快照**）与 HEAD —— 直接跑它等于**拿 18 天前的读数问今天**。故先对 13 个克隆逐个 `git fetch`
+- **结果：5 个落后，全部可快进（`ahead=0`），`Dirty` 全 0**（无 §11 违规）
+  - `refs/microduck` **111** 提交 / 111 文件（**0.12.0 → 0.14.1**）
+  - `refs/microduck_rl` 计数 **1177**（⚠️**虚高**，见下）· `refs/OpenMicroDuck` 17 · `refs/microduck-replica` 9 · `refs/elec_RPI_Robot_HAT` 1
+  - 无更新 8 个：`microduck_app` · `microduck_kinematics_rs` · `microduck_maploc_rs` · `microduck_pet_detect` · `microduck_sounds` · `Microduck-build-tutorial` · `microduck-simulator` · `OpenRB-150`
+- **⚠️ 1177 是计数假象，不等于 1177 个提交的工作量**：`rev-list` 把 **merge 带进来的旧历史**也算进 `HEAD..origin/develop`（committer date 回溯到 **2025-12-06**），而 `git diff` 只有 **12 文件 +2598/−32**（VelStand 环境重构 · `robotallcollisions_backlash.xml` · `distill` 任务 · odom anchor 脚本）。**教训：`Behind` 只用来决定「要不要看」；「变了多少」必须看 `git diff --stat`**
+- **逐项核对 wiki 引用：零处失效**（上游动了，但没动我们引用的那些）—— `duck-control`（`adopt_replacement` 无 Model Number 守卫）**未改** · `tof/src/sensor.rs`/`main.rs` **未改** · `configd/src/pad.rs` **未改** · `testbench_constants.py`（`TESTBENCH_ARM_MASS=0.12` 与 XML 0.1 的冲突）**未改** → **问询函 / ToF / 喇叭 / 手柄四页均不需返工**
+  - `padd/src/main.rs` 改了，但只是**双柄修复**（只允许第一只柄的事件生效 —— 防另一只手柄的 Start 开动别人的机器）→ **按键表不变**
+  - `robotd/src/main.rs` 改了，只新增 `sitting` 状态；`cheatsheet.md` 新增相机监视块 → 均为增量
+- **工具缺陷（本节核心，已修）**：`upstreams.lock` 的 `Behind` 列**只反映上次 fetch**，而脚本**自己不 fetch**。证据：`origin` 的 reflog **最后一条就是 clone 那一刻（2026-08-29）** → 故 09-16 生成的 lock 报 `microduck Behind=0`，实际早已落后；**唯一非零**的 `elec_RPI_Robot_HAT Behind=1` 只是**恰好被单独 fetch 过**。**这个 lock 会给人「一切都最新」的假安心，与它锁定版本的用途相悖** → 加 `-Fetch` 开关（**默认仍不联网**，脚本保持只读 + 瞬时）· 表头新增 **`Remote state`** 行自述本次是否联网 · Checks 增一条「**未经 `-Fetch` 的 `Behind=0` 不构成「已最新」的证据**」
+- **顺带发现的升级机会（待办，未做）**：`microduck-replica` 那 9 个提交与我们直接相关 —— ①**整机 15 颗舵机首次上电、能站起来坐下**（附 `首次上电-2026-09-18.mp4` · `站起来.gif`）②`software/飞特适配架构.md`（493 行）与 **`docs/飞特资料/`（飞特官方一手：SCS 协议 · SMS/STS 磁编码内存表手册）** ③`tools/servo-web/`（网页舵机调试台 + `feetech.py`）④`imu_to_dxl 首板实测：3.3 V 正常，J4/J5 PH 座外壳跟飞特插头不配（削壳能用，v2 换座）`（与本项目 imu_to_dxl 同类工作）⑤`tools/radxa/` 烧卡脚本。其中**飞特官方内存表**可把 [[xl330-vs-feetech-servos]] 的依据从社区转述**升为厂商一手**
+- **执行**：`-ff-only` 快进 5 个克隆（`microduck 6507d2e→344925c` · `microduck_rl 53b8971b→cb70b792` · `microduck-replica f533679→3599731` · `OpenMicroDuck 3992277→21c5a19` · `elec_RPI_Robot_HAT 23eab11→88d51fa`），全部 `Dirty=0`
+- Updated: [[local-workspace-layout]]（版本锁定行加 `-Fetch` 与「`Behind=0` 不等于已最新」）· `governance/agent-governance.md` **§10.3 重写**（补「脚本默认不联网」+ 上述判据）· `governance/upstreams.lock`（两次重生成）· `governance/refresh-upstreams.ps1`（`-Fetch` + 表头 + Checks）· `log.md`

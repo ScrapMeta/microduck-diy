@@ -57,7 +57,8 @@ CAD 网格真源：`refs/microduck_rl/.../robot/microduck/`；审阅 3MF 输出�
 - **本仓内**：从根写（`governance/…` · `wiki/…` · `cad/…`）——**不再**加 `microduck-diy/` 前缀
 - **只读参考**：写 `refs/<clone>/…`（例：`refs/microduck/scripts/setup-board.sh`）
 - **只引仓库名时**（如「官方 `microduck_rl` 是 MJCF 真源」）→ **不加** `refs/`：那是仓名，不是本地路径
-- 版本锁定：`governance/upstreams.lock`，用 `governance/refresh-upstreams.ps1` 重生成
+- 版本锁定：`governance/upstreams.lock`，用 `governance/refresh-upstreams.ps1 -Fetch` 重生成
+ （**不带 `-Fetch` 就不联网**，`Behind` 只是上次 fetch 的快照；`Behind=0` 不等于「已最新」）
 
 > **交付物归属**：根（本仓）与 `microduck_ros2/` 是自有仓；`refs/` 内只读，
 > 不在其中留未提交改动（治理 §11）。
