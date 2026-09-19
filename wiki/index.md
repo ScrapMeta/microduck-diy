@@ -39,7 +39,7 @@
 - `scripts/dxl_ping.py` — **台架 DXL 只读扫/Ping/基线脚本**（Protocol 2.0 · 零依赖 · 自带 `self-test`）
 - [[local-workspace-layout]] — **布局真源**
 - [[ros2-migration-plan]] — ROS2 并行移植规格（software 范畴）
-- [[tasks]] — **任务台账**（取代 GitHub Issue）· 规则 [`AGENTS.md`](../AGENTS.md) · 角色手册 `.cursor/skills/`
+- [[tasks]] — **任务台账**（取代 GitHub Issue）· 已完成 / 已关闭 → [[tasks-done]] · 规则 [`AGENTS.md`](../AGENTS.md) · 角色手册 `.cursor/skills/`
 
 ### 主线执行器 / 采购
 
@@ -146,7 +146,7 @@ related: []
 
 ```
 wiki/
-├── index.md · tasks.md · log.md
+├── index.md · tasks.md · tasks-done.md · log.md
 ├── raw/         # 不可变 ingest：articles · papers · transcripts · tests · assets
 ├── assets/      # 原始资料：pcb · procurement · bom（禁止 AI 生图）
 ├── entities/ · concepts/ · comparisons/ · queries/

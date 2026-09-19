@@ -35,7 +35,8 @@
 |---|---|---|
 | `wiki/concepts/` `entities/` `comparisons/` | 现行事实 SSOT | 改完 bump `updated` |
 | `wiki/log.md` | 流水（动作 ＋ 主题 ＋ 要点） | **只追加** |
-| `wiki/tasks.md` | 任务与待办 | **取代 GitHub Issue** |
+| `wiki/tasks.md` | 任务与待办 | **取代 GitHub Issue**；编号 `T-nn` **不复用** |
+| `wiki/tasks-done.md` | 已完成 / 已关闭（未完成） | **只追加**；编号随行；**关闭理由必须写清**，与「已完成」分表 |
 | `wiki/index.md` | 导航 ＋ 领域 ＋ 现行优先级 ＋ 标签表 | 增删页时顺手改 |
 | `wiki/raw/` | 素材归档（时点快照） | **正文永不改**；索引 `wiki/_meta/raw-inventory.md` |
 | `wiki/_archive/` | 暂停 / 过时的页 | 撤出导航，**不删** |
@@ -47,7 +48,7 @@
 
 | 角色 | 必写 |
 |---|---|
-| **pm** | 治理与台账 → `AGENTS.md` · `wiki/index.md` · `tasks.md` · `log.md` |
+| **pm** | 治理与台账 → `AGENTS.md` · `wiki/index.md` · `tasks.md` · `tasks-done.md` · `log.md` |
 | **hardware** | 板 · 料号 · 订单 · 台架电测 → `wiki/concepts/board-*.md` · `entities/*.md` · `log.md` |
 | **software** | 固件 · 总线 · 镜像 · ROS2 · ONNX → `wiki/concepts/*firmware*|*flash*|*bus*|*bench*.md` · `log.md` |
 | **structure** | 打印件 · 装配 · 机械件数 → `wiki/concepts/mechanical-*|print-*|fastener-*.md` · `log.md` |
@@ -71,7 +72,7 @@
 | `cad/**` · `wiki/concepts/mechanical-*` `print-*` `fastener-*` | **structure** |
 | `imu_to_dxl/hardware/**` · `wiki/concepts/board-*` `elec-*` · `wiki/entities/board*` | **hardware** |
 | `imu_to_dxl/firmware/**` · `imu_to_dxl/scripts/**` · `image/**` · `scripts/**` · `microduck_ros2/**` | **software** |
-| `AGENTS.md` · `wiki/index.md` · `wiki/tasks.md` · `wiki/log.md` | **pm** |
+| `AGENTS.md` · `wiki/index.md` · `wiki/tasks.md` · `wiki/tasks-done.md` · `wiki/log.md` | **pm** |
 
 > 旧版 `.mdc` 靠 `globs:` **自动**挂上角色规则；skill 没这个能力（`disable-model-invocation: true` = 只在你打 `/命令` 时加载）。
 > **这张表就是那道护栏的替代品** —— 落到谁的地盘就先唤起谁，别顺手改。
