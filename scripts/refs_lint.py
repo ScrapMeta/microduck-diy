@@ -4,21 +4,22 @@
 抓的是「指向已改名 / 已删除文件」这类漂移 —— 页面改了名、规则搬了家，
 但别处还写着老路径。
 
-**关键机制：用 `git check-ignore` 自己判断「这个路径是不是本来就不该存在」。**
-`refs/` `temp/` `microduck_ros2/` 这些被 ignore 的本地件，在干净克隆里**合法缺席**；
-不这么做 CI 会天天报假错。
+判据分两层：
 
-判据（宁缺勿滥）：只有**首段命中仓库根的真实条目**的反引号片段才当作仓内路径 ——
-`scripts/dxl_ping.py` 会查，`tof/src/sensor.rs`（上游仓内部相对路径）不查。
+1. **哪些像仓内路径**：反引号片段的首段要命中 `root_entries() ∪ KNOWN_PREFIXES`。
+   前者挡掉 `tof/src/sensor.rs`（上游仓内部的相对路径）这类噪声；
+   后者收**历史前缀**，让「整个目录被删 / 改名」仍然会被查 —— 否则最该抓的那类漂移反而放行。
+2. **缺席是否合法**：只看 `LOCAL_ONLY_PREFIXES` 一张显式表，**刻意不用 `git check-ignore`**
+   —— 它的判定随「索引里有没有东西」而变，实测在空仓里会把每条路径都判成 ignored，
+   于是所有引用被静默放行（校验形同虚设）。理由详见该常量。
 
-退出码：0 = 通过；1 = 有 error。
+退出码：0 = 通过；1 = 有 error。本脚本自身的正确性由 `scripts/lint_selftest.py` 注入故障验证。
 """
 
 from __future__ import annotations
 
 import fnmatch
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -51,17 +52,36 @@ EXCLUDE_GLOBS = [
     ".venv-cad/*",
     ".tmp/*",
 ]
-# 干净克隆里**合法缺席**的路径前缀（镜像 .gitignore；check-ignore 不可用时兜底）
+# 干净克隆里**合法缺席**的路径前缀（镜像 .gitignore —— 新增被 ignore 的目录时**两处一起改**）
+#
+# 这里**刻意不用 `git check-ignore`** 做判据：它的结果随「索引里有没有东西」而变
+# —— 实测在空仓（`git init` + 全 untracked）里它把每条路径都判成 ignored，
+# 于是所有引用被静默放行（校验形同虚设）。CRLF 的 `.gitignore` 在 Windows 上还会加剧这点。
+# 跨平台确定的判据只有这一张显式表。
 LOCAL_ONLY_PREFIXES = (
-    "refs",
+    "refs",  # 只读参考克隆
     "temp",
     "tmp",
-    "microduck_ros2",
+    "microduck_ros2",  # 自有兄弟仓（不是只读，但不在本仓历史里）
     "vms",
     ".tmp",
     ".venv-cad",
     "res",
     "image/out",
+    "wiki/raw/assets/press-kit",
+    "wiki/raw/assets/microduck-releases",
+)
+
+# 「像仓内路径」的首段白名单 = 仓库根的**现存条目** ∪ 这里的**历史前缀**。
+# 历史前缀必须在列 —— 否则「整个目录被删 / 改名」这类**最该抓**的漂移反而被放行。
+# 本仓实例：`governance/` →（2026-09-19）`wiki/_archive/governance/`。
+#
+# ⚠️ 只收**无歧义**的旧前缀。`docs` 刻意不收：`docs/…` 在本仓各处指的是**别的仓里**的 docs
+# （`imu_to_dxl/docs/` · `refs/microduck-replica/docs/` · 官方 `microduck/docs/robot/`）——
+# 收进来会立刻产生 9 处假阳性。
+KNOWN_PREFIXES = (
+    "governance",  # 2026-09-19 前：治理细则 + 通用模板（现 wiki/_archive/governance/）
+    "handoffs",  # 已废止的跨域交接包
 )
 # 「像仓内路径」的判据：只允许 词字符 / `.` / `-` / `/`（**排除 `…` `*` `<` 这类省略与占位符**）
 PATHLIKE_RE = re.compile(r"\w[\w.\-/]*")
@@ -85,39 +105,12 @@ def root_entries() -> set[str]:
     return {p.name for p in REPO.iterdir() if p.name != ".git"}
 
 
-_IGNORE_CACHE: dict[str, bool] = {}
-
-
-def _git_ignores(relpath: str) -> bool:
-    if relpath not in _IGNORE_CACHE:
-        try:
-            r = subprocess.run(
-                ["git", "check-ignore", "-q", relpath],
-                cwd=REPO,
-                capture_output=True,
-            )
-        except (OSError, subprocess.SubprocessError):
-            _IGNORE_CACHE[relpath] = False
-        else:
-            _IGNORE_CACHE[relpath] = r.returncode == 0
-    return _IGNORE_CACHE[relpath]
-
-
 def is_ignored(relpath: str) -> bool:
-    """这个路径是不是「本来就不该存在」？
+    """这个路径是不是「本来就不该存在」（干净克隆里合法缺席）？
 
-    **逐级向上**判断：只要任何一级祖先被 ignore，整条路径在干净克隆里就合法缺席。
-    必须逐级 —— `image/out/foo.img` 的忽略规则是 `image/out/`（带尾斜杠的目录规则），
-    而干净克隆里 `image/out` 本身不存在，`git check-ignore image/out/foo.img` 不一定命中。
+    判据只有 LOCAL_ONLY_PREFIXES 一张显式表 —— 理由见该常量上方的注释。
     """
-    if any(relpath == p or relpath.startswith(p + "/") for p in LOCAL_ONLY_PREFIXES):
-        return True
-    parts = relpath.split("/")
-    for i in range(len(parts), 0, -1):
-        cand = "/".join(parts[:i])
-        if _git_ignores(cand) or _git_ignores(cand + "/"):
-            return True
-    return False
+    return any(relpath == p or relpath.startswith(p + "/") for p in LOCAL_ONLY_PREFIXES)
 
 
 def targets() -> list[Path]:
@@ -142,8 +135,12 @@ def targets() -> list[Path]:
 
 
 def backtick_candidates(text: str) -> list[str]:
-    """从反引号片段里挑出「像仓内路径」的。"""
-    roots = root_entries()
+    """从反引号片段里挑出「像仓内路径」的。
+
+    首段必须命中 `root_entries() ∪ KNOWN_PREFIXES` —— 前者挡掉 `tof/src/sensor.rs`
+    这类上游仓内部的相对路径，后者保证「整个目录被删」仍会被查。
+    """
+    roots = root_entries() | set(KNOWN_PREFIXES)
     found: list[str] = []
     for raw in BACKTICK_RE.findall(text):
         cand = raw.strip()

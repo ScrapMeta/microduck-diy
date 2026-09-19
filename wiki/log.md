@@ -894,3 +894,17 @@
 - **已确认（Human 2026-09-19）**：「闲鱼到货 ＋ 手中 **15 个**」= **闲鱼 14**（5 国产组装 ＋ 9 原厂）**＋ 现有 1** → 装机 **15 台**；原厂单到货后转备件
 - **分支处置（Human 指示「只保留 main」）**：治理改造 commit → 本 wiki 收口 commit，**快进合并进 `main`**，`governance/minimal` 本地 ＋ 远端一并删除
 - Updated: [[tasks]]（重写）· [[diy-milestones]] · [[diy-bom]] · [[index]]（现行焦点 ＋ 现行优先级）· `log.md`
+
+## [2026-09-19] toolchain | 开发机工具链：Git 升级解掉 agent 提交死锁 ＋ 装 Python 3.12 抢回 `python`
+- **由来（Human）**：升级 Git；并问「3.12 要不要装到 `C:\Python`、旧的两个版本还有没有用」
+- **Git 2.31.1 → 2.55.0.3**（`winget upgrade --id Git.Git`）。升级前本轮提交**已被卡过一次**：Cursor 在 `git commit` 上注入 `--trailer "Co-authored-by: Cursor …"`，而 `--trailer` 是 **git 2.32+** 才有 → `unknown option 'trailer'`，**连 `--dry-run` 都炸**；当时靠**全路径调 `C:\Program Files\Git\cmd\git.exe`** 绕开改写才提交成功。现根治（`git commit --dry-run` 已正常解析）
+- **Python 3.12.10 已装**（`winget install --id Python.Python.3.12` → `%LOCALAPPDATA%\Programs\Python\Python312`）。安装器把它**插在用户 PATH 的 hermes venv 之前** → **`python` 不再归 hermes**（原解析到 hermes 的 3.11.15，**不是系统 Python**）。**新开终端生效**
+- **判据（为什么不「用 uv venv 就够」）**：uv 管项目级 venv、**不占任何全局名字** → `python` / `python3` / `py` 三个入口它都修不了；要修全局名字只能装**注册过的系统解释器**。3.12 与 CI 同版，而脚本下限 3.9 → **实测 3.9.7 与 3.12.10 均 0 error**，无回归
+- **清理预检（未完 · 待 Human 点头）**：
+  - `C:\Python\Python38`（**1648.5 MB**）：**没有 `python.exe`**，只剩孤立 `Lib\site-packages`（torch · numpy · pandas · matplotlib · huggingface-cli · modelscope · pymupdf · retro）＋ `Scripts\*.exe` → 实测 `huggingface-cli.exe --version` **无输出、静默失败**。机器 PATH 的两条 `Python38` 死路径（**机器 PATH 排在用户 PATH 之前**）令 `tensorboard` / `huggingface-cli` / `modelscope` **抢先解析到坏 exe**
+  - `C:\Python\Python39`（**91.9 MB**）：真 3.9.7，但只装了 pip 21.2.3 + setuptools（virgin）；而注册表指向**不存在的 `C:\Python39`** → `py -3.9` 实测报「cannot find the file specified」
+  - `C:\Python\miniconda3`（**870.8 MB**）：conda base 3.13.12 · 119 包 · **无 envs 子环境**
+  - **安全性已核**：`D:\projects` 下**无任何 venv 指向 `C:\Python38/39`**；Python39 的 `.pth` 也无跨目录引用 → 删除**不波及项目环境**
+- **`python3` 仍是商店占位符**：3.12 安装器只加了 `python.exe`；要真 `python3` 须在「设置 → 应用 → 高级应用设置 → 应用执行别名」关掉（**GUI，agent 改不了**）
+- **未做**：清理三档**均未执行**（破坏性 ＋ 系统环境变量，按红线等 Human 逐项确认）；已列 [[tasks]]
+- Updated: [[local-workspace-layout]]（新 §「宿主工具链（Windows）」，含**脚本版本下限 = 3.9**）· `scripts/README.md`（新 §「在开发机（Windows）上怎么调」）· [[tasks]] · `log.md`

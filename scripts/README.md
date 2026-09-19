@@ -246,6 +246,14 @@ python3 scripts/refs_lint.py     # 反引号 / 链接里的仓内路径是否存
 CI（`.github/workflows/ci.yml`）在 push / PR 到 `main` 时跑这两条。
 **改脚本的参数（`MAX_LINES` · `SKIP_DIRS` · `TARGET_GLOBS` …）等于改规格**，先读 `AGENTS.md` 的改法表。
 
+### 在开发机（Windows）上怎么调
+
+宿主工具链实况（Git 版本下限 · `python` / `python3` / `py` 各自解析到谁 · PATH 顺序）记在
+[`wiki/concepts/local-workspace-layout.md`](../wiki/concepts/local-workspace-layout.md) §「宿主工具链」。
+
+两个要点：**这两台只用 stdlib，下限 Python 3.9**，别给它们加依赖；
+开发机上 **`python3` 仍是商店占位符**（报 not found），用 `python`（3.12）或 `py -3.12` 调。
+
 ## 约定
 
 - 新增**台架**脚本请自带 `--help` 与无硬件可跑的 `self-test`（本仓无台架时的唯一回归手段）；
