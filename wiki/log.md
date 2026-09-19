@@ -880,6 +880,7 @@
 - **同步引用 8 处**：根 `README.md`（新增「去哪找什么」＋「怎么干活」角色表）· [[index]]（承接 SCHEMA 的规范节）· [[local-workspace-layout]]（布局表重写，新增 `AGENTS.md` / `.cursor/skills/` / `.github/`）· [[diy-milestones]] · [[ros2-migration-plan]] · [[raw-inventory]] · `wiki/assets/README.md` · `scripts/README.md`（新增「目录一览」＋「两台 linter」两节）
 - **`.gitignore`**：补回 `tmp/`（本地临时 —— 本轮那份蓝图就住在那里）
 - **校验**：`wiki_lint` 61 页 **0 error / 3 warning**（3 条即上述记账）· `refs_lint` 76 文件 313 引用 **0 error**
+- **踩坑（自记）**：本页追加一律走 .NET UTF-8 API **＋ 显式 CRLF** —— 本仓页是 CRLF，而 PowerShell here-string 默认 LF，直接拼接会写出**混合换行**（本轮 14 处 bare LF，已修）；Get-Content / Add-Content 通道还会双重编码写坏中文（见上一轮条目）
 - Updated: `AGENTS.md`（重写）· `.cursor/skills/{pm,hardware,software,structure}/SKILL.md`（新）· [[tasks]]（新）· [[index]] · [[local-workspace-layout]] · [[diy-milestones]] · [[ros2-migration-plan]] · [[raw-inventory]] · `README.md` · `scripts/README.md` · `scripts/wiki_lint.py`（新）· `scripts/refs_lint.py`（新）· `scripts/upstreams.lock` · `scripts/refresh-upstreams.ps1`（移入）· `.github/workflows/ci.yml`（新）· `.gitignore` · `_archive/governance/`（旧治理归档 ＋ README）· **删** `wiki/SCHEMA.md` · `log.md`
 
 ## [2026-09-19] pm | 现状收拢：焦点换挡到「整机装配 ＋ 供电链路」；台账 / 里程碑 / BOM 一次对齐
@@ -921,6 +922,7 @@
 - **新增 `scripts/lint_selftest.py`（已进 CI）**：克隆仓库到 `temp/` → 种下 7 条已知故障 → 断言两台都报错 → 撤掉后断言干净克隆全绿。**一台「永远 exit 0」的 linter 和没有 linter 一样，但看起来更有保障** —— 这一步防的就是它。上线第一次跑就抓到我刚写的一处假阳性（`scripts/README.md` 里被反引号括起的旧目录名被当成路径）
 - **收敛规则副本（同一句话只留一个正文）**：`git clean -x` · 交付物归属 · 页长上限 —— `README.md` · `wiki/concepts/local-workspace-layout.md` · `wiki/index.md` 改为**指路**，规则文本只留 `AGENTS.md`
 - **未改（不是重复）**：`scripts/README.md` 里的「≤ 200 行」是**描述 linter 行为**、`wiki/tasks.md` 里的是**欠账台账**；grep 分不清「规则正文」与「索引提及」，这一轮按**句子性质**人工判
+- **踩坑（自记）**：本页追加一律走 .NET UTF-8 API **＋ 显式 CRLF** —— 本仓页是 CRLF，而 PowerShell here-string 默认 LF，直接拼接会写出**混合换行**（本轮 14 处 bare LF，已修）；Get-Content / Add-Content 通道还会双重编码写坏中文（见上一轮条目）
 - Updated: `AGENTS.md`（新「领地」表）· `scripts/refs_lint.py` · 新 `scripts/lint_selftest.py` · `.github/workflows/ci.yml` · `scripts/README.md` · `README.md` · [[index]] · [[local-workspace-layout]] · `log.md`
 
 ## [2026-09-19] pm | 台账重排：加「阻塞源」，WIP 降到 3，合并 2 条伪任务
@@ -958,3 +960,17 @@
 - **未碰**：`miniconda3`（870.8 MB，留删待定）· 商店 `python3.exe` 别名（GUI）
 - **踩坑（自记）**：追加本页时用 `Get-Content -Raw` + `Add-Content -Encoding UTF8` 把 UTF-8 临时文件按 ANSI 读入 → **双重编码写坏**，已 `git checkout` 撤回改用 `[IO.File]::ReadAllText/WriteAllText` ＋ UTF8 无 BOM 重做。**本仓中文页追加一律走 .NET UTF-8 API，不用 `Get-Content`/`Add-Content` 通道**
 - Updated: [[tasks]] T-09（改判 ＋ 余项）· [[local-workspace-layout]] §宿主工具链（残留拆成 ①② ＋ 3.9 的坑 ＋ miniconda）· `log.md`
+
+
+## [2026-09-19] governance | 台账单页化：撤 `tasks-done.md` · 全员可开 / 关 · push ＋ Issue 归档归 pm
+
+- **由来（Human 指令）**：「tasks.md 规则还是尽量简化，不要 task-done 文件了，都和在一起」＋「任务台账所有角色都可以新建和更新、关闭，pm 推送时把已关闭的加入 issue 并清理」
+- **撤 `tasks-done.md`** —— 内容整段并入 `tasks.md` 末节「已完成 / 已关闭」。理由：`tasks.md` 在 `wiki_lint.py` 的 `META_NAMES` 里（不受 frontmatter / 200 行约束），而被撤的页反而**在被 200 行卡**；且原先「完成 → 搬整行」是一次额外同步动作 ＋ 5 处引用要维护
+- **台账不再属 pm 独占**：**任何角色**可新建 / 更新 / 关闭本域任务（`tasks.md` 领地由 pm 改为「全员」）；留给 pm 的只有两件事 —— `push main` 与 Issue 归档
+- **pm 收尾口径改写**：`push main` 时把已关闭行**归入 Issue** 并从 `tasks.md` 删掉（git 历史留痕）。原「谁干的活谁 push」作废
+- **上限改三条（`AGENTS.md`「台账上限」）**：进行中 ≤ 3 · 活跃 ≤ 12 · **未归档关闭行 ≤ 5**（超了催 pm 收尾）；活跃满 = **拒绝开新任务**并点名超限项
+- **红线 4 与「Issue 冻结」的冲突已解**：原「不开 Issue / 不关 Issue」改为「**Issue 只有 pm 能动**」—— pm 建归档 Issue、开完即关；职能角色不开 / 不关 / 不碰
+- **已知欠账（未做）**：两条阈值尚未做成 `wiki_lint.py` warning（`scripts/**` 属 software 领地，本轮未碰）—— 在此之前超限不靠机器提示，靠角色自查；存量 Issue **#8 / #11 仍开着**（冻结期残留，本轮未动）
+- **本轮落笔**：中立会话执行（`AGENTS.md` 改动规矩）；台账 / `index` / `log` / pm 手册由 Human 指定一并改
+- **踩坑（自记）**：本页追加一律走 .NET UTF-8 API **＋ 显式 CRLF** —— 本仓页是 CRLF，而 PowerShell here-string 默认 LF，直接拼接会写出**混合换行**（本轮 14 处 bare LF，已修）；Get-Content / Add-Content 通道还会双重编码写坏中文（见上一轮条目）
+- Updated: `AGENTS.md`（记录约定 · 台账上限 · 领地 · 谁写什么 · GitHub）· [[tasks]]（并入已完成 / 已关闭 · 改头部脚注）· [[index]]（导航 ＋ 目录树）· `.cursor/skills/microduck-pm/SKILL.md`（台账职责 ＋ 收尾）· **删** `wiki/tasks-done.md`

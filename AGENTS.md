@@ -15,7 +15,7 @@
 1. **凭据不进 Git · 不进报告 · 不回显。**
 2. **`refs/` 只读** —— 正文永不修改，不留未提交改动。要修订就另建页 cite 它。
 3. **破坏性操作先列范围 ＋ 预检，等我确认** —— 覆盖 / 删文件 · 回滚 · 烧录量产固件 · 制板下单 · 强推 · `git clean -x`。
-4. **干完即停** —— 交完交付物就停：不替我拍板 · **不建 / 不合并 PR** · 不关 Issue · 不扩范围 · 不顺手改别的。
+4. **干完即停** —— 交完交付物就停：不替我拍板 · **不建 / 不合并 PR** · 不扩范围 · 不顺手改别的。**Issue 只有 pm 能动**（见「GitHub」）—— 职能角色不开、不关、不碰。
 5. **遇阻就停** —— 信息不足、或该我决定的事，把问题交回来；不猜着往下做、不降标准。
 6. **不代签 Gate** —— 上电 · 剪线 / 改线 · 制板下单 · 验收，只有我本人能签。
 
@@ -35,8 +35,7 @@
 |---|---|---|
 | `wiki/concepts/` `entities/` `comparisons/` | 现行事实 SSOT | 改完 bump `updated` |
 | `wiki/log.md` | 流水（动作 ＋ 主题 ＋ 要点） | **只追加** |
-| `wiki/tasks.md` | 任务与待办 | **取代 GitHub Issue**；编号 `T-nn` **不复用** |
-| `wiki/tasks-done.md` | 已完成 / 已关闭（未完成） | **只追加**；编号随行；**关闭理由必须写清**，与「已完成」分表 |
+| `wiki/tasks.md` | 任务台账 —— **开 ＋ 关同页**（取代 GitHub Issue） | **任何角色**可新建 / 更新 / 关闭；编号 `T-nn` **不复用**；**关闭行留在本页**，关闭理由必须写清；只追加、不改旧行；上限见下节 |
 | `wiki/index.md` | 导航 ＋ 领域 ＋ 现行优先级 ＋ 标签表 | 增删页时顺手改 |
 | `wiki/raw/` | 素材归档（时点快照） | **正文永不改**；索引 `wiki/_meta/raw-inventory.md` |
 | `wiki/_archive/` | 暂停 / 过时的页 | 撤出导航，**不删** |
@@ -44,11 +43,20 @@
 每页 frontmatter：`title` · `created` · `updated` · `type` · `tags`。正文页 ≤ **200 行**，超了拆页。
 校验器 `scripts/wiki_lint.py` 机械执行以上三条，**它的判定即规格**；「已知超长 · 只减不增」的记账表也在那个脚本里（欠拆页记在 `tasks.md`）。
 
+**台账上限**（`wiki/tasks.md`）—— **超限即停，不是提醒**：
+
+- **进行中 ≤ 3** · **活跃 ≤ 12**（进行中 ＋ 待办 ＋ 等外部）。
+- 活跃满了**不许开新任务**：先完成 / 关闭一条再开；agent 直接拒绝，并在回复里点名超限项。
+- **未归档关闭行 ≤ 5** —— 超了**催 pm 收尾**：`push main` → 把关闭行归入 Issue → 从本页删掉该行。
+- **关闭 ≠ 完成**：完成要过验收；关闭要写清「不值得再做 / 被谁吸收」。
+
+> 台账不属任何单一角色 —— **谁干的活谁能开 / 更新 / 关自己的任务**；**push 与 Issue 归档只有 pm**。
+
 **谁写什么（角色 → 必写记录）：**
 
 | 角色 | 必写 |
 |---|---|
-| **pm** | 治理与台账 → `AGENTS.md` · `wiki/index.md` · `tasks.md` · `tasks-done.md` · `log.md` |
+| **pm** | 治理与台账 → `AGENTS.md` · `wiki/index.md` · `tasks.md` · `log.md`；**唯一 push ＋ Issue 归档者** |
 | **hardware** | 板 · 料号 · 订单 · 台架电测 → `wiki/concepts/board-*.md` · `entities/*.md` · `log.md` |
 | **software** | 固件 · 总线 · 镜像 · ROS2 · ONNX → `wiki/concepts/*firmware*|*flash*|*bus*|*bench*.md` · `log.md` |
 | **structure** | 打印件 · 装配 · 机械件数 → `wiki/concepts/mechanical-*|print-*|fastener-*.md` · `log.md` |
@@ -72,7 +80,8 @@
 | `cad/**` · `wiki/concepts/mechanical-*` `print-*` `fastener-*` | **structure** |
 | `imu_to_dxl/hardware/**` · `wiki/concepts/board-*` `elec-*` · `wiki/entities/board*` | **hardware** |
 | `imu_to_dxl/firmware/**` · `imu_to_dxl/scripts/**` · `image/**` · `scripts/**` · `microduck_ros2/**` | **software** |
-| `AGENTS.md` · `wiki/index.md` · `wiki/tasks.md` · `wiki/tasks-done.md` · `wiki/log.md` | **pm** |
+| `AGENTS.md` · `wiki/index.md` · `wiki/log.md` | **pm** |
+| `wiki/tasks.md` | **全员** —— 任何角色可开 / 更新 / 关 |
 
 > 旧版 `.mdc` 靠 `globs:` **自动**挂上角色规则；skill 没这个能力（`disable-model-invocation: true` = 只在你打 `/命令` 时加载）。
 > **这张表就是那道护栏的替代品** —— 落到谁的地盘就先唤起谁，别顺手改。
@@ -95,10 +104,11 @@
 
 ## GitHub
 
-**只当 git 远端与历史归档**：不建 PR · 不开 Issue · 不建标签 · 不走近门禁。
+**只当 git 远端与历史归档**：不建 PR · 不建标签 · 不走近门禁。
 历史 Issue（#1–#11）与 Milestone `v0.1` **冻结保留只读**；未完成项已迁入 `wiki/tasks.md`。
 
-**推送：谁干的活谁 push `main`。**
+- **推送：只有 pm push `main`** —— 其他角色只本地 commit；**推送时顺带收尾**：把 `tasks.md` 里已关闭的行归入 Issue 归档，并从本页删掉。
+- **Issue：只有 pm 可为归档建 Issue** —— 开完即关，正文含结论 ＋ 出处；**不当路由、不打流程标签、不挂 Milestone**。
 
 ## 不收录
 
