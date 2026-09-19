@@ -64,6 +64,19 @@
 角色 = **范围收窄 ＋ 操作手册**：唤起 `/microduck-hardware` 就是「只干这个，别顺手干别的」。
 **手册随干活长大** —— 技能可自己改；改完报备等我确认（见上一节）。
 
+**领地 —— 按你正在改的路径认角色：**
+
+| 路径 | 角色 |
+|---|---|
+| `cad/**` · `wiki/concepts/mechanical-*` `print-*` `fastener-*` | **structure** |
+| `imu_to_dxl/hardware/**` · `wiki/concepts/board-*` `elec-*` · `wiki/entities/board*` | **hardware** |
+| `imu_to_dxl/firmware/**` · `imu_to_dxl/scripts/**` · `image/**` · `scripts/**` · `microduck_ros2/**` | **software** |
+| `AGENTS.md` · `wiki/index.md` · `wiki/tasks.md` · `wiki/log.md` | **pm** |
+
+> 旧版 `.mdc` 靠 `globs:` **自动**挂上角色规则；skill 没这个能力（`disable-model-invocation: true` = 只在你打 `/命令` 时加载）。
+> **这张表就是那道护栏的替代品** —— 落到谁的地盘就先唤起谁，别顺手改。
+> `refs/` 对**所有人**只读（见红线 2）。
+
 ## 仓库形态
 
 **工作区根就是本仓工作树**；只有两类目录特殊：

@@ -1,6 +1,6 @@
 name: ci
 
-# 规则是 AGENTS.md，机械校验是这两台脚本 —— 它们抓的是「页面改名了但别处还写着老路径」这类漂移。
+# 规则是 AGENTS.md，机械校验是那两台脚本 + 自检 —— 它们抓的是「页面改名了但别处还写着老路径」这类漂移。
 # 改脚本参数等于改规格，见 AGENTS.md「改规则 / 技能 / wiki」。
 
 on:
@@ -24,6 +24,11 @@ jobs:
 
       - name: 仓内引用（反引号 / 链接路径）
         run: python scripts/refs_lint.py
+
+      # 校验器自己也要被校验：种下已知故障，断言真的报错。
+      # 缺了这一步，一台「永远 exit 0」的 linter 看起来和正常的一模一样。
+      - name: linter 自检（注入故障 → 必须报错）
+        run: python scripts/lint_selftest.py
 
       - name: 脚本语法自检
         run: python -m compileall -q scripts/*.py

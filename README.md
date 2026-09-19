@@ -57,11 +57,11 @@
 ## 本地工作区约定
 
 - **只读参考一律放 `refs/`**：新增克隆放这里即自动被 ignore
-- **禁用 `git clean -x`**：它会删除被 ignore 的目录 —— 包括 `refs/` 下全部参考克隆。只用 `git clean -fd`
-- **交付物归自有仓**：`refs/` 内只读；产出落本仓或 `microduck_ros2/`，上游不留未提交改动
+- **`refs/` 只读**（含禁止在其中留未提交改动）· **禁用 `git clean -x`** · **交付物归自有仓**
+  —— 这三条是红线，正文只在 [`AGENTS.md`](AGENTS.md)（「红线」「仓库形态」），此处不复制
 - 路径一律**从根写**：`wiki/…` · `cad/…` · `refs/microduck/scripts/setup-board.sh`
 - 全树与各目录角色：`wiki/concepts/local-workspace-layout.md`（**布局真源**）
-- **GitHub 只当 git 远端与历史归档**：不建 PR · 不开 Issue · 不建标签
+- **GitHub 只当 git 远端与历史归档**：不建 PR · 不开 Issue · 不建标签（规则见 [`AGENTS.md`](AGENTS.md)）
 
 ## 声明
 

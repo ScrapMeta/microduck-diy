@@ -908,3 +908,17 @@
 - **`python3` 仍是商店占位符**：3.12 安装器只加了 `python.exe`；要真 `python3` 须在「设置 → 应用 → 高级应用设置 → 应用执行别名」关掉（**GUI，agent 改不了**）
 - **未做**：清理三档**均未执行**（破坏性 ＋ 系统环境变量，按红线等 Human 逐项确认）；已列 [[tasks]]
 - Updated: [[local-workspace-layout]]（新 §「宿主工具链（Windows）」，含**脚本版本下限 = 3.9**）· `scripts/README.md`（新 §「在开发机（Windows）上怎么调」）· [[tasks]] · `log.md`
+
+## [2026-09-19] governance | 治理改造复评：注入故障测出 linter 两个真 bug，并收敛 3 处规则副本
+- **由来（Human）**：问「新治理是否更简洁明了、可用性更强」—— 要求**可证伪的实测**，不是主观对比
+- **简洁（实测）**：规则＋规范＋角色手册 **843 行 / 12 文件 → 339 行**；同一份规则的副本 **3 → 1**（`AGENTS.md`）；角色手册 6 个 `.mdc` → 4 个 skill；摸清规矩 **3 跳 → 2 跳**。代价：常驻 `AGENTS.md` **25 → 103 行**
+- **可用性：一处真实退化，已修**。旧 `.mdc` 靠 `globs:` **自动**挂角色规则；skill 没这能力（`disable-model-invocation: true` = 只在你打 `/命令` 时加载）→ 「随口说改一下固件」不再有任何领地护栏。已在 `AGENTS.md` 补「**领地**」表（路径 → 角色）作为替代；顺带订正旧 globs 一个错：`wiki/concepts/*bom*` 把机械 BOM 也算进了 hardware，现按 `mechanical-*|print-*|fastener-*` 归 structure
+- **校验层原本有一半是空的（本轮最重要发现）** —— 给两台 linter **注入已知故障**才暴露：
+  - ① `refs_lint` 用 `git check-ignore` 判「路径是否合法缺席」，而它的判定**随索引里有没有东西而变**：实测空仓里把**每条**路径都判成 ignored → 所有引用被**静默放行**
+  - ② 候选筛选要求首段是「现存根条目」，于是「**整个目录被删 / 改名**」这类**最该抓**的漂移**完全放行**（正是本次改造造成的那类）
+  - **修**：判据改为只用显式表 `LOCAL_ONLY_PREFIXES`（不再问 git）；候选取 `root_entries() ∪ KNOWN_PREFIXES` 收历史前缀。`docs` 刻意不收 —— 本仓多处 `docs/…` 指**别仓**的 docs，收进来立刻 9 处假阳性
+  - **验**：修复前 refs_lint **2 例全漏**；修复后**注入 7 例抓到 7 例**，干净克隆 **0 假阳性**
+- **新增 `scripts/lint_selftest.py`（已进 CI）**：克隆仓库到 `temp/` → 种下 7 条已知故障 → 断言两台都报错 → 撤掉后断言干净克隆全绿。**一台「永远 exit 0」的 linter 和没有 linter 一样，但看起来更有保障** —— 这一步防的就是它。上线第一次跑就抓到我刚写的一处假阳性（`scripts/README.md` 里被反引号括起的旧目录名被当成路径）
+- **收敛规则副本（同一句话只留一个正文）**：`git clean -x` · 交付物归属 · 页长上限 —— `README.md` · `wiki/concepts/local-workspace-layout.md` · `wiki/index.md` 改为**指路**，规则文本只留 `AGENTS.md`
+- **未改（不是重复）**：`scripts/README.md` 里的「≤ 200 行」是**描述 linter 行为**、`wiki/tasks.md` 里的是**欠账台账**；grep 分不清「规则正文」与「索引提及」，这一轮按**句子性质**人工判
+- Updated: `AGENTS.md`（新「领地」表）· `scripts/refs_lint.py` · 新 `scripts/lint_selftest.py` · `.github/workflows/ci.yml` · `scripts/README.md` · `README.md` · [[index]] · [[local-workspace-layout]] · `log.md`

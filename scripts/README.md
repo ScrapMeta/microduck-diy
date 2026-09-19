@@ -229,6 +229,7 @@ PDF 与源 `.md` **同级**（如 `wiki/queries/rd05t-vendor-inquiry-2026-09-18.
 ```bash
 python3 scripts/wiki_lint.py     # frontmatter · 行数 · 死链
 python3 scripts/refs_lint.py     # 反引号 / 链接里的仓内路径是否存在
+python3 scripts/lint_selftest.py # 上面两台的自检：注入故障，必须报错
 ```
 
 - **`wiki_lint.py`** —— 正文页必须有 frontmatter（`title` `created` `updated` `type` `tags`）· **≤ 200 行** ·
@@ -236,15 +237,22 @@ python3 scripts/refs_lint.py     # 反引号 / 链接里的仓内路径是否存
   豁免：`raw/` `_archive/` `assets/` **整体跳过**（改它们的链接等于篡改历史记录）·
   `index` / `log` / `tasks` 免 frontmatter 与行数 · **`log.md` 另免死链**（只追加的流水，历史链接不该回溯失效）·
   超长页有 `OVERSIZE_ACK` 记账表：**只减不增**（超记账值即 error，降到 ≤200 行提示删条目；欠账记在 `wiki/tasks.md`）。
-- **`refs_lint.py`** —— 扫反引号与 markdown 链接里**指向本仓**的路径。
-  判据**宁缺勿滥**：只有**首段命中仓库根的真实条目**的片段才当路径看（`scripts/dxl_ping.py` 会查，
-  `tof/src/sensor.rs` 这种上游仓内部相对路径不查）。
-  **关键机制**：用 `git check-ignore` 自己判断「这个路径是不是本来就不该存在」——
-  `refs/` `temp/` `microduck_ros2/` 这些被 ignore 的本地件在**干净克隆里合法缺席**；
-  不这么做 CI 会天天报假错。
+- **`refs_lint.py`** —— 扫反引号与 markdown 链接里**指向本仓**的路径。判据分两层：
+  1. **哪些像仓内路径**：首个路径段要命中 `root_entries() ∪ KNOWN_PREFIXES`。
+     `KNOWN_PREFIXES` 收**历史前缀** —— 否则「整个目录被删 / 改名」这类**最该抓**的漂移反而会放行
+     （本仓实例：旧治理层搬走后，指向它的老引用本该报错）。只收**无歧义**的旧前缀：
+     `docs` 刻意不收，因为本仓多处 `docs/…` 指的是*别的仓*里的 docs，收进来立刻一片假阳性。
+  2. **缺席是否合法**：只看 `LOCAL_ONLY_PREFIXES` 一张显式表，**刻意不用 `git check-ignore`**
+     —— 它的判定随「索引里有没有东西」而变，实测在空仓里会把每条路径都判成 ignored，
+     于是所有引用被静默放行。新增被 ignore 的目录时，这张表和 `.gitignore` **两处一起改**。
+- **`lint_selftest.py`** —— **校验器自己也要能被证伪**。克隆仓库到 `temp/`，种下已知故障，
+  断言两台 linter 都真的报错；再撤掉故障，断言干净克隆全绿。一台「永远 exit 0」的 linter
+  和没有 linter 一样，但看起来更有保障 —— 这一步就是防这个。
+  2026-09-19 首次跑它就抓出 `refs_lint` 的两个真 bug（都只在注入故障时才会暴露）。
 
-CI（`.github/workflows/ci.yml`）在 push / PR 到 `main` 时跑这两条。
-**改脚本的参数（`MAX_LINES` · `SKIP_DIRS` · `TARGET_GLOBS` …）等于改规格**，先读 `AGENTS.md` 的改法表。
+CI（`.github/workflows/ci.yml`）在 push / PR 到 `main` 时跑这三条。
+**改脚本的参数（`MAX_LINES` · `SKIP_DIRS` · `TARGET_GLOBS` · `LOCAL_ONLY_PREFIXES` · `KNOWN_PREFIXES` …）
+等于改规格**，先读 `AGENTS.md` 的改法表。
 
 ### 在开发机（Windows）上怎么调
 
