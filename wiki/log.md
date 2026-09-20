@@ -1178,3 +1178,15 @@
 - **技能回填** —— `microduck-pm`「写盘纪律」按结论改口：**BOM 交 linter**（不必自己记）· **换行降级为「本地观感（非规则）」** · 只保留真正会**损坏内容**的那条（`Get-Content` / `Add-Content` 的 ANSI 双重编码）；「沉淀区」加「新坑先问**能不能机械判、且与机器无关**」
 - **校验** —— `wiki_lint` 61 页 0 error / 2 warning · `refs_lint` 76 文件 304 引用 0 error · `lint_selftest` **8 条故障抓到 8 条** ＋ 干净克隆全绿
 - Updated: `scripts/wiki_lint.py` · `scripts/lint_selftest.py` · `scripts/README.md` · `wiki/entities/microduck-diy.md` · `.cursor/skills/microduck-pm/SKILL.md` · `log.md`
+
+## [2026-09-20] skill | pm 手册补「读盘纪律」：`log.md` 只读尾部（本次实测的浪费）
+
+- **由来（Human）**：确认「写入技能后是否就不用每次重推」→ 复核发现**两个前提与一处漏洞**
+  1. **前提**：四个技能全是 `disable-model-invocation: true` → **不打 `/microduck-*` 就不进上下文**；恒在的只有 `AGENTS.md`（45 行 / 2.5 KB，无 Runbook / 模板 / 写盘纪律）。即 2026-09-19 记过的退化（旧 `.mdc` 靠 `globs:` 自动挂载，skill 没这能力）仍成立
+  2. **分界**：**程序性**活（push · 归档 · 写盘 · 追加）已不用重推；**调查性**活（3MF 定性 · 换行是否算缺陷）仍从零 —— 但那类**正解是沉淀成工具**（本次已进 `wiki_lint`），不该写进技能
+  3. **漏洞（本次真付了钱）**：`wiki/log.md` **1180 行 / 150 KB**，本轮**整页读过**（工具返回 1150 行）；对比 `tasks.md` 96 行 / 7.3 KB。全仓搜过 —— **没有任何地方规定 `log.md` 该怎么读**，而 `wiki_lint` 把它列入 `META_NAMES` 免行数 → **它只会一直长**
+- **本轮落笔**：`microduck-pm` 手册新增 **「读盘纪律」**（与既有「写盘纪律」配对）—— `log.md` **只读尾部**（Read 的 `offset` **取负数**，已验证可用）· 翻旧账先 `Grep -n` 定位再按 `offset` 读附近 · `tasks.md` 不到百行**整读** · `index.md` 按节读
+- **未改（守边界）** —— ① 未动 `AGENTS.md`（「不打命令就不加载」属规则/全局，须 Human 拉起中立会话）② 未给 `log.md` 分卷：它同时是**只追加真源**，拆页要动跨页引用，**代价大于收益**（实测尾部读已够）
+- **衰减面（如实记）** —— `refs_lint` 扫 `.cursor/skills/**/*.md`，技能**路径引用**守得住（305 引用 / 0 error）；但**语义**（列名 · 状态名 · 流程顺序）守不住 —— 本轮就抓到 3 处（职责 1 / 2 仍写 `验收` / `结果说明`，台账 09-20 已统一为 `说明`）。**机械能守的交给 linter，守不住的留在手册并接受它会过期**
+- **校验** —— `wiki_lint` 61 页 0 error / 2 warning · `refs_lint` 76 文件 305 引用 0 error · `lint_selftest` 8 条故障抓到 8 条
+- Updated: `.cursor/skills/microduck-pm/SKILL.md` · `log.md`
