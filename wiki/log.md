@@ -1140,3 +1140,12 @@
 - **连带指针** —— [[index]] 头部去「＋ 物料到位表」；[[diy-milestones]] 去「物料到位表」（改指 [[diy-bom]] 与各物料页）；`tasks.md` 头部「见 AGENTS.md『GitHub』」→ 指向 `.cursor/skills/microduck-pm/SKILL.md`
 - **校验** —— `wiki_lint` 61 页 **0 error / 2 warning**（两条即已批准例外页）· `refs_lint` 76 文件 299 引用 **0 error**
 - Updated: [[tasks]]（**114 → 96 行**）· [[index]] · [[diy-milestones]] · `log.md`
+
+## [2026-09-20] archive | 完成行清账：T-08 → Issue #13（完成表清空）
+
+- **push**：`59aaff3..9e5ced1` ＋ 本收尾提交（`main` · 共 6 commit）—— 台账撤数量上限 · 台账不记归档动作 · T-08 结项 · T-03 退回待办 ＋ T-01 拆 T-13 · 规则极致精简 ＋ 台账表列统一
+- **归档**：[#13](https://github.com/ScrapMeta/microduck-diy/issues/13) —— 完成表 **1 行**（T-08）一批合成一个 Issue，正文含结论 ＋ 出处，**创建后即关**（`completed`）；无标签 · 无 Milestone · 不作路由
+- **清理**：该行**已从 `wiki/tasks.md` 删除**（git 历史留痕）→ 完成表回到 **0 行**
+- **未提交（不属本次范围）**：`cad/microduck_rl_assembly_a1mini.3mf` 工作树有改动（plate_3 清空 · 新增 plate_12 · `3D/3dmodel.model` 变），属 structure 领地，pm 未碰
+- **校验**（收口前）：`wiki_lint` 61 页 0 error / 2 warning（两条即已批准例外页）· `refs_lint` 76 文件 299 引用 0 error · `lint_selftest` 7 条故障抓到 7 条
+- Updated: [[tasks]] · `log.md`

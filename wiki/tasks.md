@@ -88,7 +88,6 @@ tags: [index, workspace]
 
 | 编号 | 名称 | 角色 | 说明 |
 |---|---|---|---|
-| **T-08** | 超长页处置 | `pm` | **完成**：`hat-solder-kit` **399 → 194 行**（不拆页 · 章节号与数值全留）；另两页经 human 批为**已批准例外 · 只减不增**。落 [[hat-solder-kit]] · `scripts/wiki_lint.py` · `scripts/README.md` |
 
 > **本表只放终态行** —— 靠「说明」开头区分（`**完成**：` / `**关闭**：`）。
 > **pm 推送时**把已归档的行归入 Issue → **从本页删掉**（git 历史 ＋ [`log.md`](log.md) 留痕）。
