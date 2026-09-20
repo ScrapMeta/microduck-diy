@@ -233,11 +233,16 @@ python3 scripts/lint_selftest.py # 上面两台的自检：注入故障，必须
 ```
 
 - **`wiki_lint.py`** —— 正文页必须有 frontmatter（`title` `created` `updated` `type` `tags`）· **≤ 200 行** ·
-  `[[name]]` 形式的 wikilink 与相对 `.md` 链接必须解析得到。
+  `[[name]]` 形式的 wikilink 与相对 `.md` 链接必须解析得到 · 必须是 **UTF-8 无 BOM**。
   豁免：`raw/` `_archive/` `assets/` **整体跳过**（改它们的链接等于篡改历史记录）·
   `index` / `log` / `tasks` 免 frontmatter 与行数 · **`log.md` 另免死链**（只追加的流水，历史链接不该回溯失效）·
   超长页分两类：**没记账的 → error 要求拆页**；`OVERSIZE_ACK` 里的 = **已批准的例外（不拆页 · 对外可发送件 / 对比页）**，
   其数值**只减不增**（超记账值即 error，降到 ≤200 行提示删条目；批准出处见该文件内的注释）。
+  **BOM 查的是字节 —— 它在提交里**（2026-09-20 就地删掉 `entities/microduck-diy.md` 的那一处）。
+  而**换行符刻意不查**：本仓 `core.autocrlf=true`，同一个 commit 在不同机器上会检出成不同换行
+  （实测 `true` → 全 CRLF、`false` → 全 LF），判它得到的是**随机器而变的结论**。混写只影响本地 diff 观感，
+  提交时被 git 归一化掉 —— 那正是 `refs_lint` 栽过一次的那类坑（判定随环境而变）。
+  **判据：一条规则要进这里，先得能证伪、且与机器无关。** 2026-09-20 的「强制 CRLF」提案就是这样被挡下的。
 - **`refs_lint.py`** —— 扫反引号与 markdown 链接里**指向本仓**的路径。判据分两层：
   1. **哪些像仓内路径**：首个路径段要命中 `root_entries() ∪ KNOWN_PREFIXES`。
      `KNOWN_PREFIXES` 收**历史前缀** —— 否则「整个目录被删 / 改名」这类**最该抓**的漂移反而会放行
@@ -253,7 +258,8 @@ python3 scripts/lint_selftest.py # 上面两台的自检：注入故障，必须
 
 **本地跑这三条**（2026-09-20 起不再挂 CI —— 门禁由干活的那个角色在收口时执行）：
 **改脚本的参数（`MAX_LINES` · `SKIP_DIRS` · `TARGET_GLOBS` · `LOCAL_ONLY_PREFIXES` · `KNOWN_PREFIXES` …）
-等于改规格**，先读 `AGENTS.md` 的改法表。
+或新增一条规则，都等于改规格**，先读 `AGENTS.md` 的改法表。
+**新规则必须同时进 `lint_selftest.py` 的探针** —— 没被注入故障验证过的规则，和没有这条规则一样，但看起来更有保障。
 
 ### 在开发机（Windows）上怎么调
 

@@ -57,6 +57,11 @@ WIKI_PROBES: dict[str, tuple[str, str]] = {
     ),
 }
 
+# BOM 探针**单独拿**出来：它是唯一必须用 `utf-8-sig` 写下的故障（其余探针都是无 BOM 的）
+BOM_PROBE = "concepts/_selftest-bom.md"
+BOM_PROBE_BODY = FM_OK + "一个带 BOM 的页。\n"
+BOM_PROBE_EXPECT = "带 UTF-8 BOM"
+
 # refs_lint 探针：每行一个已知故障，期望片段与之一一对应
 REFS_PROBE = "scripts/_selftest-refs.md"
 REFS_PROBE_BODY = (
@@ -116,6 +121,7 @@ def main() -> int:
         for relp, (body, _) in WIKI_PROBES.items():
             (clone / "wiki" / relp).write_text(body, encoding="utf-8")
         (clone / REFS_PROBE).write_text(REFS_PROBE_BODY, encoding="utf-8")
+        (clone / "wiki" / BOM_PROBE).write_text(BOM_PROBE_BODY, encoding="utf-8-sig")
 
         # 「只减不增」探针：给记账表里的第一页加一行，页长就超了记账值
         ack_target = next(
@@ -135,6 +141,7 @@ def main() -> int:
             (f"wiki_lint 抓到 {label}", wiki_out, needle)
             for label, (_, needle) in WIKI_PROBES.items()
         ]
+        cases.append((f"wiki_lint 抓到 BOM（{BOM_PROBE}）", wiki_out, BOM_PROBE_EXPECT))
         if ack_target:
             cases.append(
                 (f"wiki_lint 抓到 超记账值（{ack_target}）", wiki_out, "只减不增")
@@ -159,6 +166,7 @@ def main() -> int:
         # ---- 撤掉故障：干净克隆必须全绿（假阳性检查）-------------------
         for relp in WIKI_PROBES:
             (clone / "wiki" / relp).unlink()
+        (clone / "wiki" / BOM_PROBE).unlink()
         (clone / REFS_PROBE).unlink()
         if ack_target and ack_original is not None:
             (clone / "wiki" / ack_target).write_text(ack_original, encoding="utf-8")

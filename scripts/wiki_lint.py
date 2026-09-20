@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-"""wiki 规范校验：frontmatter · 行数 · 死链。
+"""wiki 规范校验：frontmatter · 行数 · 死链 · 编码。
 
 机械执行 `AGENTS.md` 定下的 wiki 硬规范 —— **本脚本的判定即规格**：
 
   1. 正文页必须有 frontmatter：`title` `created` `updated` `type` `tags`
   2. 正文页 ≤ MAX_LINES 行（超了拆页）
   3. `[[wikilink]]` 与仓内相对 `.md` 链接必须解析得到
+  4. 页必须是 **UTF-8 无 BOM**
+
+**刻意不查的：换行符（CRLF / LF）。** 本仓 `core.autocrlf=true`，**同一份提交在不同机器上
+会检出成不同的换行** —— 实测同一个 commit：`autocrlf=true` 检出全 CRLF、`false` 检出全 LF。
+拿它当判据会得到**随机器而变的结论**，那正是 `refs_lint` 已经栽过一次的那类坑
+（用 `git check-ignore` 判缺席，判定随索引内容而变 → 空仓里静默放行一切）。
+**混写只影响本地 diff 观感，不进提交**（git 提交时归一化），故不列为规则。
 
 豁免：
 
@@ -49,6 +56,7 @@ IGNORE_WIKILINKS = {"...", ""}
 # ---------------------------------------------------------------------------
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+BOM = b"\xef\xbb\xbf"  # UTF-8 BOM —— 是**提交进仓**的字节，故可机械判（换行符不是，见文件头）
 FM_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---[ \t]*\r?\n", re.S)
 KEY_RE = re.compile(r"^([A-Za-z_][\w-]*)[ \t]*:(.*)$")
 WIKILINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
@@ -116,10 +124,16 @@ def main() -> int:
         if is_skipped(md):
             continue
         checked += 1
-        text = md.read_text(encoding="utf-8", errors="replace").removeprefix("\ufeff")
+        raw = md.read_bytes()
+        has_bom = raw.startswith(BOM)
+        text = raw.decode("utf-8", errors="replace").removeprefix("\ufeff")
         name = rel(md)
         nlines = text.count("\n") + (0 if text.endswith("\n") else 1)
         meta_file = md.name in META_NAMES and md.parent == WIKI
+
+        # 0) 编码 —— 必须先剥 BOM 再解析，否则 `---` 不在文首，frontmatter 会被误判成「缺失」
+        if has_bom:
+            errors.append(f"{name}: 带 UTF-8 BOM —— 本仓页一律 **UTF-8 无 BOM**")
 
         # 1) frontmatter
         if not meta_file:

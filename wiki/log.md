@@ -1161,3 +1161,20 @@
 - **未改（守边界）** —— 二进制**深挖**工具（zip 条目对照 · SQLite 修订计数）属 `cad/` 与 `scripts/` 领地 → **未写进 pm 手册**，只留「大小变了就是真改动」这条判据；要成文归 structure / software
 - **校验** —— `wiki_lint` 61 页 0 error / 2 warning · `refs_lint` 76 文件 **304** 引用 0 error（新增路径引用已纳入扫描）· `lint_selftest` 7 条故障抓到 7 条
 - Updated: `.cursor/skills/microduck-pm/SKILL.md` · `log.md`
+
+## [2026-09-20] tool | `wiki_lint` 加 BOM 规则；**否掉**「强制 CRLF」提案（判据：规则须与机器无关）
+
+- **由来（Human）**：沉淀技能后问「写盘纪律要不要跨出 pm 一地」→ 选 **升级为机械检查**（一处判据，四个角色都不用记）。`scripts/**` 按惯例属 software 领地，本次为 **Human 点名**（本仓既有口径：Human 点名的路径不存在「越领地」）
+- **预检推翻了自己提案的一半** —— 先扫全仓 61 页：**23 页不合**（22 页纯 LF ＋ `entities/microduck-diy.md` **带 BOM**）。于是先查「换行到底算不算内容」：
+  - `core.autocrlf = true`；`git cat-file` 看 **blob 里 `log.md` 是 1163 个 LF、0 个 CRLF**，而工作树是 1163 个 CRLF —— **git 在提交时归一化**
+  - **证伪实验**（`temp/` 内两次 clone，跑完即删）：**同一个 commit**，`autocrlf=true` → 检出**全 CRLF**；`false` → 检出**全 LF**
+  - → **「强制 CRLF」是随机器而变的判据**，正是 `refs_lint` 栽过一次的那类坑（用 `git check-ignore` 判缺席 → 空仓里静默放行一切）。**混写只影响本地 diff 观感，提交时被归一化，不是仓的缺陷**
+- **定案：只加 BOM，不加 EOL** ——
+  - **BOM 是提交里的字节**（`git cat-file` 看 `microduck-diy.md` blob 首 3 字节 = `EF BB BF`）→ **与机器无关，可机械判** → 列为 **error**（`wiki_lint` 第 4 条规范）
+  - **换行刻意不查** —— 理由写进 `wiki_lint.py` 文件头与 `scripts/README.md`，免得下一个人把这条提案再提一遍
+- **配套（否则是「没人验证过的规则」）** —— `lint_selftest.py` 加 **BOM 探针**（唯一要用 `utf-8-sig` 写下的故障）；`scripts/README.md` 补「新规则须同时进探针」＋ **判据：一条规则要进 linter，先得能证伪、且与机器无关**
+- **顺带修掉真缺陷** —— `wiki/entities/microduck-diy.md` **就地删掉 BOM**（工作树 CRLF 未动 → diff 仅 1 行）
+- **一个有信息量的小插曲** —— 加规则后自检先报「干净克隆 1 error」：因为 `git clone` 拿的是**已提交**状态，而 BOM 修复当时尚未提交。**这不是假阳性，是规则抓对了** —— 同时说明 `lint_selftest` 的「干净」基准是**提交**，不是工作树
+- **技能回填** —— `microduck-pm`「写盘纪律」按结论改口：**BOM 交 linter**（不必自己记）· **换行降级为「本地观感（非规则）」** · 只保留真正会**损坏内容**的那条（`Get-Content` / `Add-Content` 的 ANSI 双重编码）；「沉淀区」加「新坑先问**能不能机械判、且与机器无关**」
+- **校验** —— `wiki_lint` 61 页 0 error / 2 warning · `refs_lint` 76 文件 304 引用 0 error · `lint_selftest` **8 条故障抓到 8 条** ＋ 干净克隆全绿
+- Updated: `scripts/wiki_lint.py` · `scripts/lint_selftest.py` · `scripts/README.md` · `wiki/entities/microduck-diy.md` · `.cursor/skills/microduck-pm/SKILL.md` · `log.md`

@@ -38,10 +38,11 @@ disable-model-invocation: true
 4. **治理变更** —— 规则（`AGENTS.md`）**只有 Human 拉起的中立会话能改**，pm 不碰；**本技能可自进化**，但不得与规则冲突 · 不得扩权；改完停下等确认。
 5. **新页入库** —— `index.md` 分节；**新标签必须先登记标签表**（表在 `index.md`）。
 
-**写盘纪律** —— 本仓页是 **CRLF ＋ UTF-8 无 BOM**，而 `tasks.md` / `log.md` 几乎每次收工都要追加：
+**写盘纪律** —— `tasks.md` / `log.md` 几乎每次收工都要追加，而其中**只有一条能机械判**：
 
-- **别用** `Get-Content` / `Add-Content` / `Out-File` 通道写中文页 —— 会按 ANSI 读入 → **双重编码写坏中文**；走**字节通道**（Python `open(p,"rb")` / `[IO.File]::ReadAllText` ＋ `WriteAllText`）。
-- **写完必查换行**：CRLF 计数 ＋ **bare LF 必须为 0** —— PowerShell here-string 默认 LF，直接拼接会写出**混合换行**；发现即统一转回 CRLF 再提交。
+- **编码走字节通道** —— **别用** `Get-Content` / `Add-Content` / `Out-File` 写中文页：会按 ANSI 读入 → **双重编码写坏中文**（**真实损坏**）。走 Python `open(p,"rb")` 或 .NET `[IO.File]::ReadAllText` ＋ `WriteAllText`。
+- **BOM 交给 linter** —— 页面一律 **UTF-8 无 BOM**，带 BOM 由 `wiki_lint` 判 **error**（BOM 在提交里 · 与机器无关）→ 不必自己记。
+- **换行只是本地观感（非规则）** —— 本仓 `core.autocrlf=true`，同一 commit 在不同机器上检出成不同换行，**混写不进提交**。顺手核一下 `bare LF = 0` 只为本地 diff 别整段发花。
 - 中文正文**别走命令行参数**（易乱码）→ 先落临时文件，再 `--body-file` / 文件读入；**收工删临时文件**。
 - PowerShell 5.1 **没有 `&&`** —— 多条命令用 `;` 串。
 
@@ -102,6 +103,7 @@ python scripts/lint_selftest.py  # 上面两台的自检：注入故障，必须
 ## 沉淀区（随干活补）
 
 该沉：易漏的收口项 · 归档批次与理由 · 标签表新增记录 · **新踩的坑 ＋ 它的机械检查法** —— 只写「注意 XX」不写复现命令，等于没沉淀。
+**新坑先问「能不能机械判、且与机器无关」**：能 → 进 `scripts/wiki_lint.py`（判据只有一处 · 并配 `lint_selftest.py` 探针）；不能 → 才写成上面的纪律，**并写明为什么不能**。
 
 ## 红线（本角色专属）
 

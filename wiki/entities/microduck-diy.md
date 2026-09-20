@@ -1,4 +1,4 @@
-﻿---
+---
 title: microduck-diy
 created: 2026-09-01
 updated: 2026-09-20
