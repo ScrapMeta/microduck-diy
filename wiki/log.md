@@ -1149,3 +1149,15 @@
 - **未提交（不属本次范围）**：`cad/microduck_rl_assembly_a1mini.3mf` 工作树有改动（plate_3 清空 · 新增 plate_12 · `3D/3dmodel.model` 变），属 structure 领地，pm 未碰
 - **校验**（收口前）：`wiki_lint` 61 页 0 error / 2 warning（两条即已批准例外页）· `refs_lint` 76 文件 299 引用 0 error · `lint_selftest` 7 条故障抓到 7 条
 - Updated: [[tasks]] · `log.md`
+
+## [2026-09-20] skill | pm 手册沉淀：推送 ＋ 归档 Runbook · 写盘纪律 · 推送前工作树预检
+
+- **由来（Human）**：「把刚才做的关键流程和方法沉淀到技能」—— 本轮做的 `push` ＋ 完成行清账（T-08 → [#13](https://github.com/ScrapMeta/microduck-diy/issues/13)）此前**只有抽象口径**，实操步骤每次都要重新推一遍
+- **新增三节**（`.cursor/skills/microduck-pm/SKILL.md` · 110 行）：
+  - **GitHub 三段 Runbook** —— ① **推送前读工作树**：无关 dirty 不混进推送提交 · 二进制先定性（**大小变了 = 真改动**，没变才是 `.eprj2` 那类噪声）· 属别的领地**改派 ＋ 附预检事实，不代提交** ② **推送 ＋ 收尾的固定顺序**（`gh issue create --body-file` → 立刻 `gh issue close --reason completed` → 删 `tasks.md` 完成行 → 追加 `log.md` → commit / push / 复核）③ **归档 Issue 正文模板**（Type / 归档批次 / 结论 ＋ 出处 / Related）
+  - **写盘纪律（Windows）** —— 本仓页是 **CRLF ＋ UTF-8 无 BOM**；`Get-Content` / `Add-Content` / `Out-File` 通道会按 ANSI 读入 → **双重编码写坏中文**，改走字节通道；**写完必查 bare LF = 0**（**本轮又踩一次**：追加 `log.md` 写出 8 处 bare LF）；中文正文走 `--body-file` 不走命令行参数；PS 5.1 **无 `&&`**，用 `;`
+  - **校验节补执行力度** —— 收口 / 推送前跑三台 · warning 须**逐条对上** `OVERSIZE_ACK` 记账 · 改过 `wiki/` 或本技能后重跑（**本技能也在 `refs_lint` 扫描范围内**）
+- **顺带订正手册 3 处漂移** —— 职责 1 / 2 仍写「任务 · 角色 · **验收**」与「结果说明」，而台账已于 2026-09-20 统一为 `编号 · 名称 · 角色 · 说明` → 改齐；阻塞写法改为「说明」开头 `**阻塞**：…`
+- **未改（守边界）** —— 二进制**深挖**工具（zip 条目对照 · SQLite 修订计数）属 `cad/` 与 `scripts/` 领地 → **未写进 pm 手册**，只留「大小变了就是真改动」这条判据；要成文归 structure / software
+- **校验** —— `wiki_lint` 61 页 0 error / 2 warning · `refs_lint` 76 文件 **304** 引用 0 error（新增路径引用已纳入扫描）· `lint_selftest` 7 条故障抓到 7 条
+- Updated: `.cursor/skills/microduck-pm/SKILL.md` · `log.md`
