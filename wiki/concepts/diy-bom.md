@@ -1,7 +1,7 @@
 ---
 title: DIY BOM（v0.1 汇总）
 created: 2026-09-03
-updated: 2026-09-19
+updated: 2026-09-20
 type: concept
 tags: [diy, bom, mechanical, board]
 sources:
@@ -36,7 +36,7 @@ related:
 
 # DIY BOM（v0.1）
 
-面向 [[microduck-diy]] 的**采购/打印/装配总表**。网格与数量来自 [[mechanical-bom-rl]] / [[print-bom-rl]]；**不是**官方量产装箱单。里程碑见 [[diy-milestones]]。
+面向 [[microduck-diy]] 的**采购/打印/装配总表**。网格与数量来自 [[mechanical-bom-rl]] / [[print-bom-rl]]；**不是**官方量产装箱单。版本与计划见 [[tasks]]。
 
 | 阶段 | 本页覆盖 |
 |------|----------|
@@ -140,6 +140,6 @@ related:
 | 头 IMU | [[board-hat]]（BMI088） |
 | 电控板 | [[elec-three-boards]] |
 | 合并 CSV | [[elec-three-board-bom]] |
-| 里程碑 | [[diy-milestones]] |
+| 版本与计划 | [[tasks]] |
 
 相关：[[microduck-diy]] · [[diy-milestones]] · [[robotis-xl330-order-2026-09-05]] · [[print-bom-rl]]

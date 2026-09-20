@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """wiki 规范校验：frontmatter · 行数 · 死链。
 
-机械执行 `AGENTS.md`「记录约定」里那三条 —— **本脚本的判定即规格**：
+机械执行 `AGENTS.md` 定下的 wiki 硬规范 —— **本脚本的判定即规格**：
 
   1. 正文页必须有 frontmatter：`title` `created` `updated` `type` `tags`
   2. 正文页 ≤ MAX_LINES 行（超了拆页）
@@ -37,7 +37,7 @@ SKIP_DIRS = {"raw", "_archive", "assets"}  # 历史 / 素材，整体豁免
 MAX_LINES = 200
 # 「已批准例外 · 不拆页」—— Human 2026-09-19 决定：下列页**不拆**（都是「单页件」，拆了就不成一件事），
 # 超 200 行属既定状态，不是欠账。**只减不增**：数值是当下账面，页长只能降不能升 —— 要涨先在**这里**改数值
-# （= 显式记账）。改规格前先读 AGENTS.md「改规则 / 技能 / wiki」。出处：wiki/log.md 2026-09-19 · wiki/tasks.md T-08。
+# （= 显式记账）。改规格前先读 AGENTS.md「谁能改什么」。出处：wiki/log.md 2026-09-19 · wiki/tasks.md T-08。
 OVERSIZE_ACK = {
     # 对外可发送件：PDF 由本页生成，拆页就不成一封信了
     "queries/rd05t-vendor-inquiry-2026-09-18.md": 203,

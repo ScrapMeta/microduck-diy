@@ -1,7 +1,7 @@
 ﻿---
 title: microduck-diy
 created: 2026-09-01
-updated: 2026-09-10
+updated: 2026-09-20
 type: entity
 tags: [diy, workspace, open-source, mechanical]
 sources: []
@@ -24,7 +24,7 @@ related:
 | 本地 | `D:\projects\microduck\microduck-diy` |
 | 小红书 | **精钢葫芦娃** |
 | 公众号 | **人工具身智能** |
-| **当前里程碑** | **v0.1**（见 [[diy-milestones]]） |
+| **当前版本计划** | **最简版本**（见 [[tasks]]） |
 
 ## 目标
 

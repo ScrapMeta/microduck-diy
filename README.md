@@ -21,7 +21,7 @@
 
 | 入口 | 内容 |
 |------|------|
-| [`AGENTS.md`](AGENTS.md) | **唯一规则源**：红线 · 改规则/技能/wiki · 记录约定 · 角色表 |
+| [`AGENTS.md`](AGENTS.md) | **唯一规则源**：谁能改什么 · 红线 · 记录落点 |
 | [`wiki/`](wiki/) | **规格与资料真源** → 导航 [`index.md`](wiki/index.md) · 欠什么 [`tasks.md`](wiki/tasks.md) · 流水 [`log.md`](wiki/log.md) |
 | [`.cursor/skills/`](.cursor/skills/) | **角色操作手册**：唤起 `/microduck-pm` · `/microduck-hardware` · `/microduck-software` · `/microduck-structure` |
 | [`scripts/`](scripts/) | 台架 / 上机脚本 ＋ `wiki_lint.py` · `refs_lint.py` ＋ `upstreams.lock` |
@@ -38,7 +38,6 @@
 | [`imu_to_dxl/`](imu_to_dxl/) | 机身 IMU v0.3 · 板设计 ＋ 固件 |
 | [`cad/`](cad/) | 耐久打印包 |
 | [`image/`](image/) | Zero 3W seed 镜像构建与 overlay |
-| `.github/workflows/` | CI：push `main` 跑两台 linter |
 | `refs/` | **只读参考克隆**（ignore）：官方 / 社区 / 教程仓 |
 | `microduck_ros2/` | **自有兄弟仓**（ignore）：ROS2 并行移植，独立 push |
 | `temp/` `vms/` `.venv-cad/` | 本地临时（ignore）· **非真源** |
@@ -58,10 +57,10 @@
 
 - **只读参考一律放 `refs/`**：新增克隆放这里即自动被 ignore
 - **`refs/` 只读**（含禁止在其中留未提交改动）· **禁用 `git clean -x`** · **交付物归自有仓**
-  —— 这三条是红线，正文只在 [`AGENTS.md`](AGENTS.md)（「红线」「仓库形态」），此处不复制
+  —— 这三条是红线，正文只在 [`AGENTS.md`](AGENTS.md)「红线」，此处不复制
 - 路径一律**从根写**：`wiki/…` · `cad/…` · `refs/microduck/scripts/setup-board.sh`
 - 全树与各目录角色：`wiki/concepts/local-workspace-layout.md`（**布局真源**）
-- **GitHub 只当 git 远端与历史归档**：不建 PR · 不建标签 · **Issue 只作 pm 归档**（开完即关）—— 推送与 Issue 归 pm（规则见 [`AGENTS.md`](AGENTS.md)）
+- **GitHub 只当 git 远端与历史归档**：不建 PR · 不建标签 · **Issue 只作 pm 归档**（开完即关）—— 细则在 [`.cursor/skills/microduck-pm/SKILL.md`](.cursor/skills/microduck-pm/SKILL.md)
 
 ## 声明
 

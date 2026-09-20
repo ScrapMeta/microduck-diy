@@ -1092,3 +1092,51 @@
 - **现在的口径**：`待办` T-03 · T-06 · T-07；`执行` T-01 · T-02 · T-13；`阻塞` T-04 · T-05 · T-09–T-12
 - **未改（守边界）**：[[index]] 现行优先级 ① 与 [[diy-milestones]] v0.1 清单仍写「整机装配 ＋ 供电链路」**并列一行** —— 那是**阶段口径**不是任务行，拆任务是台账内部粒度，两处不必跟着拆（要拆属 hardware / 里程碑页的事）
 - Updated: [[tasks]] · `log.md`
+
+## [2026-09-20] governance | 版本计划收拢：只留「最简版本」，计划与物料表落 [[tasks]]
+
+- **由来（Human）**：「把最简版本计划写入 tasks，暂时不要其他版本计划目标 / 里程碑，这样最清晰简洁」
+- **病因** —— [[diy-milestones]] 的「v0.1 验收（草稿）」11 行里 **6 个未勾项与 [[tasks]] 台账是同一件事写了两遍**：整机装配＋供电链路 ↔ T-01/T-13 · 多板复现 ↔ T-03 · 官方软件联调 ↔ T-02 · 闲鱼装机 ↔ T-11 · IMU 竖装 ↔ T-06 · 契约 ↔ **无行**（唯一没落台账的）
+- **[[tasks]] 增两节** ——
+  - ① **「最简版本（暂定唯一版本计划）」**：目标一句 ＋ **本版必须勾掉 = 一组编号**（T-01 · T-02 · T-03 · T-13 · T-11 · T-12 · T-06 · T-07）。**只钉编号不回抄状态** —— 利用台账「`T-nn` 不复用」的设计，此行**天然不漂移**；`v0.2+` 暂不开；**T-09（宿主工具链）明确不在本版**
+  - ② **「物料到位」**：由 [[diy-milestones]] **整表搬入**（9 行 ＋ 母线 6.0 V 注）—— 它原是被 `index` 指名的真源，故搬后同步改了 `index` 指针
+- **[[diy-milestones]] 精简（79 → 33 行）** —— 删「里程碑表」（`v0.1` 当前 / `v0.2+` 未开）·「v0.1 验收（草稿）」·「物料到位」；留**项目目标 ＋ 版本口径**，口径写明「只维护一个版本计划，规则『同一事实只有一个正文』」；文件名 / H1 未动（改名另议）
+- **连带修（本次改动带失效的指针，最小改）** ——
+  - [[index]] 头部「物料到位表见 [[diy-milestones]]」→「[[tasks]] 台账（含最简版本 ＋ 物料到位表）」；`更新` 落 2026-09-20
+  - [[microduck-diy]] 字段「**当前里程碑** v0.1（见 diy-milestones）」→「**当前版本计划** 最简版本（见 tasks）」
+  - [[robotis-xl330-order-2026-09-05]] 死引用 `[[diy-milestones]] M1`（`M1` 已于 2026-09-19 随「去掉 day↔版本绑定」删除）→ 改指 [[xl330-cn-bench-kit]] 出厂基线 · [[dxl-bench-method]]
+- **未动（守边界）** —— `AGENTS.md`（规则只有 Human 拉起的中立会话能改，本次为议题收口不是规则改动）；`diy-bom` / `hat-solder-kit` / `zero3w-bench-plan` 等 5 页 `related:` 里的 [[diy-milestones]] 链接仍有效（页面未删）
+- **校验** —— `wiki_lint` 61 页 **0 error / 2 warning**（两条即已批准例外页）· `refs_lint` 0 error
+- Updated: [[tasks]] · [[diy-milestones]] · [[index]] · [[microduck-diy]] · [[robotis-xl330-order-2026-09-05]] · `log.md`
+
+## [2026-09-20] governance | 规则极致精简：AGENTS.md 117→45 行；通用条款 5 份副本 → 1 份
+
+- **由来（Human）**：「规则和全局问题中立 Agent 修改，技能 Agent 做专属工作，人工审核决策 · task 条目简化说明，log 已记录历史 · 技能 Agent 根据职能、任务、历史工作 —— 整体清理整套规则，极致精简」
+- **预检（红线 3 · 先列范围未动手）** —— 规则那时散在 **7 个文件 ~490 行**；重复矩阵：**凭据 / 干完即停 / `refs/` 只读 各 5 份**（AGENTS ＋ 4 技能）· 角色表 2 份 · GitHub 规则 3 份 · frontmatter 字段与 200 行上限 各 3 份 · 路径写法 3 份 · 角色→必写记录 2 份
+- **四条决定（Human 逐条点头 · AskQuestion）** ——
+  ① GitHub 规则 → **搬进 pm SKILL**（技能专属）· ② `index.md`「wiki 规范」节 → **缩成约定 ＋ 指向 linter**（不另起页）· ③ 技能里的通用红线 → **删**（AGENTS.md 是 always-applied，恒在上下文）· ④ `.github/workflows/ci.yml` → **删**（与「不走近门禁」矛盾）
+- **`AGENTS.md` 重写（117 → 45 行 · −72）** —— 新骨架 = **谁能改什么**（中立会话 / 技能会话 / Human 三角色，正是 Human 定的工作方式）＋ **红线 6 条**（原样保留，只压行）＋ **找东西**（6 行指针表）＋ **记录**（3 条）＋ **术语**
+  - **删掉的节**：`改规则 / 技能 / wiki` 表（→ 三者角色表）· `记录约定` 表（→ 找东西 ＋ linter 指针）· `谁写什么` 表（→ 各技能自带）· `角色` 表 ＋ `领地` 表（→ 并入各技能「落点 / 不做」）· `仓库形态`（→ 红线 2 ＋ layout 页）· `GitHub`（→ pm 技能）· `不收录`（→ 找东西表）
+  - **实质升级**：原来的「改规则表」把 wiki 与技能并列成「怎么算数」，没回答「谁有权」；新表按**三个行为主体**写，冲突口径（`AGENTS.md` 为准 · 扩权须中立会话）一句话收口
+- **4 个 `SKILL.md`** —— 通用红线（凭据 / 干完即停 / `refs/` 只读）**全删**；「红线」节改**本角色专属准入**（hardware 下单 / 上电 / 剪线 · software 烧录 / 覆盖 / 写寄存器 · structure 删包 / 整批重导 · pm Issue 归档）；**`microduck-pm` 吸收 GitHub 出口**（push 只有 pm · 推送时归档 ＋ 删行 · **归档只记 log 不留占位行** · Issue 只作归档）＋ 校验三条
+- **`index.md`（155 → 128 行）** —— 「wiki 规范」节 `约定` 8 条 → **7 条**（数值类删掉，改指 `scripts/wiki_lint.py`「判定即规格」）· **`frontmatter` yaml 模板整块删**（字段已在约定 3）· `更新政策` 5 条 → **`来源与冲突` 3 条**（实质保留：本地实测为准 · 两说并存 · 口径差异标注）· `页阈值` 4 行压成 3 行 · 标签表 / 目录结构不动（是数据不是规则）
+- **`tasks.md` 行简化** —— **砍「出处」列**（3 张表）—— 它的职能已被 `log.md` 只追加流水完全覆盖；T-04 的 `#11` 链接上移进任务名，不留空列；`通用约定`「编号」3 行 → 1 行
+- **CI 退场（Human 点名删）** —— 删 `.github/`（`workflows/ci.yml`）—— 与 `AGENTS.md`「不走近门禁」直接矛盾，且 README / layout / `scripts/README` 三个文件对它的说法各不相同。**门禁改由本地三条**（`wiki_lint` · `refs_lint` · `lint_selftest`）承担，写进 pm 技能「校验」节
+- **连带修指针** —— `README.md`（AGENTS 描述 · 删 CI 行 · GitHub 细则改指 pm 技能 · 「仓库形态」引用改「红线」）· `scripts/README.md`（CI 那句 → 本地跑）· `scripts/wiki_lint.py` 两处注释（`AGENTS.md` 节名）· [[local-workspace-layout]]（AGENTS 描述 · 删 CI 行 · 「仓库形态」引用）· [[diy-bom]]（`里程碑` → `版本与计划`，指 [[tasks]]）
+- **未动（守边界）** —— `_archive/concepts/diy-day1-notes.md` 与 `_archive/governance/*` 的历史引用（归档 = 冻结历史，不回溯改）· `log.md` 里的旧节名（只追加）
+- **校验** —— `wiki_lint` 61 页 **0 error / 2 warning** · `refs_lint` 76 文件 300 引用 **0 error** · `lint_selftest` **7 条故障抓到 7 条**
+- Updated: `AGENTS.md` · `.cursor/skills/{pm,hardware,software,structure}/SKILL.md` · [[index]] · [[tasks]] · [[diy-bom]] · [[local-workspace-layout]] · `README.md` · `scripts/README.md` · `scripts/wiki_lint.py` · **删** `.github/workflows/ci.yml` · `log.md`
+
+## [2026-09-20] governance | 台账二次清理：四表列统一（编号 / 名称 / 角色 / 说明）；删「物料到位」
+
+- **由来（Human）**：「tasks 再清理，物料到位删除，所有任务表统一：编号 · 名称 · 角色（短名和 human）· 说明（简短说明，历史都会记录在 log 里）」
+- **删「物料到位」整节（9 行 ＋ 母线注）** —— 它是**物料状态**不是任务，与 [[diy-bom]] §C 及各物料页**同一事实两份正文**；删后实况回到那些页
+- **四张表**列统一为 `编号 | 名称 | 角色 | 说明`（原：待办 / 执行 用 `任务 · 角色 · 验收`；阻塞 多一列 `阻塞原因`；完成 用 `任务 · 结果说明 · 落点`）—— **四表逐列对应**，换表不改读法
+- **「角色」收短名** —— `hardware` · `software` · `structure` · `pm`，另加 **`human`**（只有本人能做的）；多角色 `＋`
+  - **T-09 宿主工具链清理 → `pm` 改 `human`**（剩余动作全是人做：UAC 提权 · 商店别名 GUI）· **T-10 问询函 → `human`**（等寄出的是本人）
+  - T-04 / T-05 仍记 `hardware`：需 human 到台架的性质写在「说明」里（**任务本体是电测，不是人**）
+- **「说明」一律压短** —— 长验收收敛为**判定做完的最短依据 ＋ 落点**；原先散在各行的往来细节**已全在 [`log.md`](log.md)**，过程性脚注（合并说明 · 删除说明，出处 log 2026-09-19）**随之删掉** —— 不留历史副本
+- **「通用约定」补「列」一节** —— 逐列定义（含「说明**不抄**过程与历史」这条纪律），并同步改：状态节「阻塞原因」→ **说明开头 `**阻塞**：…`**；规则 3 / 4 的「验收」→ **说明**
+- **连带指针** —— [[index]] 头部去「＋ 物料到位表」；[[diy-milestones]] 去「物料到位表」（改指 [[diy-bom]] 与各物料页）；`tasks.md` 头部「见 AGENTS.md『GitHub』」→ 指向 `.cursor/skills/microduck-pm/SKILL.md`
+- **校验** —— `wiki_lint` 61 页 **0 error / 2 warning**（两条即已批准例外页）· `refs_lint` 76 文件 299 引用 **0 error**
+- Updated: [[tasks]]（**114 → 96 行**）· [[index]] · [[diy-milestones]] · `log.md`

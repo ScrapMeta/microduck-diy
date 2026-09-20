@@ -1,7 +1,7 @@
 ---
 title: 本地工作区布局
 created: 2026-08-30
-updated: 2026-09-19
+updated: 2026-09-20
 type: concept
 tags: [workspace, open-source, diy]
 sources: []
@@ -18,7 +18,7 @@ related: [microduck-diy, microduck, opensource-coverage, ros2-migration-plan]
 
 | 目录 | 作用 |
 |------|------|
-| `AGENTS.md` | **唯一规则源**（红线 · 改法表 · 记录约定 · 角色表） |
+| `AGENTS.md` | **唯一规则源**（谁能改什么 · 红线 · 记录落点） |
 | `README.md` | 给人看的导航 |
 | `wiki/` | **规格与资料真源**（导航 → [[index]]；欠什么 → [[tasks]]；流水 → [[log]]） |
 | `.cursor/skills/<role>/SKILL.md` | **角色操作手册**（pm · hardware · software · structure）—— 入仓 |
@@ -26,7 +26,6 @@ related: [microduck-diy, microduck, opensource-coverage, ros2-migration-plan]
 | `imu_to_dxl/` | 机身 IMU v0.3 · 板设计 + 固件 |
 | `image/` | Zero 3W **seed 镜像**构建脚本与 overlay（`out/*.img*` 不入库） |
 | `cad/` | 耐久 `.3mf` |
-| `.github/workflows/ci.yml` | push `main` 跑两台 linter（防漂移） |
 
 ## 自有兄弟仓与本地临时（ignore）
 
@@ -91,6 +90,6 @@ CAD 网格真源：`refs/microduck_rl/.../robot/microduck/`；审阅 3MF 输出�
  （**不带 `-Fetch` 就不联网**，`Behind` 只是上次 fetch 的快照；`Behind=0` 不等于「已最新」）
 
 > **交付物归属**与 **`refs/` 只读** · **禁用 `git clean -x`** 是红线，
-> 正文只在 [`AGENTS.md`](../../AGENTS.md)（「红线」「仓库形态」）；本页只管**路径怎么写**。
+> 正文只在 [`AGENTS.md`](../../AGENTS.md)「红线」；本页只管**路径怎么写**。
 
 相关：[[microduck-diy]] · [[ros2-migration-plan]] · [[index]] · [[tasks]]

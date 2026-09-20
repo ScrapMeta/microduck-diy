@@ -42,6 +42,6 @@ related:
 - [ ] 纸箱完好 / 外箱单号可对 B260905014MP
 - [ ] 舵机本体 **15** 台（XL330-M288-T）
 - [ ] 每台含 X3P 线 + M2×6 / M2×8 钉（抽检即可）
-- [ ] 通电冒烟前先写 ID / 查电压（见 [[diy-milestones]] M1）
+- [ ] 通电冒烟前先写 ID / 查电压（见 [[xl330-cn-bench-kit]] 出厂基线 · [[dxl-bench-method]]）
 
 相关：[[diy-bom]] · [[dynamixel-xl330]] · [[fastener-bom-study]]

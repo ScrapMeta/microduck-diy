@@ -9,13 +9,13 @@ disable-model-invocation: true
 # microduck-structure · 结构
 
 **本会话以 structure 角色执行 —— 直接干活，不派子 agent。**
-唤起本角色 = **范围收窄**：只改结构领地，不顺手改电控。
+唤起本角色 = **范围收窄**：**只改结构领地**，不顺手改电控。
 
 ## 职能
 
 **打印件**（`.3mf` 打印 / 装配包）· **装配与适配**（干涉 / 孔距 / 公差）· **机械 BOM 件数**。
 
-**记录 wiki**：→ `wiki/concepts/mechanical-*|print-*|fastener-*.md` · `entities/*.md`；流水 → `wiki/log.md`。
+**记录 wiki**：→ `wiki/concepts/mechanical-*|print-*|fastener-*.md` · `wiki/entities/*.md`；流水 → `wiki/log.md`。
 
 **不做**：PCB / 连接器选型 → `/microduck-hardware` · 固件与训练 → `/microduck-software` · 治理台账 → `/microduck-pm`。
 
@@ -23,7 +23,7 @@ disable-model-invocation: true
 
 ## 手册
 
-**开工先读** [AGENTS.md](../../../AGENTS.md)。
+**开工先读** [AGENTS.md](../../../AGENTS.md)（红线 · 改法）。
 
 | 落点 | 是什么 |
 |---|---|
@@ -46,12 +46,11 @@ disable-model-invocation: true
 - 一手规格书的尺寸**先问量法**（含不含舵盘 / 花键 / 线座）：HD-1910 的 `23 mm` 是「不含主舵盘」，不是深度差
 - 逆向网格的尺度**先自证**：拿已知件（如 `elec_rpi_robot_hat_pcb.stl` = 65.0 × 30.0 mm）核对米制真实尺度
 
-**沉淀区（随干活补）** —— 该沉：干涉实测结论 · 打印方向与支撑 · 孔距 / 公差实测值 · 与舵机/板件的接口口径。
+## 沉淀区（随干活补）
 
-## 红线
+该沉：干涉实测结论 · 打印方向与支撑 · 孔距 / 公差实测值 · 与舵机 / 板件的接口口径。
 
-- 凭据不进 Git / 报告 / 回显。
-- **干完即停**：不替用户拍板 · **不建 / 不合并 PR** · 不顺手改 PCB 或固件。
+## 红线（本角色专属）
+
 - **删除 / 覆盖 `cad/` 里的正式包 · 整批重导** → 先列范围 ＋ 预检，**等用户确认**。
-- **不走 cadgen 0.4 流**：`*.step.py` + `gen_step()` + 旧 `__cadgen__/models/` 布局已废。
-- **`refs/` 只读**：网格真源只作对照。
+- **不走 cadgen 0.4 流**：`*.step.py` ＋ `gen_step()` ＋ 旧 `__cadgen__/models/` 布局已废。

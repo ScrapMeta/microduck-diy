@@ -251,7 +251,7 @@ python3 scripts/lint_selftest.py # 上面两台的自检：注入故障，必须
   和没有 linter 一样，但看起来更有保障 —— 这一步就是防这个。
   2026-09-19 首次跑它就抓出 `refs_lint` 的两个真 bug（都只在注入故障时才会暴露）。
 
-CI（`.github/workflows/ci.yml`）在 push / PR 到 `main` 时跑这三条。
+**本地跑这三条**（2026-09-20 起不再挂 CI —— 门禁由干活的那个角色在收口时执行）：
 **改脚本的参数（`MAX_LINES` · `SKIP_DIRS` · `TARGET_GLOBS` · `LOCAL_ONLY_PREFIXES` · `KNOWN_PREFIXES` …）
 等于改规格**，先读 `AGENTS.md` 的改法表。
 

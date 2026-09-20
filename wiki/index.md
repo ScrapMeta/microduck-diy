@@ -1,11 +1,11 @@
 # Wiki Index
 
 > **Agent 先读：** 本文件 · [[tasks]]（欠什么）· [[log]]（最近 30 条）· [`AGENTS.md`](../AGENTS.md)（规则）
-> 本 wiki：`wiki/` · 更新：2026-09-19
+> 本 wiki：`wiki/` · 更新：2026-09-20
 > **目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展
 > **现行焦点（2026-09-19 收拢）：** **整机装配 ＋ 供电链路**（主控/HAT/降压模块/电池 → 母线 **6.0 V**）＋ **官方软件联调**（HAT ＋ 机身 IMU ＋ 1 舵机 · 麦/喇叭）
 > （承重项仍在：HAT TTL [#11](https://github.com/ScrapMeta/microduck-diy/issues/11) —— 上总线值 ＋ `0x55` 帧定论）
-> 明细见 [[tasks]] 台账 · 物料到位表见 [[diy-milestones]]
+> 明细见 [[tasks]] 台账（含**最简版本**计划）
 
 ## 现行定稿（优先）
 
@@ -87,32 +87,19 @@
 
 **约定**
 
-- 文件名：英文小写 + 连字符（如 `radxa-zero-3w.md`）；正文中文为主；型号、仓库名、命令保持原文
-- **路径写法**：本仓内**从根写**（`wiki/…` · `cad/…`）；只读参考克隆写 `refs/<clone>/…`（例 `refs/microduck/scripts/setup-board.sh`）；
-  仅引**仓库名**时不加 `refs/`（那是仓名不是本地路径）；官方链接里的仓名 `microduck-diy` 不改
-- 每页 YAML frontmatter（`title` · `created` · `updated` · `type` · `tags`）；页间用 wikilink 互链
-- 更新必须 bump `updated`；新页必须写进本文件对应分节；每次动作**追加** [[log]]
-- 页长上限、frontmatter 必填字段、角色 → 必写记录：**规则在 [`AGENTS.md`](../AGENTS.md)「记录约定」，此处不复制**（数值抄一遍就是第二个真相源）
-- 综合 ≥3 个来源的段落末可加 provenance：`^[raw/articles/….md]`
-- **禁止修改 `raw/` 正文**（纠错写在 Layer-2 页；`sha256` 等 frontmatter 元数据可补全）
-- **不做媒体生产**：本仓不生图、不合成封面、不跑生图流水线；`wiki/assets/` 只保存 CAD/官方/采购等**原始资料**
+1. 文件名英文小写 ＋ 连字符（如 `radxa-zero-3w.md`）；正文中文；型号 / 仓库名 / 命令保持原文。
+2. **路径从根写**（`wiki/…` · `cad/…`）；参考克隆写 `refs/<clone>/…`；**只引仓名时不加 `refs/`**。
+3. 每页 frontmatter：`title` `created` `updated` `type` `tags`（`raw/` 另用 `source_url` · `ingested` · `sha256`）；**改页必须 bump `updated`**。
+4. 页间用 wikilink；新页写进本文件对应分节；**新标签先登记下表**；每次动作**追加** [[log]]。
+5. **硬规范（frontmatter 字段 · 页长上限 · 死链）由 `scripts/wiki_lint.py` 机械执行 —— 判定即规格**，此处不抄数值。
+6. **`raw/` 正文永不改**（纠错写 Layer-2 页）· **不做媒体生产**（`wiki/assets/` 只存原始资料，不生图）。
+7. 综合 ≥3 个来源的段落末可加 provenance：`^[raw/articles/….md]`。
 
-**frontmatter**
+**来源与冲突**
 
-```yaml
----
-title: Page Title
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-type: entity | concept | comparison | query | summary
-tags: []
-sources: []
-confidence: high | medium | low
-related: []
----
-```
-
-`raw/` 另用 `source_url` · `ingested` · `sha256`。
+- 新来源通常覆盖旧事实（注明日期）；**与本地实测冲突时以本地已克隆仓库 ＋ 实测笔记为准**，并注明对方说法。
+- 真冲突**两说并存**（`contradictions:` / `contested: true`），不强行合并。
+- **口径差异必须显式标注**：alpha 网格（Pi Zero 2W / np_f970）vs 量产（Radxa / NP-F550）；外形以信息卡 / `*-ref-pcb-layout` 实布为准，MJCF placeholder 尺寸单独标注。
 
 **标签表**（新增标签前必须先登记本表）
 
@@ -130,17 +117,10 @@ related: []
 
 **页阈值**
 
-- **建页**：实体/概念出现在 2+ 来源，或对单次研究/官方文档为中心主题
-- **并入已有页**：已有覆盖则更新，不另起同义页 · **不建页**：一笔带过、域外话题
-- **拆分**：超页长上限（数见 [`AGENTS.md`](../AGENTS.md)「记录约定」）；**例外**（经 Human 批准不拆页的「单页件」，如对外可发送件 / 对比页）记在 `scripts/wiki_lint.py` 的 `OVERSIZE_ACK` 表内 · **归档**：完全被替代 → `_archive/`，并从本 index 移除
-
-**更新政策**
-
-1. 新来源通常覆盖旧事实；注明日期
-2. 真冲突：两说并存 + `contradictions:` / `contested: true`
-3. Press Kit / 官方文档 vs 本地仓库：以**本地已克隆仓库 + 实测笔记**为准写 Layer-2，并注明 Press Kit 说法
-4. alpha 网格（Pi Zero 2W / np_f970）与量产（Radxa / NP-F550）差异必须显式标注
-5. **外形口径**：DIY 板框以信息卡 / `*-ref-pcb-layout` 实布为准；MJCF placeholder 尺寸单独标注，勿与实布混写
+- **建页**：实体 / 概念出现在 2+ 来源，或对单次研究 / 官方文档为中心主题；**不建页**：一笔带过、域外话题。
+- **并入已有页**：已有覆盖则更新，不另起同义页。
+- **拆分**：超页长上限 → 拆；**例外**（经 Human 批准的「单页件」）记在 `scripts/wiki_lint.py` 的 `OVERSIZE_ACK`（**只减不增**）。
+- **归档**：完全被替代 → `_archive/`，并从本 index 移除。
 
 **目录结构**
 
