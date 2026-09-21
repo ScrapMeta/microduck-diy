@@ -31,6 +31,8 @@ confidence: high
 | `assets/procurement/taobao-orders-2026-08-09.xlsx` | 淘宝导出原件 |
 | `raw/articles/robotis-xl330-order-b260905014mp-2026-09-05.md` | ROBOTIS XL330×15 订单 B260905014MP（脱敏） |
 | `raw/articles/xl330-cn-starter-kit-notes-2026-09-10.md` | XL330-CN + 国产 U2D2/PHB 台架资料与网盘链接 |
+| `raw/articles/vkesmd-md-series-docs-2026-09-21.md` | 厂商「SIAR MD 系列（VKESMD）」三份文档 ingest：帧格式 · 内存表 · 上位机；原件在 `assets/vkesmd/` |
+| `assets/vkesmd/` | 厂商原件 6 个（中英各一 · xlsx/docx），sha256 见对应 raw 页 |
 | `assets/README.md` | assets 政策与子目录说明 |
 | `assets/pcb/` | CAD/官方板卡截图 + `head-imu-placement.svg` |
 | `assets/procurement/*.xls` | 对应 BOM/订单原件 |

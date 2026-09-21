@@ -1,7 +1,7 @@
 ---
 title: Dynamixel XL330
 created: 2026-08-30
-updated: 2026-09-16
+updated: 2026-09-21
 type: entity
 tags: [servo, dynamixel]
 sources:
@@ -44,6 +44,7 @@ Microduck **15 关节**执行器。典型 **XL330-M288-T**：20×34×26 mm，18 
 | `Operating Mode(11)` | 默认 **3 = Position Control**；`robotd` **不写**此寄存器 → 决定哪个限幅生效（见下） |
 | `Current Limit(38)` | 默认 **1750 = 1.75 A**，可设上限同样 1750（≈ 6.0 V 堵转 1.74 A）；**只在 Current Control(0) / Current-based Position(5) 生效** |
 | `PWM Limit(36)` | 默认 **885 = 100 %**；**所有模式**的输出限幅 |
+| `PWM Slope(62)` | 默认 **140** · 范围 **1–255** · **1.977 mV/ms**；PWM 占空比的**变化率限制**（输出电压斜坡）→ 实为**响应带宽**；`robotd` 钉 **255**（见下）|
 | Protocol | **2.0**（`Protocol Type(13)` 默认 2） |
 | `Baud Rate(8)` | 值 **1(Default) = 57 600**；**3 = 1 Mbps**（本总线） |
 | 出厂默认 | **ID 1** · **57 600** · `Return Delay Time=250` · `Shutdown=53` · `PWM Slope=140` |
@@ -62,6 +63,29 @@ Microduck **15 关节**执行器。典型 **XL330-M288-T**：20×34×26 mm，18 
   （旧说法「`shutdown=52` 锁存过压」是**反的**；该说法见于 `robotd-design` §2.1 散文，与手册位表冲突，以手册为准）。
 - 触发 `Shutdown` → `Torque Enable(64)` 清 0、**红灯持续闪**（手册：*Shutdown Error → LED blinks continuously*），须**重启/REBOOT 指令**才恢复。
 - **过压是「转动」失效、不是「通信」失效**：处于 shutdown 的舵机**仍应答 Ping/Read**。别把「不动」读成「零回包」。
+
+### `PWM Slope(62)`：输出电压斜坡 ≠ 上电缓启动（2026-09-21 核准 eManual）
+
+eManual《PWM Slope(62)》：*The PWM duty will be **linearly interpolated with a set slope** by
+PWM Slope(62) and be forwarded to the motor's inverter.* —— 即**每一次 PWM 指令变化**都被限速，
+等于给 H 桥**输出电压加了 dV/dt 上限**。**不是**「上电那一刻的软启动」（旧注如此，
+见 [[rd05t-vendor-inquiry-2026-09-18]]，2026-09-21 已订正）。
+
+| 值 | 等效斜率 | 满量程 **6.0 V** 所需 |
+|----|----------|----------------------|
+| **140**（出厂） | 276.8 mV/ms | **21.7 ms** |
+| **255**（`robotd` 写） | **504.1 mV/ms** | **11.9 ms** |
+
+对照控制周期 **20 ms（50 Hz）**：**出厂值下把电压打满比一个 tick 还慢** —— 所以它是
+**响应带宽**设定，`robotd` 钉 255 是为了把这段延迟砍半，不是安全措施；255 也**不等于关掉斜坡**
+（仍有 ~0.5 V/ms 上限）。属 **EEPROM 区** → 须 `Torque Enable(64)=0` 时写。
+
+- **断言式写入**：`check_registers_of` 读回比对，**相等即跳过**，不等才写 ＋ 20 ms EEPROM 静默 ＋ journal `correcting motor register`；对全部 15 台各走一遍（`duck-control/src/bus.rs`）。
+- **台架 ≠ 整机（待定项，2026-09-21 未决）**：台架那台**仍是出厂 140**，不跑 `robotd` 就没人改它
+  → **台架上测到的舵机比装机后爬得慢近一倍**。BAM 辨识 / A-B 对比该用哪个值，**上台架前再定**
+  （`servo_swap_compare.py` 只把 `pwm_slope` 读进 `IDENTITY_REGISTERS` 做指纹，**不写它**）。
+- **eManual 自相矛盾**：汇总表范围 **1 ~ 255**，详情节 **0 ~ 255**。1 byte 上限 255 无争议；
+  `0` 若合法按 `0 mV/ms` 解即**PWM 永不可变、舵机不能动** → 疑为详情节笔误（**未定论**）。
 
 ### 母线电压：7.0 V 是固件天花板（8.4 V 无寄存器解）
 

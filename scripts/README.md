@@ -7,7 +7,7 @@
 
 | 文件 | 是什么 |
 |---|---|
-| `dxl_ping.py` | 台架 DXL **只读**扫 / Ping / 基线（Protocol 2.0 · 零依赖 · 自带 `self-test`） |
+| `dxl_ping.py` | 台架 DXL **只读**扫 / Ping / 基线 / 原始块 / 同步读（Protocol 2.0 · 零依赖 · 自带 `self-test`） |
 | `servo_swap_compare.py` | 换舵机 A/B 对比（**非只读**，须显式 `--setup`） |
 | `md_to_pdf.py` | 把一页 wiki 渲染成 PDF（给人看的可发送件） |
 | `wiki_lint.py` | wiki 规范：frontmatter · 行数 · 死链 |
@@ -22,7 +22,7 @@
 
 ## `dxl_ping.py` — XL330 只读扫 / Ping / 基线读取
 
-Dynamixel **Protocol 2.0** 只读探针（PING / READ），**不写任何寄存器**（ID / 波特率写入仍归
+Dynamixel **Protocol 2.0** 只读探针（PING / READ / SYNC READ），**不写任何寄存器**（ID / 波特率写入仍归
 `robotd` / Wizard）。协议与 CRC 在文件内实现；**在 Linux 上零依赖**（有 `pyserial` 就用，没有就退回
 stdlib `termios` —— 板子 `python3` 常既无 `pyserial` 也无 `pip`，要求装包会让流程在目标机上跑不起来）。
 
@@ -31,14 +31,18 @@ python3 scripts/dxl_ping.py self-test                      # 无硬件，自检 
 python3 scripts/dxl_ping.py scan  --port COM7               # 1 Mbps 全 ID 扫描（U2D2）
 python3 scripts/dxl_ping.py scan  --port /dev/ttyS2 --baud 1000000,57600
 python3 scripts/dxl_ping.py info  --port COM7 --id 1        # 读基线（ID/波特率/固件/电压/…）
+python3 scripts/dxl_ping.py read  --port COM7 --id 200 --addr 124 --length 12
+python3 scripts/dxl_ping.py sync-read --port COM7 --ids 200,20,21,22,23,24 --addr 124 --length 12
 python3 scripts/dxl_ping.py probe --port COM7 --expect 10,11,12
 ```
 
 | 子命令 | 作用 |
 |--------|------|
-| `self-test` | CRC（按位实现 vs 查表实现）、**公开报文向量**、报文往返、坏 CRC 拒收、非标准帧回放、`shutdown` 位解码、`Operating Mode(11)` 解码 |
+| `self-test` | CRC（按位实现 vs 查表实现）、**公开报文向量**、报文往返、坏 CRC 拒收、非标准帧回放、`shutdown` 位解码、`Operating Mode(11)` 解码、**有符号解码 · 寄存器表地址序 · sync-read 三态** |
 | `scan` | 在给定波特率（可逗号串列）逐 ID Ping |
-| `info` | 读一个 ID 的基线寄存器（含 **`Operating Mode(11)`**），并对照 `robotd` 的期望值 |
+| `info` | 读一个 ID 的基线寄存器（含 **`Operating Mode(11)`** 与**位置族**），并对照 `robotd` 的期望值 |
+| `read` | **原始块读**：任意 ID / 地址 / 长度 —— 给本脚本不认识的**控制表**用（`info` 是 XL330 形状的） |
+| `sync-read` | **`0x82` 广播同步读**：一次事务读多个 ID，复刻官方总线形状；**逐 ID 报「答了但块全 0」** |
 | `probe` | 复刻官方探测顺序：预期 ID @ **1 Mbps** → 若恰一个缺失，探出厂舵机 **ID 1**（先 1 Mbps，再 **57 600**）|
 
 **基线采集**：`info` 的输出即 Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) / `wiki/concepts/xl330-cn-bench-kit.md`
@@ -53,6 +57,38 @@ robotd 的适配路径（本脚本只打印、不执行）：
 ```
 重启用于**清除烧写留下的锁存 hardware-error**，否则 torque 保持关闭。
 
+## `read` / `sync-read` —— 给「本脚本不认识的设备」留的入口（2026-09-21 加）
+
+`info` 是 **XL330 形状**的：它按一张具名寄存器表读，所以指向 `imu_to_dxl` 板（**ID 200**）时，
+它会从**地址 6** 读固件版本，而那块板的固件版本在**地址 2** —— 读回来的数**看着合理但是错的**
+（与 `0x55` 那次同一个失败模式：错得不像错）。要看清一张自己不知道的控制表，只能按**原始块**读：
+
+```bash
+# 机身 IMU 的 12 B 数据块（gyro i16×3 ＋ quat half×3）
+python3 scripts/dxl_ping.py read --port COM7 --id 200 --addr 124 --length 12
+# 诊断块：u16 采样计数 · u8 status · accel 原始
+python3 scripts/dxl_ping.py read --port COM7 --id 200 --addr 136 --length 8
+```
+
+`sync-read` 复刻 **官方总线的形状**（`duck-control/src/bus.rs` 每 tick 一笔 `0x82`，
+IMU 排在 `ids[0]`），并把它那**两种必须分开的失败**分别报出来：
+
+```bash
+python3 scripts/dxl_ping.py sync-read --port COM7 --ids 200,20,21,22,23,24 --addr 124 --length 12
+```
+
+| 现象 | 含义 |
+|------|------|
+| `(no reply)` | 该 ID **不答** —— 官方那笔 `sync_read` 会**整笔失败**，daemon 起不来 |
+| 答了、块**全 0** | **不是失败**：从机在跑、数据块是空的。ID 200 如此 = **DXL 侧活、IMU 芯片侧死** |
+| 块**非 0** 且在变 | 真的在出数 |
+
+这条区分是刻意的：把「全 0」当错误报，「从机活着但传感器坏了」就会被误判成「设备不在」，
+正好把要找的故障藏起来。`self-test` 用注入故障验证过这三个分支都会被报出
+（广播地址写错 · 静默 ID 被丢掉 · 空块被当失败）。
+
+板级判读的完整口径 → `wiki/concepts/imu-to-dxl-firmware-triage.md`。
+
 ## 两个已踩过的坑（2026-09-16 台架实测 · Issue #4）
 
 ### 1. CRC 必须覆盖 4 字节 header
@@ -63,18 +99,26 @@ CRC-16/IBM 的作用域是「从 `FF FF FD 00` 起到最后一个参数」，**�
 现在 `self-test` 用公开向量 `ff ff fd 00 01 03 00 01 19 4e`（ID 1 的 PING）钉死作用域。
 **教训**：loopback 自检只能证明收发两端一致，不能证明符合规格；必须拿公开向量做锚。
 
-### 2. 本套件的舵机回包多一个固定字节
+### 2. 状态帧的 `0x55` —— 它就是 DXL 2.0 的 Instruction 字段（2026-09-21 定论）
 
 台架这台（XL330-CN 套件）的状态帧是 `HEADER · ID · LEN · 0x55 · ERROR · DATA · CRC`，
-`LEN = len(DATA) + 4`（规格是 `+ 3`）。**0x55 在线上、且被舵机自己的 CRC 覆盖**，
+`LEN = len(DATA) + 4`。**0x55 在线上、且被舵机自己的 CRC 覆盖**，
 不是本脚本读错：若它只是本地串口噪声，`want` 与 `got` 就不会 14/14 全等。
-按规格解析会得到 `error=0x55` 且**每个寄存器整体错位一字节** —— 值看着都像对的，
-其实全是「合理但错误」的数（`model=45056`、`max_voltage_limit=1792.0 V`）。
-脚本按**「PING 应回 3 字节 / READ 应回请求长度」**这两个已知长度自动判别两种帧，
-并在 `-v` 下打印提示；`self-test` 用实测原始帧做回放回归。
 
-> 该字节的**来源未定论**（单位固件怪癖 vs 其它）。交叉验证办法：同一只舵机接 **U2D2 +
-> Dynamixel Wizard** 看是否同样存在 —— Wizard 是独立实现，能一锤定音。
+**它不是「本套件的怪癖」**：DXL 2.0 的 Status 包**本来**就是
+`… · INST(0x55) · ERROR · PARAM · CRC`，`LEN` 数的是 **INST ＋ ERROR ＋ PARAM ＋ CRC**
+= `len(DATA) + 4`。按「没有 0x55」（`LEN = DATA + 3`）去解析，才得到
+`error=0x55` 且**每个寄存器整体错位一字节** —— 值看着都像对的，其实全是
+「合理但错误」的数（`model=45056`、`max_voltage_limit=1792.0 V`）。
+
+**定论证据（2026-09-21）**：本仓自己的 `imu_to_dxl` 固件里写着 `#define INST_STATUS 0x55`，
+状态帧按 `LEN = len(DATA) + 4` 组装（`imu_to_dxl/firmware/src/dxl_slave.c`）；且**独立实现
+`dynamixel_sdk` 在 U2D2 上收同一种帧 `Read(124,12)` 1000/1000 通过** ——
+这是「拿独立实现做锚」，不是 loopback 自洽。
+
+**脚本命名的历史包袱**：`dxl_ping.py` 把两支叫 `standard` / `prefixed`，把带 `0x55` 的那支
+叫「前缀」—— **命名是反的**（带 `0x55` 的才合规）。它靠「PING 回 3 字节 / READ 回请求长度」
+自动判别，**行为一直是对的**（故 `self-test` 全绿），只有措辞要按本条理解。
 
 ## 为什么 `info` 也读 `Operating Mode(11)`（2026-09-18）
 
@@ -92,6 +136,25 @@ XL330 有**两个**输出限幅，**不是每个模式都同时生效**：
 `Operating Mode(11)` 决定该用哪条结论，而 `robotd` **不写**这个寄存器（只写
 `return_delay_time` / `baud_rate` / `pwm_slope` / `shutdown`），所以只能读出来。
 见 [`wiki/entities/dynamixel-xl330.md`](../wiki/entities/dynamixel-xl330.md) §「母线电压天花板」。
+
+## 为什么 `info` 也读位置族（2026-09-21）
+
+台架上「设了 position 模式 · 开了力矩 · 转 90° 却提示限制」这类现象，**从指令侧看不出真假**
+——只能把三个寄存器一起读回来：
+
+| 寄存器 | 地址 | 出厂 | 说明 |
+|--------|------|------|------|
+| `Homing Offset` | **20** | 0 | 零点偏移（±1,044,479）。改它＝把所有角度整体搬走，**却不动任何目标值** |
+| `Max / Min Position Limit` | **48 / 52** | 4,095 / 0 | `Goal Position(116)` 的**可写区间**（出厂 = 整圈）|
+| `Goal Position` / `Present Position` | **116 / 132** | — | 指令值 / 实际值 |
+
+- **超限的 `Goal Position` 会被裁剪或拒绝，而「被裁剪」看起来完全正常** —— 舵机照动，只是没走到位，
+  反馈里没有任何东西说目标被改过。这正是本仓反复遇到的「合理但错误」类（同
+  [`wiki/queries/rd05t-vendor-inquiry-2026-09-18.md`](../wiki/queries/rd05t-vendor-inquiry-2026-09-18.md) §B6 的未决问题）。
+- `48/52` 属 **EEPROM**，只有 `Torque Enable(64)=0` 时才能写；本脚本**从不写它们**。
+- `Goal Position` / `Present Position` 在 **Position Control(3)** 下单圈、**Extended Position Control(4)** 下多圈，
+  故**角度注记只在同一趟读到 mode 3 时打印** —— 这就是**寄存器表必须保持地址升序**的原因，`self-test` 钉住它。
+- `Homing Offset` 与两个位置寄存器按**补码**解：按无符号读会把 `-1` 显示成 `4,294,967,295`（自检覆盖）。
 
 ## `servo_swap_compare.py` — 换舵机 A/B（XL330 vs 候选件）
 

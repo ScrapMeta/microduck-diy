@@ -1190,3 +1190,126 @@
 - **衰减面（如实记）** —— `refs_lint` 扫 `.cursor/skills/**/*.md`，技能**路径引用**守得住（305 引用 / 0 error）；但**语义**（列名 · 状态名 · 流程顺序）守不住 —— 本轮就抓到 3 处（职责 1 / 2 仍写 `验收` / `结果说明`，台账 09-20 已统一为 `说明`）。**机械能守的交给 linter，守不住的留在手册并接受它会过期**
 - **校验** —— `wiki_lint` 61 页 0 error / 2 warning · `refs_lint` 76 文件 305 引用 0 error · `lint_selftest` 8 条故障抓到 8 条
 - Updated: `.cursor/skills/microduck-pm/SKILL.md` · `log.md`
+
+## [2026-09-20] governance | 中立会话：`log.md`「只读尾部 · 不整读」升级为全局规则（`AGENTS.md`）
+
+- **由来（Human）**：「技能agent log不整读写入全局规则」—— 上一条 skill 条目自己查出的漏洞（**全仓没有任何地方规定 `log.md` 该怎么读**，而 `wiki_lint` 把它列入 `META_NAMES` 免行数 → 它只会一直长；那一轮**真整读过一次** 1180 行 / 150 KB）当时**守边界未动 `AGENTS.md`**，本次由 **Human 拉起的中立会话**落盘
+- **落笔（`AGENTS.md` · 45 → 47 行 · 2526 → 2834 B）** —— 「记录」节 ＋1 条：**`log.md` 只读尾部 · 不整读**（只追加 · 只会变长 · **整读 = 白烧几千行上下文**）：Read 的 `offset` **取负数**读尾（如 `-15`）· 翻旧账先 `Grep -n` 定位，再按 `offset` 读附近那几行
+- **为什么必须进 `AGENTS.md`（留在 pm 手册不管用）** —— 四个技能全是 `disable-model-invocation: true`，**恒在上下文的只有 `AGENTS.md`**；写在手册里 = 别的角色永远看不到这条
+- **规则只写一处（不留副本）** —— 「找东西」表 `log.md` 那行**保持原样**（仍只写「只追加」）；细则与实测数据留在本条流水 ＋ `microduck-pm` 手册「读盘纪律」
+- **未动（守边界）** —— ① 未拆 `log.md`（同时是只追加真源，拆页要动跨页引用，代价大于收益）② 未改其余三个技能（全局规则已覆盖；改它们属各自领地自进化）
+- **校验** —— `wiki_lint` 61 页 0 error / 2 warning（两条即已批准例外页）· `refs_lint` 76 文件 308 引用 0 error · `lint_selftest` 8 条故障抓到 8 条
+- **状态** —— 规则已落盘，**等 Human 确认**（中立会话：改完停下）
+- Updated: `AGENTS.md` · `log.md`
+
+## [2026-09-21] ingest | 厂商「SIAR MD 系列（VKESMD）」文档 vs XL330 逐条对照
+
+- **来源** —— 厂商飞书 wiki（`coremotion`，需登录）下发的 3 份文档 + 1 页 SDK 宣传；原件存档 `wiki/raw/assets/vkesmd/`（6 文件 · sha256 记录在案）
+- **Raw** —— `raw/articles/vkesmd-md-series-docs-2026-09-21.md`：帧格式 · 完整内存表 · 指令表 · 上位机要点 · **文档内部 6 处自相矛盾**
+- **Layer-2** —— [[xl330-vs-siar-md]]：**厂商「外形 · 参数 · 寄存器一摸一样」不成立**
+  - **寄存器** —— 与 XL330 无一运动核心同址（ID 5 vs 7 · 目标位置 42 vs 116 · 当前位置 56 vs 132 · P 增益 21 vs 84）；**没有 `Model Number(0)`**（MD 的地址 0 是固件主版本号，出厂 3）
+  - **帧格式** —— `FF FF` + `~和` = **DXL 1.0 / 飞特 SCS 血统**，不是 XL330 出厂的 Protocol 2.0（`FF FF FD 00` + CRC16）
+  - **同族证据** —— 地址表逐条同构 ＋ 官方十六进制指令生成表模板逐格同值 ＋ 固件名 `SMServo2.40-STM32-485(190225).bin` ＋ `0x06` 用 2019 版语义
+  - **参数** —— 三份文档**没有规格书**（尺寸 / 重量 / 扭矩 / 转速 / 额定电压全缺，模板那两栏是空的）→ 唯一对得上的是 **4096 step/圈**
+  - **后果** —— `robotd` / rustypot 不通 · `dxl_ping.py` 读不到 · BAM 的 P 增益闸门关 · 机身 IMU（DXL 从机 ID 200）出局 · 母线 **6.0 V 需重新问**（文档缺省电压窗 6.0–14.0 V、模板测试电压 12 V）
+- **待 Human** —— ① 本批与 [[xl330-vs-kpower-rd05t]] 的 RD05T 是否同一款（两批品牌名不同：Kpower vs SIAR）② 是否向厂商追问型号/规格书与「有无 DXL 2.0 固件」
+- **顺手记** —— 对照中发现 [[feetech-scs-bus]] §3 表里 XL330 侧两格存疑（温度上限实为 **31**；XL330 **无 55 锁**），**守边界未改该页**，已列入新页开放项
+- Updated: [[index]] · [[_meta/raw-inventory]] · `log.md`
+
+## [2026-09-21] hardware | HAT 喇叭座（J1）WAGO 用法与两脚网表查实
+
+- **由来（Human）** —— 问「喇叭的 Wago 接口怎么使用 / 怎么插拔」→ 本角色查件 + 查网表作答，顺手沉淀
+- **座型查实** —— J1 = WAGO **2059-302/998-403**（LCSC `C2765060` · 系列 2059 · **PUSH WIRE®** · 2P · 3 mm · 高 2.7 mm）：KiCAD 值 `Wago-2` / 封装 `LCSC_parts_lib:Wago_2059-302_998-403`；厂商 datasheet（2019-10-14）确认**硬（单股）线直插**（0.14–0.34 mm² 剥 4–5.5 mm；0.5 mm² 剥 6–7.5 mm）· **圆操作孔 + 工具轻压** 拔线（2059-189 / 206-859，或 twist & pull ≤10 次）· 0.5 mm² 用过后不能再接更细的线
+- **网表查实（`refs/elec_RPI_Robot_HAT/elec_RPI_Robot_HAT.kicad_pcb`）** —— `Net-(J1-Pin_1)` = **U1 `+OUT_R` 经 FB3**（＋C9 到 GND）· `Net-(J1-Pin_2)` = **U1 `−OUT_R` 经 FB2**（＋C8 到 GND）→ **两脚都不是 GND**（BTL 差分，任一脚碰地 = 输出短路）· **只引出右声道**（L 未接出）
+- **落点** —— [[hat-solder-kit]] §4.6 加「座型 · 怎么插拔」小表 ＋ 两脚网表（原句「差分输出 · 勿对 GND 单端乱接」保留，未改口径）
+- **易混提示（写进 wiki）** —— **J2 / J9 与 J1 同型号但接外置麦**，不是喇叭
+- **未动** —— 未碰 CAD / 固件 / BOM（`refs/` 只读，仅读取原理图与 PCB 网表）
+- Updated: [[hat-solder-kit]] · `log.md`
+
+## [2026-09-21] hardware | `dxl_ping.py` 加只读位置族 —— 「提示限制」不再靠猜
+
+- **由来（Human）** —— 台架两问：「舵机要归零校准吗 · limit 怎么设」＋ 现象「设 position 模式 · 开力矩 · 转 90° 提示限制」（**XL330** · **Dynamixel Wizard 2.0**）
+- **答（两条已有事实；本页只记，未改概念页）**
+  - ① **官方不写零点、也不写限位**：开机只断言/纠正 `return_delay_time` · `baud_rate` · `pwm_slope` · `shutdown` 四个 EEPROM 寄存器（`refs/microduck/duck-control/src/model.rs`）；全仓搜不到 `Homing Offset` / `Max/Min Position Limit` 的任何写入。官方代码里的 `Bringup::Homing` 是**软件斜坡到 home 位形**，与舵机 `Homing Offset(20)` **同名不同物**。零点 = 出厂零点（官方换算把 raw **2048** 记为 0 rad）＋ **装配时机械对舵盘**。
+  - ② **限位有四个，不是一个**：`Max/Min Position Limit(48/52)` 出厂 **4,095/0**（整圈）决定 `Goal Position(116)` 可写区间 · `PWM Limit(36)` 885 **全模式**生效 · `Current Limit(38)` 仅 mode 0/5 · `Max Voltage Limit(32)` **只能调低**。`48/52/36/38` 属 EEPROM → 须 `Torque Enable(64)=0` 时写；改 `Operating Mode(11)` 会**重置增益**（顺序：先模式 → 再增益 → 最后力矩）。
+- **落笔（`scripts/dxl_ping.py` · 仍只读）** —— `REGISTERS` 加 5 项：`homing_offset(20)` · `max_position_limit(48)` · `min_position_limit(52)` · `goal_position(116)` · `present_position(132)`；新增 `sign_extend()` · `POSITION_REGISTERS` · `PULSES_PER_TURN` · `OPERATING_MODE_POSITION`。`info` 对位置族打印**脉冲 ＋ 角度注记**，注记**只在同一趟读到 mode 3 时**打印（mode 4 是多圈，角度会骗人）→ 故**寄存器表必须地址升序**。
+- **为什么加这个** —— 超限的 `Goal Position` 被裁剪时**看起来完全正常**：舵机照动、只是没走到位，反馈里**没有任何东西说目标被改过** → 会伪装成「舵机没劲」或「模型不准」。即 [[rd05t-vendor-inquiry-2026-09-18]] §B6 至今未决的那一问。
+- **自检（可证伪 · 已注入实测）** —— `self-test` 增两组探针：补码解码 6 个向量 · **寄存器表地址升序**（`info` 靠表序在同一趟先读 mode）。实测注入：`sign_extend` 换恒等 → 报 4 条；表倒序 → 报 1 条；正常跑绿。
+- **待定论（90° 那件事）** —— 90° = **1024 pulse**；Position Control(3) 合法区间 0~4,095 整圈，`2048 ± 1024` 全在界内 → **不该**触发位置限位。等 human 给 Wizard **提示原文**再定论。候选：故障类锁存（`Shutdown(63)` 出厂 **53** 含 `Overload`/`InputVoltage`，torque off ＋ 红灯闪 ＋ **须 REBOOT**）· 限位/零点**真被改过** · EEPROM 写入被拒致**模式没切过去**。
+- **未动（守边界）** —— 未改任何 wiki 概念页（「官方不写零点与限位」是否落 [[dynamixel-xl330]]，**等 human 点头**）· 未碰固件 / CAD / BOM。
+- **校验** —— `dxl_ping.py self-test` 绿；`refs_lint` 77 文件 311 引用 0 error · `wiki_lint` 62 页 0 error / 2 warning（两条即已批准例外页）
+- Updated: `scripts/dxl_ping.py` · `scripts/README.md` · `log.md`
+
+## [2026-09-21] hardware | `PWM Slope(62)` 语义核准 —— 顺手抓到对外问询函一处错注
+
+- **由来（Human）** —— 问「PWM Slope 干什么用 · 原工程要求设成 255 吗」
+- **核准（去 eManual，本地无权威表）** —— XL330-M288《PWM Slope(62)》：*The PWM duty will be **linearly interpolated with a set slope** … forwarded to the motor's inverter.* → **PWM 占空比的变化率限制**（= H 桥**输出电压的 dV/dt 上限**）· 地址 **62** · 1 byte · **EEPROM 区** · 出厂 **140** · 单位 **1.977 mV/ms**
+  - **换算**（母线 6.0 V · PWM 满量程 885）：出厂 **140** = 276.8 mV/ms → 打满 **21.7 ms**；**255** = **504.1 mV/ms** → **11.9 ms**。对照控制周期 **20 ms（50 Hz）** → **出厂值下把电压打满比一个 tick 还慢** ⇒ 它是**响应带宽**设定，255 只是把这段延迟砍半（**≠ 关掉斜坡**，仍有 ~0.5 V/ms 上限）
+- **原工程：要，且是断言值** —— `EXPECTED_REGISTERS` 含 `pwm_slope=255`；`duck-control/src/bus.rs` `check_registers_of` **读回比对 → 相等即 `continue` → 不等才写**（＋20 ms EEPROM 静默 ＋ journal `correcting motor register`），对全部 15 台各走一遍 ⇒ **不产生无谓 EEPROM 擦写**；出厂 140 的（新换 / 恢复出厂）会被自动改成 255
+- **抓到两处「合理但错误」**
+  1. **我们自己的对外件写错** —— [[rd05t-vendor-inquiry-2026-09-18]] §B1 把该寄存器注成「**上电缓启动**」（**无出处**）：既非「只在启动时」、也非启动保护 → 发给厂商会被按错的意思答。**已订正**为「输出电压斜坡（限 PWM 变化率）→ 即响应带宽」并补上单位
+  2. **eManual 自相矛盾** —— 汇总表范围 **1 ~ 255**、详情节 **0 ~ 255**。1 byte 上限 255 无争议；`0` 若合法按 `0 mV/ms` 解即 **PWM 永不可变、舵机不能动** → **疑为详情节笔误（未定论）**
+- **待定项（Human 选「先不决」）** —— **台架 ≠ 整机**：台架那台仍是**出厂 140**，不跑 `robotd` 就没人改它 → **台架上测到的舵机比装机后爬得慢近一倍**；BAM 辨识 / A-B 对比该用哪个值，**上台架前再定**（`servo_swap_compare.py` 只把 `pwm_slope` 读进 `IDENTITY_REGISTERS` 做指纹，**不写它**）
+- **落笔** —— [[dynamixel-xl330]] 手册要点表 ＋1 行 `PWM Slope(62)` · 新增小节「`PWM Slope(62)`：输出电压斜坡 ≠ 上电缓启动」· [[rd05t-vendor-inquiry-2026-09-18]] 订正 1 格（**同行替换，行数不变**，仍 203）
+- **未动（红线）** —— 该问询函的 PDF **是派生物且已过期**（源已改、`wiki/queries/rd05t-vendor-inquiry-2026-09-18.pdf` 仍是旧文），**覆盖 PDF 属「覆盖」动作** → **未动，等 Human 确认**（T-10 尚未寄出，勿把旧 PDF 发出去）
+- **校验** —— `wiki_lint` 62 页 0 error / 2 warning（两条即已批准例外页，记账值未突破）
+- Updated: [[dynamixel-xl330]] · [[rd05t-vendor-inquiry-2026-09-18]] · `log.md`
+
+## [2026-09-21] hardware | 问询函 PDF 重生（源订正后）＋ 读回核实
+
+- **由来** —— 上一条改了问询函源（`PWM Slope` 一格），**派生物 PDF 随之过期**；覆盖 PDF 属红线「覆盖」动作 → **先预检 ＋ 等 Human 确认**后才动
+- **预检（旧件指纹）** —— `547,473 B` · mtime **09-18 13:11** · sha256 `E8D6E23D…E79A4B` · 渲染器 `--check` 就位（`C:\Program Files\Google\Chrome\Application\chrome.exe`）
+- **命令（key）** —— 宿主 `python`(3.12) **既无 `markdown` 也无 `pymupdf`** ⇒ 与 09-18 那次同法，走 **`uv` 临时环境**（`uv 0.12.17`，装于 09-18）：
+  `uv run --no-project --with markdown --with pymupdf python scripts/md_to_pdf.py <源> --exclude-regex '^相关：'`
+  （首次拉 `pymupdf` 18.9 MiB 入库；**这解释了「09-18 能生成」**——当时也不是用宿主解释器）
+- **验证（不只信退出码 · 读回正文）** —— 5 页 · **5008 字符**（旧 4545，+463 与新增文字相称）· 旧注 `上电缓启动` **已不在**（False）· 新注 `输出电压斜坡` **在**（True）· 单位 `1.977` 在 · `PWM Slope` 行在 · **无路径 / URL 残留**（`file://` / `wiki/queries` / `projects` 全 False）· 字体 `MicrosoftYaHei` ×3 + `Consolas` ×2 **全为 ttf 子集** → 中文方框的硬否证
+- **台账** —— `tasks.md` 阻塞表下追加一条 `>` 注（**不改 T-10 旧行**）：源已订正 · PDF 已重生 · **寄出勿用 09-18 旧件**；frontmatter `updated` 同步
+- **栈内观察（未处置）** —— 会话起始的 `git status` 里同时有 ` M wiki/log.md` 与 `?? wiki\log.md`（大小写路径并存）；本次未动，**留给 pm 判**（可能是索引里的大小写残留）
+- **校验** —— `wiki_lint` 62 页 0 error / 2 warning · `refs_lint` 77 文件 0 error
+- Updated: `wiki/queries/rd05t-vendor-inquiry-2026-09-18.pdf`（重生）· [[tasks]] · `log.md`
+
+## [2026-09-21] software | imu_to_dxl 板级诊断：固件与官方读法一致 · 逐块分出可用板
+
+- **由来（Human）** —— 右腿接 J13、左腿接 J14、**IMU 串在左腿上**，远程验「舵机 ＋ IMU 能否都读」
+- **远程只读（`/dev/ttyS2`）** —— 舵机 **10 颗全答**（`10–14` / `20–24` · model 1200）；**IMU ID 200 全静默**
+  - 1 Mbps ×3 · 超时放到 **300 ms** ×3 · `READ(0/124/136)` · **官方那笔 `sync_read(124,12)`** · 115200/57600 → **全 None**
+  - **原始字节 dump**：舵机回 7 B 完整帧；**ID 200 回 `(nothing at all)`** → 不是 CRC / 错位 / 解析，是**线上一个字节都没有**
+  - 同趟读 10 颗舵机基线：`present_input_voltage` ≈ **7.3–7.4 V** · `hw_err=1 InputVoltage` · `ALERT` 全置位 → Human 确认是**照官方 2S 路径跑 7.4 V @ 3 A**（`shutdown=52` 清 bit0），**非异常，不动**；装机定案仍是 6.0 V
+- **固件逐条对照（Human 点名「检查固件是否官方读法」）** —— `md_config.h` / `dxl_slave.c` vs `duck-control/src/{bus,imu,model}.rs`：**ID 200 · 1 Mbps · addr 124 · 12 B · SyncRead `0x82`** 全一致；**写白名单只放 `addr 9` 与 `20–29` → `ID(7)`/波特率(8) 不可写**，板子必然固定 `200 @ 1 Mbps`
+  - **顺带定论 `0x55`** —— `dxl_slave.c` 的 `#define INST_STATUS 0x55` 就是状态帧里那个字节；原始帧一算 `LEN = 1(status)+1(err)+DATA+2(CRC)`，即 **`LEN = DATA + 4` 才是 DXL 2.0 规格**，该字节就是 **Instruction 字段**。故 wiki / `scripts/README.md` 把它当「本套件异常 · LEN 与规格不符 · 来源未定论」**是反的**（脚本靠自动判别没出错，只是把「前缀」命名给了**合规**那一支）；`dynamixel_sdk` 在 U2D2 收该帧 **1000/1000** 即独立实现交叉验证。**跨域 → 报 hardware 定口径，未擅改其页**
+- **U2D2 交叉验证（COM7 · 5 V · `uv run --with pyserial`，开发机无 `pyserial`）** —— 一块板答 **model 10200**、`ID 200`、`baud 3`，但 **`@136 status=0x00` · counter=0 · `@124` 全 0** → 对照 #10 的 `@136=0x03`，判 **IMU 芯片侧死**（`md_lsm6_init` 卡 `WHO_AM_I`）
+- **逐块分类（Human 报板号）** —— **2 号**：DXL 活 / IMU 死 · **3 号：USABLE**（`0x03` · counter 8075→8117 · 数据活）· **1 号**：无应答且 **SWD 也「找不到设备」**（MCU 侧）；4/5 号未焊完
+- **HAT 复测（3 号板接 J13 · 后串 #20）** —— `sync_read(124,12)` 得**非零块** · `@136=0x03` · counter **~100 Hz 递增** · quat 稳定、gyro 逐帧变 · #20 同时应答 → **HAT 链路 ＋ IMU inline 中继都成立**；推论 **「HAT 上 IMU 静默」不是 HAT 的问题，是那块板**（此前一轮的假阴性由此澄清）
+- **新建** [[imu-to-dxl-firmware-triage]]（status 位 · 静默零块坑 · 逐块流程 · 当日结果）；更新 [[index]]
+- **`0x55` 口径订正（Human 2026-09-21 授权软件侧直接改）** —— 改 [[dxl-bench-method]] §5.1/§6/§7 · [[hat-dxl-bus-debug]] §7 · `scripts/README.md`「两个已踩过的坑」第 2 条：由「本套件异常字节 · `LEN` 与规格不符 · 来源未定论」改为「**它就是 DXL 2.0 的 Instruction 字段，`LEN = DATA + 4` 才是规格**」；两页 `updated` bump 到 2026-09-21
+- **`dxl_ping.py` 措辞对齐（Human 追加授权）** —— 只改注释 / docstring / 一句 verbose 文案，**逻辑零改动**（标识符 `STATUS_PREFIX_BYTE` · `prefixed` 按 Human 选择保留）：`STATUS_PREFIX_BYTE` 注释 · `Status.prefix` 注释 · `_read_status` docstring（写出 `spec = DATA+4` / `bare = DATA+3`，并点明 `standard`·`prefixed` **命名与事实相反**）· 分支注释 · verbose 串 · Loopback / Replay 夹具注释 · `self-test` 自述串；**`self-test` 重跑绿**
+- **未动（守边界）** —— 未写任何舵机寄存器 / 板配置；未碰 CAD / BOM
+- **校验** —— `wiki_lint` 63 页 0 error / 2 warning（两条即已批准例外页，记账值未突破）· `refs_lint` 78 文件 315 引用 0 error
+- Updated: [[index]] · [[imu-to-dxl-firmware-triage]] · `log.md`
+
+## [2026-09-21] software | 技能沉淀：`microduck-software` 手册新增「板级诊断」
+
+- **由来（Human）** —— 「把之前 U2D2 测试 IMU 板、远程主板测试 IMU 和腿都沉淀成技能」；Human 当场定**落点 = 只落 software 手册**（*不*动 hardware —— 跨域须中立会话）· **形状 = 手册只放「命令 ＋ 判据 ＋ 指路」，判据真源仍留 wiki**
+- **改 `.cursor/skills/microduck-software/SKILL.md`**（自有领地 · 自进化报备）—— 新增 `## 板级诊断（U2D2 · 主控）`：
+  - **A. 台架 · U2D2 逐块分诊 IMU 板** —— `scan` 命令 ＋ **「答 Ping ≠ IMU 有数」**判据表（`@124`·12 B / `@136`·8 B）＋ 一句话判板（`0x03` 活 / `0x00` IMU 侧死 / 无应答 MCU 侧）＋ **`info --id 200` 不可用**（按 XL330 表读地址 6，本板 fw 在地址 2）
+  - **B. 主控 · 远程验 IMU ＋ 腿** —— `scp` ＋ `ssh` 三条命令 ＋ 验收（**同一总线同认 ID 200 ＋ 腿 ID** · `sync_read` 非零块）；板 IP / 用户指向 [[zero3w-bench-plan]]，**凭据只走本机 `~/.ssh`**（红线 1）
+  - **C. 环境坑** —— Windows 上 **`pyserial` 是硬前提**（`termios` 回退只在 Linux）· 板侧别装包 · **传脚本必须 LF** · `import dxl_ping` 要显式给路径 · 开发机 `python3` 是商店占位符
+  - **欠账（就地写明）** —— `dxl_ping.py` 尚无 raw `read` / `sync-read` 子命令，手册里给的是 `import` 一行绕行写法 **（当日已关 · 见下条）**
+- **沉淀区**补记该条（改「已沉」一行）
+- **未动（守边界）** —— **未改 hardware 手册**（Human 选「只落软件」）· **未给 `dxl_ping.py` 加新子命令**（不扩范围 · 只记欠账）· 未碰固件 / CAD / BOM
+- **校验** —— `wiki_lint` 63 页 0 error / 2 warning（两条即已批准例外页）· `refs_lint` 78 文件 323 引用 0 error（手册新引路径全部解析得到）
+- Updated: `.cursor/skills/microduck-software/SKILL.md` · `log.md`
+
+## [2026-09-21] software | `dxl_ping.py` 补 `read` / `sync-read` 只读子命令
+
+- **由来** —— 承接上一条的欠账（Human 选「加」）：板级分诊此前只能 `import dxl_ping` 绕行；且 `info` 是 **XL330 形状**的，看不了自己不认识的表（读地址 6 的 fw 而非本板的地址 2）
+- **新增两个只读子命令**（`scripts/dxl_ping.py`）：
+  - **`read --id N --addr A --length L`** —— 原始块读：字节 ＋ `u8` / `u16 LE` / `i16 LE`；**短读**与**全 0** 各自单独标注
+  - **`sync-read --ids a,b,c --addr A --length L`** —— **`0x82` 广播**同步读，复刻官方总线形状（`duck-control/src/bus.rs`）；**逐 ID 报三态**：`(no reply)` / **答了但块全 0** / 在变
+- **为什么必须把「全 0」单独报** —— 从机活着、传感器坏（ID 200 的当日现实故障）会答一笔**合法空块**；把它当错误报，正好把要找的故障藏起来（= 用户点名要沉的那个坑）
+- **`self-test` 加第 9 组** —— 广播地址 ＋ CRC 形状 · 静默 ID 映射 `None` · **空块必须是 REPLY**；并**用注入故障验证**：三处故障（广播改单播 · 静默 ID 丢弃 · 空块当失败）**全被抓到**，未注入的干净副本仍绿
+- **文档同步** —— `scripts/README.md` 新节「`read` / `sync-read`」＋ 子命令表 ＋ 目录一览；[[imu-to-dxl-firmware-triage]] §3/§4/§6 换成真命令；[[index]] 脚本一行更新
+- **未动（守边界）** —— **未改 hardware 手册及其台架页**（`dxl-bench-method` §M5 清单 · `hat-dxl-bus-debug` 仍只列旧子命令 → **待 hardware 收口**）；未碰固件 / CAD / BOM
+- **既有瑕疵（未修 · 不是本次引入）** —— 端口打不开时（如 `--port COM99`）`main()` 只接 `RuntimeError`，pyserial 的 `SerialException` 会**打整个 traceback**；`scan` / `info` 一直如此
+- **校验** —— `dxl_ping.py self-test` 绿（含新第 9 组）· `wiki_lint` 63 页 0 error / 2 warning · `refs_lint` 78 文件 327 引用 0 error · `lint_selftest` 8/8
+- Updated: `scripts/dxl_ping.py` · `scripts/README.md` · [[imu-to-dxl-firmware-triage]] · [[index]] · `.cursor/skills/microduck-software/SKILL.md` · `log.md`

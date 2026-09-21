@@ -34,6 +34,62 @@ disable-model-invocation: true
 | `image/` | Zero 3W seed 镜像构建与 overlay（`out/*.img*` 不入库） |
 | `scripts/` | 台架 / 上机脚本（约定见 `scripts/README.md`） |
 
+## 板级诊断（U2D2 · 主控）—— 2026-09-21 实做
+
+**判据真源** → `wiki/concepts/imu-to-dxl-firmware-triage.md`（`@136` status 位表 · 「静默零块」坑 · 逐块结果）。
+本节只说**怎么跑**；台架供电 / 限流纪律 → `/microduck-hardware`（`wiki/concepts/dxl-bench-method.md` · `wiki/concepts/hat-dxl-bus-debug.md`）。
+
+### A. 台架 · U2D2 逐块分诊 IMU 板
+
+```bash
+# 开发机（Windows）：pyserial 是硬前提 —— stdlib 回退是 Linux 专有
+uv run --with pyserial python scripts/dxl_ping.py scan --port COM7 --baud 1000000,57600
+```
+
+扫到 **model `10200`** 只证明 **DXL 从机在跑**，**不证明 IMU 有数** —— 必须再读两块：
+
+| 块 | 地址 · 长度 | 判据 |
+|----|------------|------|
+| 数据块 | `124` · 12 B | **全 0 = SFLP 没出数**（Ping 照答，静默失败） |
+| 诊断块 | `136` · 8 B | `u16` counter **递增**？`u8` status **`0x03`** = 活 |
+
+```bash
+uv run --with pyserial python scripts/dxl_ping.py read --port COM7 --id 200 --addr 124 --length 12
+uv run --with pyserial python scripts/dxl_ping.py read --port COM7 --id 200 --addr 136 --length 8
+```
+
+一句话判板：**`0x03` ＋ counter 走 = 可用** · **`0x00` = DXL 活但 IMU 芯片 / SPI 死** · **完全无应答 = MCU 侧**（SWD 也认不到）。
+**别用 `info --id 200`** —— 它按 XL330 表读**地址 6**，本板固件版本在**地址 2**（`imu_to_dxl/firmware/src/control_table.c`）。
+
+### B. 主控 · 远程验 IMU ＋ 腿
+
+```bash
+scp -i <私钥> scripts/dxl_ping.py <板用户>@<板IP>:/tmp/
+ssh -i <私钥> <板用户>@<板IP> 'python3 /tmp/dxl_ping.py scan  --port /dev/ttyS2 --baud 1000000,57600'
+ssh -i <私钥> <板用户>@<板IP> 'python3 /tmp/dxl_ping.py sync-read --port /dev/ttyS2 --ids 200,20,21,22,23,24 --addr 124 --length 12'
+ssh -i <私钥> <板用户>@<板IP> 'python3 /tmp/dxl_ping.py probe --port /dev/ttyS2 --expect 10,11,12,13,14'
+```
+
+板 IP / 用户 → `wiki/concepts/zero3w-bench-plan.md`；**凭据只走本机 `~/.ssh`，不进仓 · 不回显**（红线 1）。
+
+验收 = **同一条总线同时**认到 **ID 200（model 10200）＋ 腿 ID（model 1200）**，且
+`sync-read` 那笔（就是官方 `refs/microduck/duck-control/src/bus.rs` 的形状）拿**非零**块 ——
+输出里 `(no reply)` / **全 0** / 在变，是**三种不同结论**，别混（口径见判据真源）。
+逐块 / 逐轮结论**回写 wiki**，别只留在本会话。
+
+### C. 环境坑（都踩过）
+
+- **Windows 上 `pyserial` 是硬前提** —— 脚本的 stdlib `termios` 回退**只在 Linux 上有**，而本仓刻意不加硬依赖（板子常无 `pip`）→ 开发机用 **`uv run --with pyserial`** 临时环境，**别改脚本**。
+- **板侧别装包** —— 板上 `python3` 无 `pyserial` / `pip` 是常态；脚本自己退回 `termios` 就跑得起来。
+- **传脚本必须 LF** —— Windows 发过去的 `.py` / `.sh` 带 CRLF，远程 Linux 报语法错。用 `scp` 原样传，或在 PowerShell 里 `-replace "\r\n","\n"` 重写换行。
+- **`import dxl_ping` 要显式给路径** —— 远程脚本报找不到模块时用 `sys.path.insert(0, '/tmp')`，或把脚本放到 `dxl_ping.py` 同目录。
+- **开发机 `python3` 是商店占位符** —— 用 `python` / `py -3.12`（详见 `wiki/concepts/local-workspace-layout.md`）。
+
+**只读性** —— `read` / `sync-read` 与 `scan` / `info` 一样**只发 PING · READ · `0x82`**，不写任何寄存器；
+写入仍归 `robotd` / Wizard（要写先列范围 ＋ 等用户确认）。
+这两个子命令是 **2026-09-21 为本节补的**：`sync-read` 会把「**答了但块全 0**」单独报出来
+（从机活、传感器死），`self-test` 用注入故障钉住广播地址 / 静默 ID / 空块三个分支。
+
 **契约（改了就跨域，先说）**
 
 - 机身 IMU 作 DXL 从机：**ID 200** · 寄存器块与官方 `robotd` 一致（以 wiki 为准）
@@ -54,7 +110,11 @@ disable-model-invocation: true
 
 ## 沉淀区（随干活补）
 
-该沉：编译 / flash 参数 · 总线抓包结论 · 板子 `python3` 缺 `pip` / `pyserial` 这类环境坑 · ONNX 契约变更记录。
+该沉：编译 / flash 参数 · 总线抓包结论 · **板级分诊判据** · 板子 `python3` 缺 `pip` / `pyserial` 这类环境坑 · ONNX 契约变更记录。
+
+已沉（2026-09-21）：**U2D2 逐块分诊 IMU 板** ＋ **主控远程验 IMU / 腿** → 见「板级诊断」节；
+判据真源 `wiki/concepts/imu-to-dxl-firmware-triage.md`。过程坑：Windows **必须** `pyserial` · 传脚本 CRLF · `import` 路径。
+同批补了 `scripts/dxl_ping.py` 的 **`read` / `sync-read`** 子命令（只读 · `self-test` 用注入故障验证）。
 
 ## 红线（本角色专属）
 

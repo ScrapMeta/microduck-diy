@@ -1,7 +1,7 @@
 ---
 title: DXL 台架方法与脚本（参数 · 探测顺序 · 一致性基线）
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-21
 type: concept
 tags: [dynamixel, servo, power]
 sources:
@@ -110,10 +110,12 @@ python3 scripts/dxl_ping.py probe --port COM7 --expect <ID列表>
 
 1. **CRC 必须覆盖 4 字节 header**（`FF FF FD 00` 起）。漏掉 → 报文被舵机丢弃 → **两档波特率全「无回包」**，
    而 `self-test` 因为假舵机照抄同一错误会**全绿**。现由公开向量 `ff ff fd 00 01 03 00 01 19 4e` 钉死。
-2. **本套件回包多一个固定字节 `0x55`**（`LEN = DATA + 4`，规格 `+3`），且在线上、被舵机 CRC 覆盖。
-   按规格解析 → `error=0x55` 且**所有寄存器整体错位一字节**（`model=45056`、`1792.0 V` 这类「合理但错误」的值）。
-   脚本用「PING 回 3 字节 / READ 回请求长度」自动判别两种帧；`self-test` 用实测帧回放回归。
-   **该字节来源未定论**，需 U2D2 + Wizard 交叉验证。
+2. **状态帧里的 `0x55` = DXL 2.0 的 Instruction 字段**（2026-09-21 定论）。DXL 2.0 的 Status 包本是
+   `… · INST(0x55) · ERROR · PARAM · CRC`，`LEN` 数的是 **INST＋ERROR＋PARAM＋CRC** = `len(DATA) + 4`
+   —— **`DATA + 4` 才是规格**。按「没有 0x55」（`LEN = DATA + 3`）解析 → `error=0x55` 且**寄存器整体错位一字节**
+   （`model=45056`、`1792.0 V` 这类「合理但错误」的值）。脚本用「PING 回 3 字节 / READ 回请求长度」自动判别两种帧，
+   **行为一直是对的**（只是把合规那一支命名成「prefix」）。
+   证据：本仓 `imu_to_dxl/firmware/src/dxl_slave.c` 的 `#define INST_STATUS 0x55` ＋ **`dynamixel_sdk` 在 U2D2 收该帧 1000/1000**（独立实现做锚）。
 
 ## 6. 验收清单（Issue [#4](https://github.com/ScrapMeta/microduck-diy/issues/4) → 续 [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)）
 
@@ -129,7 +131,7 @@ python3 scripts/dxl_ping.py probe --port COM7 --expect <ID列表>
 **仍未做**
 
 - [ ] 示波器：空闲 DATA ≈3.3 V；Ping 主机包 + 回包波形
-- [ ] 回包多出的固定字节 `0x55` 来源定论（U2D2 + Wizard 交叉验证）
+- [x] 回包里的 `0x55` 定论 = **DXL 2.0 的 Instruction 字段**（2026-09-21 · 固件 ＋ `dynamixel_sdk` 两路证据）
 - [ ] 按构型**实测**台供限流值（纯 HAT 1 A / 叠 Zero 2–3 A 仍为定案值，未实测复核）
 
 **复查补充（主控↔HAT DATA 未打通）**
@@ -154,6 +156,6 @@ python3 scripts/dxl_ping.py probe --port COM7 --expect <ID列表>
    若出现 `1792.0 V` 这类值，是**帧错位**（本套件多一固定字节 `0x55`），不是舵机坏了。
 4. **没装 `pyserial` 也能跑**：脚本在 Linux 上退回 stdlib `termios`。
 
-**仍未做**：示波器波形 · 写 ID/波特率（归 `robotd`/Wizard）· `0x55` 来源定论（U2D2 + Wizard 交叉验证）。
+**仍未做**：示波器波形 · 写 ID/波特率（归 `robotd`/Wizard）。
 
 相关：[[hat-dxl-bus-debug]] · [[xl330-cn-bench-kit]] · [[dynamixel-xl330]] · [[bench-power-supply]] · [[body-imu-hat-dxl-power-eval]]

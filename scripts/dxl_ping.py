@@ -21,6 +21,8 @@ with no hardware and no dependencies at all.
     python3 dxl_ping.py self-test
     python3 dxl_ping.py scan  --port COM7
     python3 dxl_ping.py info  --port COM7 --id 1
+    python3 dxl_ping.py read  --port COM7 --id 200 --addr 124 --length 12
+    python3 dxl_ping.py sync-read --port COM7 --ids 200,20 --addr 124 --length 12
     python3 dxl_ping.py probe --port COM7
 
 The official probe order (mirrors `duck-control/src/bus.rs` `adopt`, `robotd-design`
@@ -83,6 +85,33 @@ range is **31 ~ 70 = 3.1 ~ 7.0 V**, so the register can only be made *stricter* 
 Read this register before reasoning about torque vs. bus voltage; the bench servo
 shipped at the factory default, so an unread value is an unknown.
 
+Position registers - the limit that reads as a weak servo
+--------------------------------------------------------
+`info` also reads the position family, because its failure mode is invisible from the
+command side:
+
+    Homing Offset(20)         EEPROM, 0 out of the box, +-1,044,479
+    Max Position Limit(48)    4,095 = one full turn at 4,096 pulses
+    Min Position Limit(52)    0
+    Goal Position(116)        writable only within Min(52) .. Max(48)
+    Present Position(132)     where the servo actually is
+
+A `Goal Position` outside `Min .. Max` is clipped to the limit or refused, and **a
+clipped command looks entirely normal**: the servo moves, just not as far as it was
+told, and nothing in the feedback says the target was changed. Read out of context
+that is "the servo is weak" or "the model is wrong", and it costs a day. `Homing
+Offset(20)` confuses from the other side - it shifts every angle the loop reads *and*
+writes without touching a single target, so a mis-set zero is indistinguishable from a
+mounting error. Neither is visible unless the three are read together.
+
+`Min`/`Max Position Limit` are EEPROM, so they are writable only with `Torque
+Enable(64)=0`. This script never writes them.
+
+`Goal Position` and `Present Position` are unipolar in Position Control(3) and
+multi-turn in Extended Position Control(4), so the pulse-to-degree note `info` prints
+for them is suppressed unless the mode read in the same pass is 3. That is why the
+table below has to stay in ascending address order, and `self-test` pins it.
+
 Register addresses are from the ROBOTIS XL330-M288 eManual control table.
 """
 
@@ -107,11 +136,22 @@ BROADCAST_ID = 0xFE
 
 INST_PING = 0x01
 INST_READ = 0x02
+INST_SYNC_READ = 0x82
 
 MODEL_NUMBER_XL330 = 1200
 
-# Some DXL-2.0-compatible servos insert a constant byte between LEN and ERROR.
-# Observed value on the XL330-CN bench kit (Issue #4, 2026-09-16).
+# The imu_to_dxl board (our own DXL slave, `imu_to_dxl/firmware`) answers as this
+# model number. `sync-read` uses it to name the "answered, but the block is empty"
+# case, which is a live slave with a dead IMU sensor side.
+MODEL_NUMBER_IMU_TO_DXL = 10200
+IMU_DXL_ID = 200
+
+# Name kept for continuity. This is the DXL 2.0 Status packet's Instruction byte
+# (INST_STATUS = 0x55), which every spec-compliant status frame carries between LEN
+# and ERROR - so it is NOT an extra/odd byte; the "+3" reading was the wrong one.
+# Confirmed 2026-09-21 against our own imu_to_dxl firmware (`#define INST_STATUS 0x55`,
+# LEN = DATA + 4) and by dynamixel_sdk accepting these frames on U2D2 (Read(124,12)
+# 1000/1000).
 STATUS_PREFIX_BYTE = 0x55
 
 # Instruction(8) -> bps. The servo stores the index; 1 is the factory default.
@@ -130,7 +170,9 @@ BUS_BAUD = 1_000_000
 FACTORY_ID = 1
 FACTORY_BAUD = 57_600
 
-# (address, length, unit) from the XL330-M288 control table.
+# (address, length, unit) from the XL330-M288 control table. **Ascending address order** -
+# `info` prints in table order and builds its degree note from a register read earlier in
+# the same pass (see the module docstring); `self-test` pins the ordering.
 REGISTERS = {
     "model_number": (0, 2, "1"),
     "firmware_version": (6, 1, "1"),
@@ -138,18 +180,38 @@ REGISTERS = {
     "baud_rate": (8, 1, "index"),
     "return_delay_time": (9, 1, "2us"),
     "operating_mode": (11, 1, "index"),
+    "homing_offset": (20, 4, "pulse"),
     "max_voltage_limit": (32, 2, "0.1V"),
     "min_voltage_limit": (34, 2, "0.1V"),
     "pwm_limit": (36, 2, "0.113%"),
     "current_limit": (38, 2, "mA"),
+    "max_position_limit": (48, 4, "pulse"),
+    "min_position_limit": (52, 4, "pulse"),
     "pwm_slope": (62, 1, "1.977mV/ms"),
     "shutdown": (63, 1, "bitmask"),
     "torque_enable": (64, 1, "0/1"),
     "status_return_level": (68, 1, "0-2"),
     "hardware_error_status": (70, 1, "bitmask"),
+    "goal_position": (116, 4, "pulse"),
+    "present_position": (132, 4, "pulse"),
     "present_input_voltage": (144, 2, "0.1V"),
     "present_temperature": (146, 1, "C"),
 }
+
+# A full turn in the position registers. The loop's own count<->radian conversion in
+# `duck-control/src/bus.rs` is built on the same 4,096.
+PULSES_PER_TURN = 4096
+
+# Reported in pulses, with a degree note where one is meaningful.
+POSITION_REGISTERS = frozenset({
+    "homing_offset", "max_position_limit", "min_position_limit",
+    "goal_position", "present_position",
+})
+
+# Two's complement. Reading `Homing Offset` as unsigned turns -1 pulse into 4,294,967,295
+# - the "plausible but wrong" shape this repo has already been bitten by, and it raises
+# nothing. `Min`/`Max Position Limit` are 0..4,095, so they stay unsigned.
+SIGNED_REGISTERS = frozenset({"homing_offset", "goal_position", "present_position"})
 
 # The four registers robotd asserts/corrects every startup.
 EXPECTED_REGISTERS = {
@@ -180,6 +242,10 @@ OPERATING_MODES = {
 
 # Modes in which Current Limit(38) is enforced. PWM Limit(36) applies in all of them.
 CURRENT_LIMITED_MODES = (0, 5)
+
+# The factory default, and the only mode in which a pulse-to-degree note on the position
+# family is honest (Extended Position Control(4) is multi-turn, so the note is dropped).
+OPERATING_MODE_POSITION = 3
 
 
 def update_crc(crc: int, data: bytes) -> int:
@@ -234,7 +300,8 @@ class Status:
         self.error = error
         self.params = params
         self.raw = raw
-        # Set when a non-standard status prefix byte was present (see Bus._read_status).
+        # The status Instruction byte (0x55, the DXL 2.0 spec form); None if absent.
+        # See Bus._read_status for why the branch below it is named "prefixed".
         self.prefix = None
 
     @property
@@ -357,7 +424,7 @@ class TermiosSerial:
 class Bus:
     """Thin Protocol 2.0 client. `port` may be a path or an injected object (tests).
 
-    Read-only: only PING and READ instruction packets are ever built.
+    Read-only: only PING, READ and SYNC READ instruction packets are ever built.
     """
 
     def __init__(self, port: str, baud: int, timeout: float = 0.05, verbose: bool = False):
@@ -392,20 +459,26 @@ class Bus:
     def _read_status(self, expect_len: int | None = None) -> Status | None:
         """Read one status packet, tolerating garbage before the header.
 
-        `expect_len` is the DATA length the spec says this instruction returns
+        `expect_len` is the DATA length this instruction returns
         (PING -> 3 = model(2) + firmware(1); READ -> the requested byte count). It
         is what lets us tell the two candidate framings apart, because both are
         numerically consistent with LEN on their own:
 
-          standard : LEN = 1(ERROR) + DATA + 2(CRC)
-          prefixed : LEN = 1(prefix) + 1(ERROR) + DATA + 2(CRC)
+          spec (DXL 2.0) : LEN = 1(INST=0x55) + 1(ERROR) + DATA + 2(CRC) = DATA + 4
+          bare           : LEN = 1(ERROR) + DATA + 2(CRC)                = DATA + 3
 
-        Bench finding (Issue #4, 2026-09-16, /dev/ttyS2 @ 57 600): the servo shipped
-        with the XL330-CN kit replies in the *prefixed* form, with a constant 0x55
-        byte between LEN and ERROR. The servo's own LEN and CRC both cover that byte,
-        so it is genuinely on the wire - it is not something this parser invents.
-        Before this was understood every reply looked like `error=0x55` with every
-        register shifted one byte, which reads as plausible-but-wrong data.
+        NAMING CAUTION: the two branches below are called `standard` / `prefixed`,
+        which is backwards. The DXL 2.0 Status packet carries the Instruction byte
+        0x55 between LEN and ERROR, so the "prefixed" branch is the *compliant* one
+        and STATUS_PREFIX_BYTE is simply that Instruction byte. (Confirmed
+        2026-09-21: our imu_to_dxl firmware does `#define INST_STATUS 0x55` with
+        LEN = DATA + 4, and dynamixel_sdk accepts these frames on U2D2 -
+        Read(124,12) 1000/1000. The "+3" form was the non-spec reading.)
+
+        The servo's own LEN and CRC both cover that byte, so it is genuinely on the
+        wire - it is not something this parser invents. Parsed with the bare form,
+        every reply looks like `error=0x55` with every register shifted one byte,
+        which reads as plausible-but-wrong data.
         """
         deadline = time.monotonic() + max(self.timeout, 0.02)
         buf = bytearray()
@@ -424,7 +497,7 @@ class Bus:
             return None
         dxl_id, len_l, len_h = rest[0], rest[1], rest[2]
         body_len = len_l | (len_h << 8)
-        # LEN already counts ERROR + PARAM + CRC, so this is the whole remainder.
+        # LEN counts INST + ERROR + PARAM + CRC, so this is the whole remainder.
         payload = self.ser.read(body_len)
         if len(payload) != body_len:
             return None
@@ -440,10 +513,11 @@ class Bus:
 
         body = frame[3:-2]  # everything LEN counts, minus the 2 CRC bytes
 
-        # standard body = ERROR + DATA          -> len == expect_len + 1
-        # prefixed body = PREFIX + ERROR + DATA -> len == expect_len + 2
+        # bare body = ERROR + DATA                -> len == expect_len + 1
+        # spec body = INST(0x55) + ERROR + DATA   -> len == expect_len + 2
+        # (branch names are historical: `prefixed` is really the DXL 2.0 spec form.)
         # On error the servo may return no DATA at all, which makes the two lengths
-        # collide; fall back to the prefix value in that case.
+        # collide; fall back to the Instruction-byte value in that case.
         prefixed = False
         if expect_len is not None and len(body) == expect_len + 2:
             prefixed = True
@@ -458,8 +532,8 @@ class Bus:
             params = body[2:]
             if self.verbose:
                 sys.stderr.write(
-                    f"  ! non-standard status framing: prefix 0x{prefix:02X}, "
-                    f"LEN = DATA + 4 (spec says + 3)\n"
+                    f"  ! status Instruction byte 0x{prefix:02X} present - DXL 2.0 "
+                    f"spec form, LEN = DATA + 4\n"
                 )
         else:
             prefix, error, params = None, (body[0] if body else 0), body[1:]
@@ -491,6 +565,45 @@ class Bus:
         params = address.to_bytes(2, "little") + length.to_bytes(2, "little")
         return self._transact(dxl_id, INST_READ, params, expect_len=length)
 
+    def sync_read(self, ids, address: int, length: int) -> dict:
+        """Sync Read (0x82): ONE instruction, one status frame per answering id.
+
+        Returns `{id: Status | None}` - every requested id is a key, and a device
+        that stays silent maps to None instead of aborting the round. That matters
+        because this is the shape the robot bus uses (`duck-control/src/bus.rs`
+        reads the IMU and every servo in one transaction, IMU first): an absent id
+        there fails the whole read, while an id that answers with an *empty* block
+        succeeds and looks fine. Both have to stay visible here.
+
+        Read-only, exactly like `read()` - 0x82 only ever asks for registers.
+        """
+        params = address.to_bytes(2, "little") + length.to_bytes(2, "little") + bytes(ids)
+        packet = build_packet(BROADCAST_ID, INST_SYNC_READ, params)
+        if self.verbose:
+            sys.stderr.write(f"  > {packet.hex(' ')}\n")
+        try:
+            self.ser.reset_input_buffer()
+        except Exception:
+            pass
+        self.ser.write(packet)
+
+        out = {dxl_id: None for dxl_id in ids}
+        remaining = set(ids)
+        # Each `_read_status` already bounds itself by self.timeout; this is the
+        # budget for the whole round (one frame per id, plus one silent timeout).
+        # It is a ceiling, not a delay: the loop exits as soon as every id answered.
+        deadline = time.monotonic() + max(self.timeout, 0.02) * (len(ids) + 1) + 0.05
+        while remaining and time.monotonic() < deadline:
+            status = self._read_status(expect_len=length)
+            if status is None:
+                break  # nothing further on the wire within a full frame timeout
+            if status.dxl_id in remaining:
+                out[status.dxl_id] = status
+                remaining.discard(status.dxl_id)
+            elif self.verbose:
+                sys.stderr.write(f"  ! sync read: unexpected id {status.dxl_id}\n")
+        return out
+
 
 def scan(bus: Bus, id_min: int, id_max: int) -> list:
     found = []
@@ -507,6 +620,13 @@ def model_of(status: Status) -> int | None:
     return None
 
 
+def sign_extend(value: int, length: int) -> int:
+    """Two's complement decode, for the registers that carry a negative half."""
+    if value >= 1 << (8 * length - 1):
+        value -= 1 << (8 * length)
+    return value
+
+
 def read_scalar(bus: Bus, dxl_id: int, name: str) -> int | None:
     address, length, _unit = REGISTERS[name]
     status = bus.read(dxl_id, address, length)
@@ -515,7 +635,7 @@ def read_scalar(bus: Bus, dxl_id: int, name: str) -> int | None:
     value = 0
     for i, byte in enumerate(status.params[:length]):
         value |= byte << (8 * i)
-    return value
+    return sign_extend(value, length) if name in SIGNED_REGISTERS else value
 
 
 def decode_shutdown(value: int) -> str:
@@ -568,6 +688,9 @@ def cmd_info(args) -> int:
             return 2
         print(f"# bench baseline - id {args.id} @ {args.baud} bps, {args.port}")
         print(f"# date: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        # Read in table order, which is ascending address order: the degree note below
+        # needs Operating Mode(11) to have been read already. `self-test` pins that.
+        mode = None
         for name in REGISTERS:
             value = read_scalar(bus, args.id, name)
             if value is None:
@@ -582,11 +705,14 @@ def cmd_info(args) -> int:
             elif name == "shutdown":
                 note = f"  -> latches on: {decode_shutdown(value)}"
             elif name == "operating_mode":
+                mode = value
                 note = f"  -> {decode_operating_mode(value)}"
             elif name == "hardware_error_status":
                 note = f"  -> {decode_shutdown(value)}"
             elif name == "model_number" and value == MODEL_NUMBER_XL330:
                 note = "  (XL330)"
+            elif name in POSITION_REGISTERS and mode in (None, OPERATING_MODE_POSITION):
+                note = f"  -> {value * 360.0 / PULSES_PER_TURN:+.1f} deg"
             print(f"{name:24s} = {value}{note}")
         print()
         print("# robotd would assert (and correct) these:")
@@ -650,6 +776,83 @@ def cmd_probe(args) -> int:
     return verdict
 
 
+def cmd_read(args) -> int:
+    """Raw register block read - the one thing `info` cannot do.
+
+    `info` is XL330-shaped: it reads a named register table, so pointed at the
+    imu_to_dxl board (id 200) it reads firmware from address 6 where that board
+    stores it at address 2. Raw reads are how you look at a device whose control
+    table this script does not know.
+    """
+    with open_bus(args.port, args.baud, args.timeout, args.verbose) as bus:
+        status = bus.read(args.id, args.addr, args.length)
+        if status is None:
+            print(f"id {args.id} addr {args.addr} len {args.length} -> no reply "
+                  f"at {args.baud} bps on {args.port}")
+            return 2
+        data = status.params
+        print(f"# read addr {args.addr} len {args.length} - id {args.id} "
+              f"@ {args.baud} bps, {args.port}")
+        print(f"# date: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"error  = 0x{status.error:02X}{'  ALERT(0x80 set)' if status.alert else ''}")
+        print(f"u8     = {list(data)}")
+        print(f"hex    = {data.hex(' ')}")
+        if len(data) >= 2:
+            pairs = len(data) // 2
+            words = [data[i * 2:i * 2 + 2] for i in range(pairs)]
+            print(f"u16 LE = {[int.from_bytes(w, 'little') for w in words]}")
+            print(f"i16 LE = {[int.from_bytes(w, 'little', signed=True) for w in words]}")
+        if len(data) != args.length:
+            print(f"note   = got {len(data)} of {args.length} bytes "
+                  f"(error reply, or the device returns a shorter block)")
+        if data and not any(data):
+            print("note   = ALL ZERO - the device answered, but this block is empty")
+        return 0
+
+
+def cmd_sync_read(args) -> int:
+    """Sync Read across ids - reproduces the robot bus transaction.
+
+    The verdict this prints is the whole point of the subcommand: an id that
+    answers with an all-zero block is NOT a pass. On the imu_to_dxl board that is
+    what a live DXL slave with a dead IMU sensor side looks like.
+    """
+    ids = [int(x) for x in str(args.ids).replace(" ", ",").split(",") if x.strip()]
+    if not ids:
+        print("error: --ids is empty", file=sys.stderr)
+        return 1
+    with open_bus(args.port, args.baud, args.timeout, args.verbose) as bus:
+        got = bus.sync_read(ids, args.addr, args.length)
+        print(f"# sync_read addr {args.addr} len {args.length} - ids {ids} "
+              f"@ {args.baud} bps, {args.port}")
+        print(f"# date: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        answered, missing, empty = [], [], []
+        for dxl_id in ids:
+            status = got[dxl_id]
+            if status is None:
+                missing.append(dxl_id)
+                print(f"id {dxl_id:3d}  (no reply)")
+                continue
+            answered.append(dxl_id)
+            data = status.params
+            if data and not any(data):
+                empty.append(dxl_id)
+                tag = "   <- ALL ZERO"
+            else:
+                tag = ""
+            print(f"id {dxl_id:3d}  error=0x{status.error:02X}  "
+                  f"data[{len(data)}]: {data.hex(' ')}"
+                  f"{'  ALERT(0x80 set)' if status.alert else ''}{tag}")
+        print()
+        print(f"answered: {answered}")
+        print(f"missing : {missing}")
+        if empty:
+            print(f"all-zero: {empty}  <- answered, but the block is empty. For id 200 that")
+            print("          is a live DXL slave with a dead IMU sensor side - see")
+            print("          wiki/concepts/imu-to-dxl-firmware-triage.md.")
+        return 0 if answered else 2
+
+
 def cmd_self_test(args) -> int:
     failures = []
 
@@ -682,7 +885,9 @@ def cmd_self_test(args) -> int:
         def write(self, data):
             for dxl_id, instruction, params in parse_packet(data):
                 if instruction == INST_PING:
-                    # Status LEN = ERROR(1) + model(2) + firmware(1) + CRC(2) = 6.
+                    # Bare status form: LEN = ERROR(1) + model(2) + firmware(1) + CRC(2) = 6.
+                    # (The real kit sends the spec form instead: INST(0x55) + ERROR + DATA,
+                    # i.e. LEN = DATA + 4. Both are accepted below.)
                     body = bytes([dxl_id, 0x06, 0x00, self.error]) \
                         + self.model.to_bytes(2, "little") + bytes([0x35])
                     frame = HEADER + body
@@ -723,9 +928,10 @@ def cmd_self_test(args) -> int:
     if Bus(Corrupt(), BUS_BAUD).ping(1) is not None:
         failures.append("a packet with a bad CRC was accepted")
 
-    # 4) the framing this bench kit actually replies with (Issue #4, 2026-09-16).
-    # These are verbatim captures from /dev/ttyS2 @ 57 600; the extra 0x55 byte
-    # after LEN is on the wire and covered by the servo's own CRC.
+    # 4) the status framing this bench kit replies with (Issue #4, 2026-09-16).
+    # These are verbatim captures from /dev/ttyS2 @ 57 600. The 0x55 after LEN is
+    # the DXL 2.0 Status packet's Instruction byte (spec form, LEN = DATA + 4); it
+    # is on the wire and covered by the servo's own CRC.
     class Replay:
         def __init__(self, frames):
             self.frames = [bytes.fromhex(f) for f in frames]
@@ -801,13 +1007,125 @@ def cmd_self_test(args) -> int:
     if decode_operating_mode(2) != "unknown/2":
         failures.append(f"operating mode 2 (reserved) decoded as {decode_operating_mode(2)!r}")
 
+    # 7) signed decode. `Homing Offset` and the two position registers carry a negative
+    # half, and unsigned they read as ~4 G - the same "plausible but wrong" shape as the
+    # Feetech BIT15 sign bit, which reads 30,000x off and raises nothing.
+    for raw, width, want in [
+        (0xFFFFFFFF, 4, -1),
+        (0xFFFFF000, 4, -4096),
+        (0x000FFFFF, 4, 1_048_575),
+        (0xF0100000, 4, -267_386_880),
+        (0x80, 1, -128),
+        (0x7F, 1, 127),
+    ]:
+        got = sign_extend(raw, width)
+        if got != want:
+            failures.append(f"sign_extend(0x{raw:X}, {width}) = {got}, expected {want}")
+    # The two name sets key off the table; a register renamed in one place and not the
+    # other would silently stop being decoded (or stop being annotated) with no error.
+    if SIGNED_REGISTERS - set(REGISTERS):
+        failures.append(f"signed registers missing from the table: "
+                        f"{sorted(SIGNED_REGISTERS - set(REGISTERS))}")
+    if POSITION_REGISTERS - set(REGISTERS):
+        failures.append(f"position registers missing from the table: "
+                        f"{sorted(POSITION_REGISTERS - set(REGISTERS))}")
+
+    # 8) the table must stay in ascending address order. `info` prints in table order and
+    # builds its degree note from a register read earlier in the same pass, so a row
+    # inserted one address off changes what the reader is told. That exact mistake was
+    # made in the RD05T inquiry letter and was only caught by hand afterwards.
+    addresses = [addr for addr, _length, _unit in REGISTERS.values()]
+    if addresses != sorted(addresses):
+        failures.append(f"REGISTERS is not in ascending address order: {addresses}")
+
+    # 9) Sync Read (0x82). This is the transaction the robot bus actually issues
+    # (`duck-control/src/bus.rs` reads the IMU and every servo in one go, IMU first),
+    # and it has two failure modes that must stay distinguishable:
+    #   - an id that stays silent      -> None for that id, the others still returned
+    #   - an id answering an EMPTY block -> a real Status, NOT a parse failure
+    # The second is exactly what a live imu_to_dxl slave with a dead sensor side looks
+    # like (model 10200 + 12 zero bytes), so mistaking it for an error would hide the
+    # fault this repo spent a day chasing.
+    class SyncLoopback:
+        """Answers Sync Read for every id except `silent`, in the spec framing."""
+
+        def __init__(self, silent=()):
+            self.buf = bytearray()
+            self.silent = set(silent)
+            self.requests = []
+
+        def write(self, data):
+            for dxl_id, instruction, params in parse_packet(data):
+                if instruction != INST_SYNC_READ:
+                    continue
+                self.requests.append((dxl_id, params))
+                addr = params[0] | (params[1] << 8)
+                length = params[2] | (params[3] << 8)
+                for target in params[4:]:
+                    if target in self.silent:
+                        continue
+                    # id 200 answers with an all-zero block on purpose (see above).
+                    if target == IMU_DXL_ID:
+                        block = bytes(length)
+                    else:
+                        block = bytes((addr + target + i) & 0xFF for i in range(length))
+                    body = (bytes([target, (length + 4) & 0xFF, (length + 4) >> 8,
+                                   STATUS_PREFIX_BYTE, 0x00]) + block)
+                    frame = HEADER + body
+                    self.buf += frame + update_crc(0, frame).to_bytes(2, "little")
+            return len(data)
+
+        def read(self, n=1):
+            out = bytes(self.buf[:n])
+            del self.buf[:n]
+            return out
+
+        def reset_input_buffer(self):
+            pass
+
+        def close(self):
+            pass
+
+    # the instruction on the wire: broadcast + 0x82 + addr(2) + length(2) + ids
+    sync_pkt = build_packet(BROADCAST_ID, INST_SYNC_READ,
+                            bytes([124, 0, 12, 0]) + bytes([200, 20]))
+    if list(parse_packet(sync_pkt)) != [
+            (BROADCAST_ID, INST_SYNC_READ, bytes([124, 0, 12, 0, 200, 20]))]:
+        failures.append("SYNC_READ is not broadcast + 0x82 + addr(2) + length(2) + ids")
+    if update_crc(0, sync_pkt[:-2]) != (sync_pkt[-2] | (sync_pkt[-1] << 8)):
+        failures.append("SYNC_READ packet CRC does not verify")
+
+    sync = SyncLoopback(silent=[21])
+    ids = [IMU_DXL_ID, 20, 21, 22]
+    got = Bus(sync, BUS_BAUD).sync_read(ids, 124, 12)
+    if set(got) != set(ids):
+        failures.append(f"sync_read keys = {sorted(got)}, expected every requested id")
+    if got.get(21) is not None:
+        failures.append("sync_read returned a Status for the silent id 21")
+    empty = got.get(IMU_DXL_ID)
+    if empty is None or empty.params != bytes(12):
+        failures.append(f"sync_read id {IMU_DXL_ID} = "
+                        f"{empty.params.hex() if empty else None}, expected 12 zero bytes "
+                        f"- an empty block is a REPLY, not a failure")
+    if empty is not None and empty.error != 0x00:
+        failures.append(f"sync_read id {IMU_DXL_ID} error = 0x{empty.error:02X}, expected 0")
+    for dxl_id in (20, 22):
+        st = got.get(dxl_id)
+        if st is None or len(st.params) != 12:
+            failures.append(f"sync_read id {dxl_id} = {st.params.hex() if st else None}, "
+                            f"expected 12 bytes")
+    if not sync.requests or sync.requests[0][0] != BROADCAST_ID:
+        failures.append("sync_read was not addressed to the broadcast id")
+
     if failures:
         print("self-test FAILED:")
         for f in failures:
             print(f"  - {f}")
         return 1
     print("self-test OK: CRC (bitwise == table), packet round-trip, CRC rejection, "
-          "prefixed framing replay, shutdown bits, operating-mode decode")
+          "spec-form (0x55) framing replay, sync-read (broadcast shape, silent id, "
+          "empty block), shutdown bits, operating-mode decode, signed decode, "
+          "register-table order")
     return 0
 
 
@@ -841,6 +1159,8 @@ def build_parser() -> argparse.ArgumentParser:
                "  python dxl_ping.py scan  --port COM7\n"
                "  python dxl_ping.py scan  --port /dev/ttyS2 --baud 1000000,57600\n"
                "  python dxl_ping.py info  --port COM7 --id 1\n"
+               "  python dxl_ping.py read  --port COM7 --id 200 --addr 124 --length 12\n"
+               "  python dxl_ping.py sync-read --port COM7 --ids 200,20 --addr 124 --length 12\n"
                "  python dxl_ping.py probe --port COM7\n",
     )
     sub = p.add_subparsers(dest="command", required=True)
@@ -869,6 +1189,23 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--id", type=int, default=FACTORY_ID)
     sp.add_argument("--baud", type=int, default=BUS_BAUD)
     sp.set_defaults(func=cmd_info)
+
+    sp = sub.add_parser("read", help="read a raw register block from one id")
+    add_port(sp)
+    sp.add_argument("--id", type=int, required=True)
+    sp.add_argument("--addr", type=int, required=True,
+                    help="register address, e.g. 124 (the imu_to_dxl data block)")
+    sp.add_argument("--length", type=int, required=True, help="bytes to read")
+    sp.add_argument("--baud", type=int, default=BUS_BAUD)
+    sp.set_defaults(func=cmd_read)
+
+    sp = sub.add_parser("sync-read", help="Sync Read (0x82) one block across many ids")
+    add_port(sp)
+    sp.add_argument("--ids", required=True, help="comma list, e.g. 200,20,21,22,23,24")
+    sp.add_argument("--addr", type=int, required=True)
+    sp.add_argument("--length", type=int, required=True)
+    sp.add_argument("--baud", type=int, default=BUS_BAUD)
+    sp.set_defaults(func=cmd_sync_read)
 
     sp = sub.add_parser("probe", help="the official expected-id -> factory-id probe order")
     add_port(sp)

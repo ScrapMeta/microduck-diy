@@ -1,7 +1,7 @@
 ---
 title: HAT TTL 舵机测不通排查
 created: 2026-09-14
-updated: 2026-09-16
+updated: 2026-09-21
 type: concept
 tags: [hat, dynamixel, bench]
 sources:
@@ -189,7 +189,7 @@ CH2 在发包期间应变成 **发送态**，包结束后应回到 **接收态**
 §1.1 的出厂回退是**本次唯一命中路径**，**只按 1 Mbps 测会得到错误的「零回包」结论**。
 
 > **本轮先拿到过一次假阴性**：脚本 CRC 漏了 4 字节 header，`self-test` 的假舵机照抄同一错误 → 自检全绿、台架两档全静默。
-> **教训：loopback 自检只证明自洽，不证明合规**。另：本套件回包多一固定字节 `0x55`。
+> **教训：loopback 自检只证明自洽，不证明合规**。另：状态帧里的 `0x55` 是 **DXL 2.0 的 Instruction 字段**（2026-09-21 定论 → [[dxl-bench-method]] §5.1）。
 > 两坑与逐项实测 → [[dxl-bench-method]] §7 · `scripts/README.md`。
 
 ## 8. 验收与裁决

@@ -1,7 +1,7 @@
 # Wiki Index
 
 > **Agent 先读：** 本文件 · [[tasks]]（欠什么）· [[log]]（最近 30 条）· [`AGENTS.md`](../AGENTS.md)（规则）
-> 本 wiki：`wiki/` · 更新：2026-09-20
+> 本 wiki：`wiki/` · 更新：2026-09-21
 > **目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展
 > **现行焦点（2026-09-19 收拢）：** **整机装配 ＋ 供电链路**（主控/HAT/降压模块/电池 → 母线 **6.0 V**）＋ **官方软件联调**（HAT ＋ 机身 IMU ＋ 1 舵机 · 麦/喇叭）
 > （承重项仍在：HAT TTL [#11](https://github.com/ScrapMeta/microduck-diy/issues/11) —— 上总线值 ＋ `0x55` 帧定论）
@@ -13,6 +13,7 @@
 
 - [[board-imu-to-dxl]] — 总入口（1 号优先 / 2 号暂缓）
 - [[imu-to-dxl-firmware-build]] — **固件编译步骤（agent）**
+- [[imu-to-dxl-firmware-triage]] — **板级诊断与验收**（`@136` status 位 · 静默零块坑 · 逐块分类 · 2026-09-21）
 - [[imu-to-dxl-ref-bom]] — **v0.3 BOM**
 - [[imu-to-dxl-ref-schematic]] · [[imu-to-dxl-ref-chip-wiring]] · [[imu-to-dxl-ref-pcb-layout]]
 - [[imu-to-dxl-lcsc-order-2026-09-09]] — **v0.3 立创 `SO26090921960`**
@@ -36,7 +37,7 @@
 - [[microduck-diy]] · [[diy-milestones]] · [[diy-bom]]
 - [[zero3w-bench-plan]] — **现行：主控台架规划（2G · SD）**
 - [[xl330-cn-bench-kit]] — 舵机台架（✅ 通过；**基线已采集**：出厂 ID 1 / 57 600 / shutdown 53）
-- `scripts/dxl_ping.py` — **台架 DXL 只读扫/Ping/基线脚本**（Protocol 2.0 · 零依赖 · 自带 `self-test`）
+- `scripts/dxl_ping.py` — **台架 DXL 只读扫/Ping/基线/原始块/同步读脚本**（Protocol 2.0 · 零依赖 · 自带 `self-test`）
 - [[local-workspace-layout]] — **布局真源**
 - [[ros2-migration-plan]] — ROS2 并行移植规格（software 范畴）
 - [[tasks]] — **任务台账**（取代 GitHub Issue · **全员可开 / 更新 / 关**，pm 推送时归档清理）· 规则 [`AGENTS.md`](../AGENTS.md) · 角色手册 `.cursor/skills/`
@@ -46,6 +47,7 @@
 - [[xl330-cn-bench-kit]] — 国产启动套件台架（**✅ 通过**；资料后补）
 - [[xl330-vs-kpower-rd05t]] — **平替对比（评估中）**：铭牌≈等同 · 接口兼容 · 协议未证 · 台架可判定
 - [[rd05t-vendor-inquiry-2026-09-18]] — **问询函**：寄存器兼容 · **P 增益可写性** · 保护阈值（可发送件：同目录 `.pdf`，用 `scripts/md_to_pdf.py` 生成）
+- [[xl330-vs-siar-md]] — **平替对比（厂商文档已核 · 2026-09-21）**：寄存器与帧格式**都不是 XL330**（飞特 SCS 血统）· 尺寸/扭矩未给
 - [[feetech-hd-1910]] — **飞特 HD-1910 备选执行器**（规格书 A/0；订正脚序 4 处错值）· 协议 [[feetech-scs-bus]] · 已走通路线见 [[microduck-replica]]
 - [[robotis]] · [[dynamixel-xl330]] · [[robotis-xl330-order-2026-09-05]]
 - [[seeed-bearings]] · [[fastener-bom-study]]
