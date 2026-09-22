@@ -431,15 +431,15 @@
 - Asset: `imu-to-dxl-board1-32x22-placement.svg`
 - Updated: [[board-imu-to-dxl]]、[[elec-three-boards]]、[[board-interconnect]]、[[dual-imu-board-selection]]、[[diy-bom]]、[[index]]
 
-## [2026-09-09] finalize | imu-to-dxl v0.3 ��Ϣ�� + BOM
-- ���������壺**`imu-to-dxl v0.3`** �� 1 �� **32��22** �� ˫ EH �� BM07 �� DXL_BUS/DATA + D2/R6 �� R2�CR5 �� C6
-- ��д��[[imu-to-dxl-ref-bom]]������ 24 + DNP 3����� SO26090520116 ��������
-- ���£�[[imu-to-dxl-ref-schematic]]��[[imu-to-dxl-ref-pcb-layout]]��[[imu-to-dxl-ref-chip-wiring]]��[[board-imu-to-dxl]]��[[diy-bom]]��[[elec-three-boards]]��[[index]]
+## [2026-09-09] finalize | imu-to-dxl v0.3 信息卡 + BOM
+- 嘉立创定稿：**`imu-to-dxl v0.3`** · 1 号 **32×22** · 双 EH · BM07 · DXL_BUS/DATA + D2/R6 · R2–R5 · C6
+- 重写：[[imu-to-dxl-ref-bom]]（必贴 24 + DNP 3；相对 SO26090520116 增量表）
+- 更新：[[imu-to-dxl-ref-schematic]]、[[imu-to-dxl-ref-pcb-layout]]、[[imu-to-dxl-ref-chip-wiring]]、[[board-imu-to-dxl]]、[[diy-bom]]、[[elec-three-boards]]、[[index]]
 
-## [2026-09-09] finalize | hardware ���� AI-FanGe ��أ���·��
-- Handoff: `2026-09-09-pm-to-hardware-aifange-hw-eval` �� **done**
-- ���ۣ�OpenRB+Pi Zero+6V+BNO08x �� HAT+imu_to_dxl���ɽ�� EH ������**��**�ư�/����������**δ��** imu-to-dxl v0.3
-- Updated: [[aifange-microduck-build-tutorial]]��Ӳ���ӽǣ�
+## [2026-09-09] finalize | hardware 评估 AI-FanGe 电控（旁路）
+- Handoff: `2026-09-09-pm-to-hardware-aifange-hw-eval` → **done**
+- 结论：OpenRB+Pi Zero+6V+BNO08x ≠ HAT+imu_to_dxl；可借鉴 EH 线束；**无**制板/订单阻塞；**未改** imu-to-dxl v0.3
+- Updated: [[aifange-microduck-build-tutorial]]（硬件视角）
 ## [2026-09-09] handoff | AI-FanGe · structure mech eval
 - sw/hw handoffs: done (pm reviewed)
 - open: `handoffs/2026-09-09-pm-to-structure-aifange-mech-eval.md` (links sw/hw siblings)
@@ -458,30 +458,27 @@
 - Active focus: imu-to-dxl v0.3 BOM/schematic/PCB + interconnect + diy-bom
 
 
-## [2026-09-09] ingest | imu-to-dxl v0.3 ���� BOM/����
-- Assets: `imu-to-dxl-PCB1-BOM-lcsc-BOM260909006112-20260909.xls` �� `lcsc-order-SO26090921960-20260909.xls`
+## [2026-09-09] ingest | imu-to-dxl v0.3 立创 BOM/订单
+- Assets: `imu-to-dxl-PCB1-BOM-lcsc-BOM260909006112-20260909.xls` · `lcsc-order-SO26090921960-20260909.xls`
 - Raw: `lcsc-imu-to-dxl-v03-bom-order-so26090921960-2026-09-09.md`
 - Concept: [[imu-to-dxl-lcsc-order-2026-09-09]]
-- **�ж���** ���� `SO26090921960` = diy v0.3 ʵ����ͬ�� BOM �䵥 `BOM260909006112` = **replica ��**���� v0.3 ���Դ��
-- ȱ�ڣ�**BM07B J2 δ��**
-- Updated: [[imu-to-dxl-ref-bom]]��[[diy-bom]]��[[index]]
+- **判定：** 订单 `SO26090921960` = diy v0.3 实购；同日 BOM 配单 `BOM260909006112` = **replica 料**（勿当 v0.3 设计源）
+- 缺口：**BM07B J2 未订**
+- Updated: [[imu-to-dxl-ref-bom]]、[[diy-bom]]、[[index]]
 
-## [2026-09-09] correct | v0.3 ���� BOM �䵥��
-- �û���������ȷ�䵥 **`BOM260909006316`**��`imu_to_dxl_ref_��_PCB1_1_20260909_194740`��
+## [2026-09-09] correct | v0.3 立创 BOM 配单号
+- 用户纠正：正确配单 **`BOM260909006316`**（`imu_to_dxl_ref_…_PCB1_1_20260909_194740`）
 - Asset: `imu-to-dxl-v03-BOM-lcsc-BOM260909006316-20260909.xls`
 - Prior `BOM260909006112` was replica misfile (not v0.3 SoT)
 - J2 matched **C160393** (BM07); order `SO26090921960` still missing it
 - Updated: [[imu-to-dxl-lcsc-order-2026-09-09]], [[imu-to-dxl-ref-bom]], [[imu-to-dxl-ref-chip-wiring]], [[diy-bom]]
 
-## [2026-09-09] sync | imu-to-dxl v0.3 hardware ? repo/wiki
-- Handoff `2026-09-09-pm-to-hardware-imu-to-dxl-v03-sync` ? **done** (unlocks software)
+## [2026-09-09] sync | imu-to-dxl v0.3 hardware → repo/wiki
+- Handoff `2026-09-09-pm-to-hardware-imu-to-dxl-v03-sync` → **done** (unlocks software)
 - SoT: `hardware/imu_to_dxl_ref_2026-08-30_18-59-47.eprj2`; pin map: `imu_to_dxl/docs/hardware.md` v0.3
-- Path: junction `imu_to_dxl` ? `microduck_imu_to_dxl` (lceda still locks rename)
+- Path: junction `imu_to_dxl` → `microduck_imu_to_dxl` (lceda still locks rename)
 - firmware/ untouched; USART1 PA11/PA12 documented for software
 - Updated: [[board-imu-to-dxl]], [[imu-to-dxl-ref-chip-wiring]], [[imu-to-dxl-ref-schematic]], [[microduck-diy]], [[local-workspace-layout]]
-- ��ǰ `BOM260909006112` Ϊ replica �󴫣����� v0.3 Դ
-- J2 ����ƥ�� **C160393**��BM07�������� `SO26090921960` ��ȱ����
-- Updated: [[imu-to-dxl-lcsc-order-2026-09-09]]��[[imu-to-dxl-ref-bom]]��[[imu-to-dxl-ref-chip-wiring]]��[[diy-bom]]
 
 ## [2026-09-10] cleanup | handoffs → workspace root
 - Moved `microduck-diy/handoffs/` → `D:\projects\microduck\handoffs/` (local work tickets; not diy repo)
@@ -1313,3 +1310,210 @@
 - **既有瑕疵（未修 · 不是本次引入）** —— 端口打不开时（如 `--port COM99`）`main()` 只接 `RuntimeError`，pyserial 的 `SerialException` 会**打整个 traceback**；`scan` / `info` 一直如此
 - **校验** —— `dxl_ping.py self-test` 绿（含新第 9 组）· `wiki_lint` 63 页 0 error / 2 warning · `refs_lint` 78 文件 327 引用 0 error · `lint_selftest` 8/8
 - Updated: `scripts/dxl_ping.py` · `scripts/README.md` · [[imu-to-dxl-firmware-triage]] · [[index]] · `.cursor/skills/microduck-software/SKILL.md` · `log.md`
+
+## [2026-09-22] structure | power_support / banana_pcb_locker 电池仓口袋实测（尺寸）
+
+- **由来** —— Human 问：这两件夹住的「电源小板」应该多大 · 香蕉插头开孔位 · 出线槽位
+- **做法** —— `temp/banana-power-measure/`：从 `robot_walk.xml` 取 `trunk_base` 的 `pos`/`quat` 把 STL 装进**装配系**（mm）· 射线求表面 X / 切片求轮廓与孔
+- **实测（装配系 · X 越负越靠外）** —— locker 是 **1.50 薄弧板**（X -32.30…-30.80，外形 53.06×6.65）· 两个 **Ø2.16** 孔 @ Y **±25.00** / Z **36.07**（孔距 50.00），正对 power_support 的 **Ø1.5~1.6 自攻底孔** → **判定为 M2 螺钉孔**；两个 **定位耳** @ Y ±16.90（33.80）凸 2.30，落进 power_support 两个槽
+- **净空** —— 口袋 X -30.80…-23.00（7.80 深）× Z 33.40…38.40（5.00 高，向上开口）× Y ±23.5（47.0）；两侧 |Y|>23.5 有料 → **两个螺钉孔在口袋之外**
+- **出线** —— locker 上缘缺口 Y -11.35…+3.20 / Z 34.60…38.10 · power_support 立板通口 Y -9.75…+1.75 / Z **34.75…38.50**（两处对齐）
+- **电池** —— 端面 X -25.08，电极面两块 Z 20.08…31.32（孔 Ø1.56 @ Y ±14.60 / Z 25.46）；立板在电极前方**实心**，只余 **2.08 缝**
+- **未拍板（停给 Human）** —— 板放哪一面（口袋 / 电池端面缝）· 「两个孔」到底指哪两个 · GC2011 从哪儿出 → 结论未定前**不落 PCB 外形**
+- **校验** —— 待 `wiki_lint`
+- Updated: `wiki/concepts/mechanical-power-pocket.md` · [[index]] · `log.md`
+
+## [2026-09-22] structure | 电池仓口袋：Human 定了口径（横躺搁台 + locker 两个孔）
+
+- **Human 裁决** —— 板**横躺在搁台顶（Z 33.40）**；功能孔用 **locker 那两个 Ø2.16（Y ±25.00 / Z 36.07）**
+- **补测（逐 0.25 mm 精扫，修正上一条的 47.0）** —— 口袋宽度**随 Z 收窄**：
+Z 33.40…34.50 → **±25.00（50.0）** · 34.50…35.00 → ±24.5 · 35.00…35.50 → ±24.0 · **35.50…38.00 → ±22.0（44.0）**
+X 可用深仍 **7.80**（板内面 -30.80 → 立板外面 -23.00）
+- **板外形上限** —— **50.0 × 7.80**；厚 1.0 mm 可吃满 50.0，厚 1.6 mm 收到 ≤ 49.0
+- **两孔位置关系** —— 孔在板上方外侧：孔轴 **Z 36.07** 比板面高 1.6…2.7 mm → **插座/弹片本体不能直接板装**，
+由 locker 孔卡住本体、短线落到板上；孔位在板外缘（-30.80）正外方，Y **±25.00**
+- **出线** —— 走板内缘，窗口 **Y -9.75 … +1.75**（中心 Y ≈ -4.0）· Z 34.75…38.50
+- **仍未闭环** —— 两个 Ø2.16 孔同时正对 power_support 的 **Ø1.6 自攻底孔**（原用途更像 M2 螺钉孔）；
+且 locker 板内面与凸台面**同在 -30.80** → **板夹不进两件之间**（已写进页内结论段）
+- **校验** —— 待 `wiki_lint`
+- Updated: `wiki/concepts/mechanical-power-pocket.md` · `log.md`
+
+
+## [2026-09-22] hardware | T-01 整机装配完成 · 降压模块全退（装机改走官方 2S 直供口径）
+- **由来（Human · 原文口径）**：T-01 已完成；**降压模块不要了 · 全部退**；**舵机按官方方案把超压报警关闭**；**7.4 V 上电测试正常**；**没上电池测试**
+- **台账**：T-01 `执行` → `完成`（`**完成**：` · 落点 [[bench-power-supply]]）。本次**只关 T-01**，T-13 / T-05 未动（见「交回」）
+- **作废的是哪条定案**：**2026-09-18「整机母线 6.0 V（电池 → 降压模块 → HAT）」** —— 模块退场后装机**不再有 6 V 那一级**，改走官方 **2S 直供**（[[np-f550-battery]] → HAT `+BATT`）
+- **本轮实测 / 未验（不替它补细节）**
+  - **7.4 V 上电正常**：构型 · 进电口 · 限流值 · 舵机回包证据**均未给** → 本页不臆补
+  - **未上电池** → 满电 **8.4 V 未验**；[[dynamixel-xl330]] §「母线电压天花板」的「**8.4 V 无寄存器解**」**不受影响**（那是**寄存器能力**结论，非口径偏好）
+  - 「关超压报警」按 wiki 口径 = 清 `Shutdown(63)` bit0（**不锁** torque off）；`Hardware Error Status(70)` bit0 ＋ Alert `0x80` **仍会置位** → 属**静默超压**。**改了哪几台 / 是否就是写 52 未记录** → 装机前逐台 `scripts/dxl_ping.py info` 复核读回
+- **物料**：降压模块（5 V/15 A ×1 · 6 V/4 A ×2）**全退** → [[diy-bom]] §E 改「已退」；**不建实体页** —— 2026-09-19 pm 曾把「降压模块型号页」改派 hardware，**随退场作废**
+- **改页**：[[bench-power-supply]]（装机口径段）· [[dynamixel-xl330]]（项目内用法 ＋ `Shutdown` 注）· [[diy-bom]] §E（三页 `updated` 均 bump 至 09-22）
+- **未改 · 交回 Human（跨域或需拍板，本角色不代签）**
+  - **T-13**（电池 → **降压模块** → HAT 上电 · 三种模块型号/纹波）· **T-05**（直供 vs **降压**对照表）：**被测物 / 对照臂都没了** → 关闭 或 重定义为「2S 直供链路测试」，**由 Human 定**
+  - **跨域口径**：[[index]] 焦点 ① ＋ `tasks.md` **目标行**的「母线 6.0 V」· [[diy-milestones]] 版本口径 · [[dxl-bench-method]] §1 电压行的**依据** · [[bam-identification-bench]]「**辨识 vin 必须 6.0 V**」—— 整机运行点一变，**辨识电压跟着变**（sim / software 域）
+  - **对外件**：[[rd05t-vendor-inquiry-2026-09-18]] **C 节前提**（「运行点 = 6.0 V」）＋ [[xl330-vs-kpower-rd05t]] §4.3 的降级理由 —— T-10 正卡在**寄出**，**口径未定前勿按 6.0 V 发**
+  - **技能手册**：`.cursor/skills/microduck-hardware/SKILL.md`「台架铁律」的「**永不给 7.4 V**」（该条成立于出厂 `Shutdown=53`；bit0 一旦清掉 ＋ 走官方口径，须改写）
+- **另记（本页文件健康 · 未擅自修）**：末条（09-22 structure 电池仓）在盘上是**非 UTF-8 字节**（偏移 ≈178 786 起 · 23 行）→ 人读乱码，而 `wiki_lint` 按 `errors="replace"` 解码**不报错**；另有 09-09 的 8 行（434–484）早已被写成 **U+FFFD**（中文永久丢失，可从 git 历史回捞）。疑因追加时按 cp936 写盘。**历史行一行未动**
+
+## [2026-09-22] structure | 更正：口袋不是 50 宽（撤回上条数值，双法互验重测）
+
+- **由来** —— Human 追问「为什么 50 × 7.6？保守点 47.5 × 7.5？」
+- **自我纠错** —— 首测的 50.0 是**错的**：那批图用了 **0.5 mm 步距 ＋ `multiple_hits=False` 批量射线**，
+该组合在这一带不可靠（同点位单射线复核差 1～3 mm）；且把 `locker` 的**孔心 Y ±25.00** 误当成了**净空**
+- **重测方法（双法互验）** —— ① 单射线逐点扫（Y 0.1 / Z 0.1）② `mesh.contains` 独立点判；两法结论一致
+- **实测结论** —— 板底必须 ≥ **Z 33.50**（搁台顶 33.374…33.470 起伏）；
+可用宽随**板顶高度**收窄：≤34.2 → **48.4** · 34.5 → 47.4 · 35.0 → 46.6 · **35.4…36.8 → 42.0（硬台阶）**
+- **建议外形** —— t=1.0 → **47.0 × 7.4**（X -30.50…-23.10）· t=1.6 → **46.0 × 7.4** · t≥2.0 → 41.5 × 7.4；
+保 47.5 则两个上角倒 0.3×0.3（Z 34.3…35.3 侧壁 45° 内收）
+- **两条通道更正** —— `locker` 的 **Ø2.16 在口袋之外**（最宽 48.4 板边缘只到 ±24.2，中间隔一道肋
+\|Y\| 24.3…25.6、X 贯穿全深）；但 **Z 35.4…36.8 外侧 \|Y\| 24.2…25.8 是空的**，正好给插头/弹片本体，
+中央 ±21 反被实体占住 → 设计意图是「本体走 ±25 两条外侧通道，板两端引线」
+- **未动（守边界）** —— 未落任何 PCB 外形 / 封装；`refs/` 只读；未碰电控与固件
+- **校验** —— 待 `wiki_lint`
+- Updated: `wiki/concepts/mechanical-power-pocket.md` · `log.md`
+
+## [2026-09-22] hardware | T-01 收口：口径定案 2S 直供 · T-13/T-05 挂起 · 跨域交中立
+- **Human 2026-09-22 三项决定**（回应上一条末尾的「交回」）：
+  1. **装机母线口径正式定案 = 官方 2S 直供**（标称 7.4 V / 满电 8.4 V）→ wiki **停用「装机 6.0 V」**。**已知未验：满电 8.4 V 没实测过**
+  2. **T-13 / T-05 = 挂起**（状态不动）—— 只在「说明」开头标 **`前提已变（2026-09-22）· 待定`**，写清哪条验收失去依据。注意 **T-05 原写的「8.4 V 超规程验证、不作装机口径」已翻转**：2S 直供现在**就是**装机口径
+  3. **跨域收口 → 中立会话**（Human 另开会话）：[[index]] 焦点 / 优先级 · `tasks.md` 目标行 · [[diy-milestones]] · [[dxl-bench-method]] §1 的依据 · [[bam-identification-bench]] 辨识电压 · [[rd05t-vendor-inquiry-2026-09-18]] C 节 · [[xl330-vs-kpower-rd05t]] §4.3 · [[microduck-replica]] 对比 —— **hardware 不越界**
+- **改页**：`tasks.md`（T-13 · T-05 说明）· [[bench-power-supply]]（补「本页只改硬件域 + 其余归中立」一句）
+- **仍悬**：**台架 / BAM 辨识电压**继续 6.0 V 还是随整机走 7.4 V —— 两说都通，已并入中立会话的口径决定；未收口前那些页**别当现行**
+- 校验：`wiki_lint` 64 页 · **0 error**
+
+## [2026-09-22] hardware | T-04 / T-05 / T-13 一并关闭（同族收口 · 随 2S 直供口径）
+- **由来（Human）**：T-04 · T-05 · T-13 **属于相关问题 · 已解决** → 关闭
+- **T-04 关闭**（`阻塞` → `完成`）：与 T-05 **同族**（共用接线）· Human 判已解决。**原验收未逐项留证** —— `0x55` **来源** / 写 ID·波特率后 **1 Mbps 复验** / 示波器 / 限流分级 **均无证据可引** → **不补假勾选**；现行只读探针 ＋「回包多一固定字节」判别已固化在 `scripts/dxl_ping.py` ＋ `scripts/README.md`（2026-09-16）
+- **T-05 关闭**（`阻塞` → `完成`）：**对照臂（降压）全退** ＋ **2S 直供自 09-22 起即装机口径** → 「直供 vs 降压」**无对照物**；关保护后的失败模式**未测**，已作为待复核项留在 [[dynamixel-xl330]]
+- **T-13 关闭**（`执行` → `完成`）：被测物（三种降压模块）**全退** → 型号 / 额定 / 纹波三项**无对象**，验收整体失依据
+- **台账现状**：待办 3（T-03 · T-06 · T-07）· **执行 1（T-02）** · 阻塞 4（T-09–T-12）· 完成 4（T-01 · T-04 · T-05 · T-13）
+- **连带解除**：原注「**台架类阻塞（T-04 · T-05）之间是串行**，只有本人能签」随两条关闭**失效** → 已在 [[tasks]] 阻塞段改为关闭注记（原文留在 git 历史）
+- **新增一项给中立收口**：[[index]] 头部「承重项仍在：HAT TTL [#11](https://github.com/ScrapMeta/microduck-diy/issues/11) —— 上总线值 ＋ `0x55` 帧定论」**随 T-04 关闭已失效**，与「母线 6.0 V」那批同属中立会话的口径清理
+- **未做（守边界）**：未动 GitHub Issue（#1–#11 已冻结只读）· 未改写 T-04 原验收行（留 git 历史）· 未替 Human 补 `0x55` 结论
+- 校验：`wiki_lint` 64 页 · **0 error**
+
+## [2026-09-22] structure | 尺寸图落图 + 两孔定性（Ø1.70 盲孔 = M2 螺钉孔）
+
+- **由来** —— Human 回「可以」，接上条「画成一张尺寸图」
+- **落图** —— `temp/banana-power-measure/j2_board_drawing.png`
+A 俯视（板 47.0×7.4×1.0 · 出线窗 · 两孔轴线）＋ B 正视（口袋剖面 · 宽度上限阶梯线）
+- **补测定性（改写结论）** —— 逐点单射线 ＋ Z/Y 二维切片互验：
+`power_support` 在 **\|Y\|=25.00 / Z≈36.07** 有 **Ø1.70 × 7.80 深盲孔**（X -30.80→-23.00），
+与 locker 的 Ø2.16 通孔**同轴** → 教科书式「螺钉过孔 ＋ 自攻底孔」= **M2 螺钉孔**
+- **据此撤回上条** —— 上条说的「Z 35.4…36.8 外侧 \|Y\| 24.2…25.8 是空的、正好给插头本体」
+是**我读错**：盲孔只朝外侧开口，内端被立板封死；口袋侧壁在 \|Y\| 24.2…25.8（Z 32.5…36.9）是实体。
+**板与这两孔没有任何通路**（板最宽 48.4 → 边缘 ±24.2）
+- **工具坑（已写进 wiki）** —— `trimesh.contains` 在这块网格上给出错误内外判定，**不可单独采信**；
+可靠组合 = 单射线（multiple_hits=True）＋ `mesh_plane` 二维切片
+- **未动（守边界）** —— 未落任何 PCB 外形 / 封装 / 器件选型（属 hardware）；`refs/` 只读
+- **校验** —— 待 `wiki_lint`
+- Updated: `wiki/concepts/mechanical-power-pocket.md` · `log.md`
+
+## [2026-09-22] structure | 板口径定案（方案 A）：47.0 × 7.4 × 1.0 · 两孔回归 M2
+
+- **由来** —— Human 在 A/B/C 三选一中选 **A**
+- **定案** —— 板 **47.0（Y）× 7.4（X）× 1.0（Z）**，放 X -30.50…-23.10 / Z 33.50…34.50，
+出线走内缘 Y -9.75…+1.75；**locker 两个 Ø2.16 孔回归 M2 螺钉**（不再作电气功能孔）
+- **配套选型建议** —— **M2×6 TAP ×2**（穿 1.50 板厚 + 咬入约 4.5 mm 的 Ø1.70×7.80 底孔），
+与 `fastener-bom-study` 的「电池门 M2×2 / 6 mm」一致
+- **附带实测** —— 板上元件高度上限：\|Y\| ≤ 21 → 约 **3.8 mm**；21…23.5 → **仅 0.9 mm**
+（Z 35.4…36.8 口袋收到 ±21）→ 高元件必须落中间带
+- **交回 Human 的未闭环项** —— 「电池弹片 / 香蕉插头」的机械落点未定：实测**无任何**从口袋到
+电池电极面或那两孔的路径（立板 Z 20…31 全实心；孔腔只朝外侧开口）。需 Human 选：
+① 功能件缩到中间带另找取电路径；② 改 `power_support`（属改件，须先列范围）
+- **未动（守边界）** —— 未落 PCB 外形 / 封装 / 器件选型（属 hardware）；`refs/` 只读
+- **校验** —— 待 `wiki_lint`
+- Updated: `wiki/concepts/mechanical-power-pocket.md` · `log.md`
+
+## [2026-09-22] pm | T-10 关闭：Human 自行处理（不走台账跟踪）
+
+- **由来** —— Human 指令：T-10 关闭，寄出与回函**本人自行处理**；需要归档时再提供资料
+- **台账** —— `tasks.md`：T-10 行由 `阻塞` 迁入`完成`（`**关闭**：`）；阻塞表下 2026-09-21 那条 `>` 注（源已订正 · PDF 已重生）随行收口，要点保留在关闭行「说明」＋本条
+- **留存口径** —— **寄出用 09-21 重生件**（09-18 旧 PDF 勿用）；回函结论**若**要入库仍落 [[xl330-vs-kpower-rd05t]]
+- **未做** —— 未 commit · 未 push · 未建 Issue（归档动作等 Human 资料）
+- **校验** —— ✅ `wiki_lint` · `refs_lint` · `lint_selftest` 三台全绿；warning 仍只有 2 条已批准例外
+- Updated: `wiki/tasks.md` · `log.md`
+
+## [2026-09-22] pm | 发现 `log.md` 局部乱码（2329 处 U+FFFD）—— 未修复，等 Human 定夺
+
+- **发现** —— 收口 T-10 时读 `log.md` 尾部，中文渲染成乱码；**不是显示问题**：按字节数到 **2329** 个 `EF BF BD`（U+FFFD 占位符），文件本身 UTF-8 无 BOM
+- **范围** —— 全仓只有 `wiki/log.md` 中招（其余页 0 处）；**85 行**受影响：**18 行**在 HEAD 里已经如此（行 434–484 · 2026-09-09 那几条，**已提交**）· **67 行**属**未提交新增**（行 1316–1430 · 2026-09-22 structure 的四条）
+- **成因（判断）** —— 写盘走了非字节通道（`Get-Content` / `Set-Content` 一类）：中文按 ANSI 解 → 再按 UTF-8 写回，**信息已丢**（占位符替换，不是字符集错位）—— 正是 pm 手册「写盘纪律」警告的那类；**页面正文没丢**（`mechanical-power-pocket` 等 0 处乱码，只有流水条目中招）
+- **未修复（原因）** —— 修 = **覆盖** `log.md` ＋ 重建文字（红线「覆盖」）→ 先列范围，等 Human 定夺
+- **可选恢复源** —— ① 18 行旧账：`git log` 里更早的版本（`log.md` 已 51 次提交）可能留原文；② 今天 67 行：会话流水 `agent-transcripts/` 里可能留着当时写入的原文
+- **机械检查缺失** —— U+FFFD 与机器无关、可机械判，按理该进 `scripts/wiki_lint.py`（＋ selftest 探针）；**但文件现在就不合规 → 加规则即变红**，故**先不改脚本**
+- Updated: `log.md`
+
+## [2026-09-22] hardware | T-11 关闭：闲鱼批 14 台到齐 ＋ 测试完成 · 装机 15 台配齐
+- **由来（Human）**：T-11 **到齐 · 已测试完成** → 关闭
+- **事实**：**闲鱼批 14 台到齐**（**5 国产组装 ＋ 9 原厂**，原预计 09-21）· **测试完成** → 装机 **15 台 = 闲鱼 14 ＋ 现有 1** **配齐**；原厂直邮单 [[robotis-xl330-order-2026-09-05]] 仍**延误**（10 月中旬可能发 → 到货**转备件**）
+- **未留证（不补假勾选）**：T-11 原验写的三项落点 —— **逐台 `dxl_ping.py info` 基线** · **国产组装 vs 原厂差异**（本应进本页/[[dynamixel-xl330]]）· **料号** —— **wiki 与仓内无任何证据**，故只在「未留证」处挂名，不臆造数值
+- **改页**：[[tasks]]（T-11 `阻塞` → `完成` 表）· [[diy-bom]] §C 舵机行（预计到货 → **✅ 到齐 09-22 · 测试完成**）· [[dynamixel-xl330]] 采购表（**新增「闲鱼批 14」一行**；Robotis 直邮行补「转备件」）
+- **台账现状**：待办 3（T-03 · T-06 · T-07）· **执行 1（T-02）** · 阻塞 3（T-09 · T-10 · T-12）· 完成 5（T-01 · T-04 · T-05 · T-11 · T-13）
+- **最简版本必勾进度**（该行只钉编号，故自动跟随）：**T-01 ✅ · T-11 ✅ · T-13 ✅ / T-04 ✅ · T-05 ✅** —— 余 **T-02 · T-03 · T-12 · T-06 · T-07**
+- **新增一项给中立收口**：[[index]] 现行优先级 ③ 写「**闲鱼批舵机到货后**装 15 台整机」—— **「到货」这一半已成事实**，该条须改写（与「母线 6.0 V」「承重项 #11」同属那批口径清理）
+- 校验：`wiki_lint` 64 页 · **0 error**
+
+## [2026-09-22] correct | 上一条 T-11 的「台账现状」计数作废（T-10 已由 pm 同日关闭）
+- **为何作废** —— T-11 那条里的计数是**按旧读数**写的，落笔时 `T-10` 已由 pm 迁入 `完成`（见本页同日 pm 记录）
+- **现行** —— 待办 **3**（T-03 · T-06 · T-07）· 执行 **1**（T-02）· 阻塞 **2**（T-09 · T-12）· 完成 **6**（T-01 · T-04 · T-05 · **T-10** · T-11 · T-13）
+- **另一处更正** —— T-01 那条记的「`log.md` 末端为非 UTF-8 字节」**已不复存在**：现文件为**纯 UTF-8**，全页 **2329** 处 `U+FFFD`（既成事实 · 不可回填），处置见 pm 同日记录
+- **提示（对外件 · 硬件域侧）** —— T-10 转 Human 自行处理后，[[rd05t-vendor-inquiry-2026-09-18]] **C 节前提仍写「运行点 = 6.0 V」**；若该函已按旧口径发出，**母线口径改定（2S 直供）后需自行判断是否补正**（本角色不越界改对外件）
+- 校验：`wiki_lint` 64 页 · **0 error**
+
+## [2026-09-22] pm | 查 `log.md` 乱码的恢复源（只查不改）—— 10 块都有原文候选
+
+- **成因定论（有证据）** —— 会话流水里能看到两处写盘都是 `Add-Content -Path … -Value @"…"@`（PowerShell 默认 ANSI）：把 GBK 字节写进 UTF-8 文件 → 之后按 UTF-8 读 → U+FFFD 占位符 —— **09-09 与 09-22 两次同一机制**
+- **连带损伤** —— 非 GBK 字符被换成 ASCII `?`（`→` `Ø` `×` `±`）→ 现行条目里的 `?` **不是问号**，是被毁的字符
+- **恢复源** —— ① 仓内 git 历史：**无干净版本**（最早那次提交的 `log.md` 就带 225 处）；② 会话流水 `agent-transcripts/`：**10 块全部找到写入时的 payload**（9/10 与现行**等长**，相似度 0.92–1.000）
+- **未决（要 Human 判）** —— 块 4（`correct`）现行是「中文头 ＋ 英文尾」混合 vs 候选全中文；块 5（`sync`）现行**多 3 行**（`correct` 的中文尾巴重复挂在 `sync` 之下）→ **这两块不是纯字符替换**
+- **未动（原因）** —— 恢复 = 覆盖 `log.md`（红线）；且 **09-22 那 5 块未提交，git 里没有原件 → 动手前必须先留备份**
+- **交付物** —— `temp/_pm_recovered/restore_01..10.md`（现行 / 候选 / 逐行差异）· `temp/_pm_recovery_plan.txt`
+- **若日后补机械检查** —— 判据 = 文件出现 U+FFFD（与机器无关、可机械判）；该进 `scripts/wiki_lint.py` ＋ selftest 探针，但**文件现在就不合规 → 加规则即变红**，故仍未动
+- Updated: `log.md`
+
+## [2026-09-22] hardware | T-06 重定义：`structure` 竖装 → `hardware` 改板（IMU 板改版 ＋ 新增电池板）
+- **由来（Human）**：T-06 改成「**修改 imu 板子、增加电池板**」，**角色 = `hardware`**
+- **变更**（`T-06` 号**不变** —— 台账「`T-nn` 不复用」，**随行走状态**；故 [[tasks]] 顶部「最简版本必勾编号」一整行**天然跟得上**，不必回抄）：
+  - **名称**：`机身 IMU 改竖装 power_support 背板` → **`IMU 板改版 ＋ 新增电池板`**
+  - **角色**：`structure` → **`hardware`**
+  - **落点**：`imu_to_dxl/hardware/`（EasyEDA Pro 工程）＋ [[board-imu-to-dxl]] ＋ `imu-to-dxl-ref-*` 四件套（BOM / 原理图 / 芯片接线 / 实布），**不再是** [[mechanical-bom-rl]] / [[board-interconnect]] §1
+  - **状态**：仍 `待办`
+- **包络已有真源**：结构侧 2026-09-22 实测已把这块板的机械口径定死 → [[mechanical-power-pocket]]（**47.0 × 7.4 × 1.0 mm** · 搁台上 · **高元件只允许 \|Y\| ≤ 21 中间带**（两端 >0.9 mm 就撞口袋收口）· **出线走内缘 X=-23.10 侧、Y -9.75…+1.75**）→ 电气侧**照此画**即可，无需重测
+- **该页留的两条未闭环（与本任务直接相关）**：① 电池弹片 / 香蕉插头**机械落点未定**（立板在电极面前全实心 · 两个 Ø2.16 孔与板不通）→ 可能方向「功能件缩到中间带另找取电路径」或「**改 `power_support`**（打通盲孔 / 开侧槽 —— 属**改件，须先列范围再批**）」；② 板厚 1.0 换 1.6 需两上角各倒 0.3×0.3
+- **未跟随（交回 Human）**：原 T-06 的 **`structure` 域验收**（竖装**孔位**与**所需线长**写回 [[mechanical-bom-rl]] · [[board-interconnect]] §1）**没有搬到新任务** —— 若仍需，属 `structure` **另开条目**（本角色不代开）
+- **待 Human 给**：**IMU 板「改什么」**（改竖装孔位 / 尺寸 / 取电路径并入？）· **电池板是什么**（口袋取电板 ↔ 对应 [[mechanical-power-pocket]] 的 47.0×7.4×1.0？还是别的形态）· **数量**。**未给前不收窄**（台账准入：无界验收先收窄才准立项）
+- **红线提示**：`power_support` 打通盲孔 / 开侧槽属**改件**；**制板 / 贴片下单**须 Human 签。本角色**未动任何设计文件 · 未下单**
+- 校验：`wiki_lint` 64 页 · **0 error**
+
+## [2026-09-22] pm | `log.md` 乱码恢复（已授权 8 块 · 块 4/5 留待定）
+
+- **授权** —— Human 选「**只修能确定的 8 块**（块 4/5 留原样），**改前留备份**」
+- **备份** —— `temp/_pm_backup/log.md.bak-before-restore`（改前逐字节副本 —— git 里没有这些未提交行，故必须另存）
+- **做法** —— 逐行外科式替换：只重写「脏行」（含 U+FFFD，或含被毁非 ASCII 留下的 `?`）；行级对齐用 `difflib.get_opcodes` 的 replace 区**按位配对**；守卫 = 候选行 ASCII 骨架 vs 现行行去 `?` 后的骨架 —— 相等直改，**≥0.85 放宽并记账**（GBK 解码会凭空多出 ASCII 字符），更低**拦下不猜**
+- **结果** —— 改 **80 行 / 8 块**（放宽 21 行 · 相似 0.909–0.998）· 守卫拦下 **0** · 未映射脏行 **0** · **U+FFFD 2329 → 60**（余 60 处全在块 4/5 的 5 行：469 · 470 · 482 · 483 · 484）
+- **恢复源** —— 会话流水 `agent-transcripts/` 里**写入时的 payload**（09-09 与 09-22 两次写盘各 5 块）
+- **未做（守边界）** —— 块 4（`correct`：中文头 ＋ 英文尾混排）· 块 5（`sync` 之下多 3 行重复中文尾）**不动**，等 Human 判终态；未动 `scripts/wiki_lint.py`；未 commit / 未 push
+- **校验** —— ✅ `wiki_lint`（64 页 · 0 error · 2 warning）· `refs_lint`（79 文件 · 334 引用 · 0 error）· `lint_selftest` 8/8；文件 UTF-8 **无 BOM** · 全 CRLF
+- **备查** —— 清单 ＋ 预检：`temp/_pm_recovered/README.md` · 干跑报告：`temp/_pm_restore_dryrun.txt`
+- Updated: `log.md`
+
+## [2026-09-22] pm | `log.md` 乱码收尾：块 4/5 定案 → U+FFFD 全页归零
+
+- **接上一条** —— 上一条记的「余 60 处 · 块 4/5 留待定」由本条收口；**授权** = Human 选「**块 4 保现行**（中文头 ＋ 英文尾，只补回中文头两行）· **块 5 删那 3 行重复**」
+- **原文来源（不手打）** —— 直接从会话流水 `agent-transcripts/215e6fae-…` 里**那次写盘命令本身**取原文：块 4 = 那条 `Add-Content` payload 的头两行；块 5 = 那次 `StrReplace` 的 `new_string`
+- **落地** —— ① 块 4：补回 ``## [2026-09-09] correct | v0.3 立创 BOM 配单号`` ＋ ``- 用户纠正：正确配单 **`BOM260909006316`**（`imu_to_dxl_ref_…_PCB1_1_20260909_194740`）``，英文尾四行原样保留；② 块 5：`?` → `→` 三处（标题 / handoff / Path junction）＋ 删掉挂在 `sync` 之下的 3 行重复中文尾
+- **一处口径（有意为之）** —— 原文里是**双反引号**（那次写盘自己的风格）；本次按**全页现行口径归一为单反引号** —— 改动前全页双反引号计数为 **0**，且只有单反引号会被 `refs_lint` 纳入仓内路径检查（本条下面那对双反引号只当**行内引用定界符**用）
+- **结果** —— **U+FFFD 60 → 0**（全页归零 · 1504 → 1501 行）· 备份 `temp/_pm_backup/log.md.bak-before-fix45`（逐字节）
+- **仍悬（本角色不越界）** —— 给 `scripts/wiki_lint.py` 加「U+FFFD = error」判据：**现文件已合规、此时可加**；但脚本属规则面 —— 须 Human 拉起中立会话，pm 只报事实（判据本身与机器无关、可机械判，故适合进 linter ＋ selftest 探针）
+- 校验：`wiki_lint` 64 页 · **0 error** · 2 warning（= 两条已批准例外）
+
+## [2026-09-22] pm | 台账完成行归档 #15（6 行）＋ push main
+
+- **批次** —— 「完成」表 **6 行**（T-01 · T-04 · T-05 · T-10 · T-11 · T-13）→ Issue [#15](https://github.com/ScrapMeta/microduck-diy/issues/15)（**开完即关** · 无标签 · 无 Milestone · 不作路由）
+- **顺序** —— ① 开 ＋ 关 Issue → ② 从 `tasks.md` 删除该 6 行 → ③ 本条（**归档这个动作只记这里**，`tasks.md` 不留占位行）→ ④ commit ＋ push
+- **随本次 push 一并落地** —— 另有他人的本地提交 `450d2c8`（software 板级诊断 ＋ `dxl_ping`）· `f420bcd`（pm 读盘纪律）；以及**别的角色留在工作树、未提交的 wiki 改动**：[[bench-power-supply]]（装机改 **2S 直供**）· [[diy-bom]]（舵机到齐 ＋ 降压模块全退）· [[dynamixel-xl330]] · 新页 [[mechanical-power-pocket]] ＋ `index.md` 导航 —— 它们在 `wiki/` 内，且 `index.md` 已链到新页，**分开提交会让远端留死链**，故随本次一并提交
+- **推送前预检（只记不判）** —— `450d2c8` 里**顺带带了 `cad/microduck_rl_assembly_a1mini.3mf`**（19,330,868 → 19,316,061 B）：按手册「**大小变了 = 真改动**」不作噪声拦下，但**它在 software 域的提交里** → 属「别人的领地混进提交」，登记备查
+- **未跟随（Human 已分派他处）** —— [[index]] 顶部「现行焦点」等页的 **6.0 V → 2S 直供**口径同步归**中立会话**收口，本角色不代改
+- Updated: `tasks.md` · `log.md`

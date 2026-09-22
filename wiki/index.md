@@ -1,7 +1,7 @@
 # Wiki Index
 
 > **Agent 先读：** 本文件 · [[tasks]]（欠什么）· [[log]]（最近 30 条）· [`AGENTS.md`](../AGENTS.md)（规则）
-> 本 wiki：`wiki/` · 更新：2026-09-21
+> 本 wiki：`wiki/` · 更新：2026-09-22
 > **目标：** 官方原方案完美复刻 · 官方生态完美适配 · 生态内扩展
 > **现行焦点（2026-09-19 收拢）：** **整机装配 ＋ 供电链路**（主控/HAT/降压模块/电池 → 母线 **6.0 V**）＋ **官方软件联调**（HAT ＋ 机身 IMU ＋ 1 舵机 · 麦/喇叭）
 > （承重项仍在：HAT TTL [#11](https://github.com/ScrapMeta/microduck-diy/issues/11) —— 上总线值 ＋ `0x55` 帧定论）
@@ -57,7 +57,7 @@
 
 - [[microduck]] · [[opensource-coverage]] · [[imu-to-dxl-v2]]（官方契约，未开源板）
 - [[pollen-robotics]] · [[hugging-face]] · [[apirrone]] · [[rhoban]]
-- [[mechanical-bom-rl]] · [[print-bom-rl]] · [[better-actuator-models-bam]] · [[bam-identification-bench]]
+- [[mechanical-bom-rl]] · [[print-bom-rl]] · [[mechanical-power-pocket]]（电池仓口袋实测）· [[better-actuator-models-bam]] · [[bam-identification-bench]]
 - [[radxa-zero-3w]] · [[radxa]] · [[np-f550-battery]] · [[imx219-camera]] · [[vl53-tof]]
 - [[system-flash-armbian]] · [[firmware-flash-matrix]] · [[bench-power-supply]]
 - [[microduck-releases]]

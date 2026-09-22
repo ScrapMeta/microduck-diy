@@ -1,7 +1,7 @@
 ---
 title: 任务台账
 created: 2026-09-19
-updated: 2026-09-21
+updated: 2026-09-22
 type: index
 tags: [index, workspace]
 ---
@@ -60,30 +60,23 @@ tags: [index, workspace]
 | 编号 | 名称 | 角色 | 说明 |
 |---|---|---|---|
 | **T-03** | 新焊 3 块 HAT ＋ 分步测试 | `hardware` | 每块走 [[hat-solder-kit]] §4 全流程；**顺带勾掉该页两处旧欠项**（i2c `0x18` 明细 · J1 喇叭出声）。板料件齐，可在台架等待间隙做 |
-| **T-06** | 机身 IMU 改竖装 `power_support` 背板 | `structure` | 竖装不干涉电池 / 腿 / 线束；孔位与所需线长写回 [[mechanical-bom-rl]] · [[board-interconnect]] §1 |
+| **T-06** | IMU 板改版 ＋ 新增电池板 | `hardware` | ① **imu_to_dxl 板修改** ② **电池板（新板）**。口袋机械包络**已由结构侧定**：[[mechanical-power-pocket]]（**47.0 × 7.4 × 1.0** · 高件只能落 \|Y\| ≤ 21 中间带 · 出线走内缘 Y -9.75…+1.75）· 落 `imu_to_dxl/hardware/` ＋ [[board-imu-to-dxl]] · **改动项 / 板职责与数量待 Human 给**（未给前不收窄）· **制板下单另签**（红线） |
 | **T-07** | 手柄冒烟 | `software` | Xbox（在手）· 亚博智能 PS2（待试）**逐键对齐**官方 `refs/microduck/configd/src/pad.rs` 按键表；结论落新页 |
 
 ## 执行（WIP）
 
 | 编号 | 名称 | 角色 | 说明 |
 |---|---|---|---|
-| **T-01** | 整机装配：主控 / HAT / 降压模块 / 电池叠装 | `hardware` | 叠装顺序与固定方式成文 · 电池 → 降压模块 → HAT 4P 的**线束走线与所需线长**记录（对 [[board-interconnect]]）· **不上电**试装一次 |
 | **T-02** | 官方软件部署联调：HAT ＋ 机身 IMU ＋ 1 舵机 | `software` | 官方 daemon 起得来 · 总线上**同时**认到 **ID 200** ＋ **ID 1** · 麦录一段 ＋ J1 喇叭出声 · 失败留 dmesg ＋ 退出码 |
-| **T-13** | 供电链路装配测试：电池 → 降压模块 → HAT 4P 上电 | `hardware` | 母线 **6.0 V** 实测 · 三种降压模块**型号 / 额定 / 纹波**各一遍 · **上电须 human 签** · 落 [[bench-power-supply]] |
 
 ## 阻塞
 
 | 编号 | 名称 | 角色 | 说明 |
 |---|---|---|---|
-| **T-04** | HAT TTL：写总线值 ＋ `0x55` 帧异常定论（原 [#11](https://github.com/ScrapMeta/microduck-diy/issues/11)） | `hardware` | **阻塞**：需 human 到台架 ＋ 上电。U2D2 ＋ Wizard 交叉验证 `0x55` **来源**（附原始帧）· 写 ID / 波特率后 **1 Mbps** 复验 · 示波器 · 限流分级 |
-| **T-05** | 直供对照：电池直进 HAT 4P ＋ `Shutdown` 清 bit0（= 52） | `hardware` | **阻塞**：与 T-04 **共用接线**，台架类**串行**。直供 vs 降压对照表 · **8.4 V 超规程验证、不作装机口径** · 关保护后的失败模式 |
 | **T-09** | 宿主工具链清理（开发机 · 系统级） | `human` | **阻塞**：卡提权（HKLM / 机器 PATH 要管理员）。清两条死路径 ＋ HKLM `PythonCore\3.8` · `Python39` 与 `miniconda3` 留删**待定** · 关商店 `python3` 别名 |
-| **T-10** | RD05T 问询函发出 ＋ 回函落 wiki | `human` | **阻塞**：等寄出（PDF 已出）。回函结论进 [[xl330-vs-kpower-rd05t]] |
-| **T-11** | 闲鱼舵机到货清点 ＋ 装机（14 台） | `hardware` | **阻塞**：等货，**09-21** 到。逐台 `scripts/dxl_ping.py info` 采基线 · 国产组装 vs 原厂差异进 [[dynamixel-xl330]] · 按 [[board-interconnect]] ID 图装机 · 料号落 [[diy-bom]] §C |
 | **T-12** | ToF / 喇叭到货：功能 ＋ 外形实测 | `software` ＋ `structure` | **阻塞**：等货，**09-23** 到。喇叭 **3525 4 Ω 3 W** 接 **J1** 出声 · VL53**L8CX** 试 `0x29` / `0x52` · 外形实测写回 [[hat-solder-kit]] §6.3 · [[vl53-tof]] · 料号进 [[diy-bom]] §E |
 
-> **台架类阻塞（T-04 · T-05）之间是串行**，不是并行 —— 只有本人能签，排顺序 ≠ 能同时推。
-> **T-10 追加（2026-09-21）**：问询函**源已订正**（`PWM Slope` 一格「上电缓启动」→「输出电压斜坡」），**PDF 已于同日重生** —— **寄出时勿用 09-18 那份旧 PDF**。
+> **台架类阻塞（T-04 · T-05）已于 2026-09-22 一并关闭** —— 原「两者串行 · 只有本人能签」的排队约束随之解除（原文留在 git 历史里）。
 
 ## 完成
 

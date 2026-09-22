@@ -1,7 +1,7 @@
 ---
 title: Dynamixel XL330
 created: 2026-08-30
-updated: 2026-09-21
+updated: 2026-09-22
 type: entity
 tags: [servo, dynamixel]
 sources:
@@ -27,9 +27,9 @@ Microduck **15 关节**执行器。典型 **XL330-M288-T**：20×34×26 mm，18 
 - 仿真摩擦：[[better-actuator-models-bam]] 有 **XL330-288-T** 模型
 - 实机母线：官方常跟 [[np-f550-battery]]（约 6.6–8.2 V），**高于手册 6.0 V 上限**。  
   **DIY 实测（2026-09-15）：** ~**7.2 V** 红灯持续闪（过压报警）；~**6.5 V** 上电闪一下后正常。  
-  **装机定案（2026-09-18）：机身降压模块稳在 6.0 V 长期运行** —— 6.0 V 正是手册工作区**上限**（推荐 5.0 V），
-  取上限换扭矩（0.60 / 0.52 N·m），代价是**对模块超调无余量**；6.5 V 仅为**台架曾用值**。
-  粗线进 HAT，见 [[body-imu-hat-dxl-power-eval]]。  
+  **装机口径定案（Human 2026-09-22）：降压模块全退，装机走官方 2S 直供** —— 6.0 V 那一级不做了；
+  舵机侧按官方方案**关掉过压锁**（清 `Shutdown(63)` bit0），**7.4 V 上电实测正常 · 未上电池**（满电 8.4 V 未验）。
+  下面「母线电压天花板」的**寄存器结论不受影响**（那是能力上限，不是口径偏好）。粗线进 HAT，见 [[body-imu-hat-dxl-power-eval]]。  
   官方 2S 直供**能跑**的机制是 `robotd` 写 `shutdown=52`（**清掉** bit0 Input Voltage Error）——即**关掉过压保护**，不是解决了电压；见下「母线电压天花板」。
 
 ## 手册要点（XL330-M288 · 权威）
@@ -103,7 +103,9 @@ PWM Slope(62) and be forwarded to the motor's inverter.* —— 即**每一次 P
 
 > **推论（重要）**：官方整机在 2S 上跑，靠的是**清掉 bit0**，不是解决了电压。
 > 谁把 `shutdown` 改回出厂 **53**，谁就把机器人变成「满电不能用」。
-> 台架那颗 CN 舵机**现在就是 53**（2026-09-16 实测）→ 母线一旦超 7.0 V 即 torque off。
+> 台架那颗 CN 舵机**当时是 53**（2026-09-16 实测）→ 母线一旦超 7.0 V 即 torque off。
+> **2026-09-22 追加**：Human 已按官方方案把过压锁关掉（`Shutdown(63)` bit0 → 0）；
+> **改了哪几台 / 是否就是写 52**未记录 → 装机前逐台 `scripts/dxl_ping.py info` 复核读回值。
 
 **哪个限幅生效取决于 `Operating Mode(11)`**（默认 **3**，`robotd` 不写它）：
 
@@ -118,7 +120,8 @@ PWM Slope(62) and be forwarded to the motor's inverter.* —— 即**每一次 P
 ## DIY 采购 / 台架
 | 路径 | 说明 |
 |------|------|
-| Robotis 直邮 | 订单 **B260905014MP**：15× · [[robotis-xl330-order-2026-09-05]] |
+| Robotis 直邮 | 订单 **B260905014MP**：15× · [[robotis-xl330-order-2026-09-05]] · **延误**（预计 10 月中旬可能发 → 到货**转备件**） |
 | **CN 台架** | **XL330-M288-T-CN** + 国产 U2D2/PHB · [[xl330-cn-bench-kit]]（**✅ 通过** · 明细后补） |
+| **闲鱼批 14** | 5 国产组装 ＋ 9 原厂 · **2026-09-22 到齐** · **测试完成** · 装机 **15 台**（含现有 1）→ [[diy-bom]] §C；**逐台基线 / 国产 vs 原厂差异未入 wiki**（T-11 关闭时未留证） |
 
 相关：[[diy-bom]] · [[xl330-cn-bench-kit]] · [[robotis-xl330-order-2026-09-05]] · [[robotis]] · [[body-imu-hat-dxl-power-eval]]
